@@ -1,0 +1,57 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - uses: actions/checkout@v4
+
+      # Step 2: Setup Flutter SDK
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.1' # Ganti sesuai versi Flutter kamu
+
+      # Step 3: Cache Flutter dependencies
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Step 5: Check code formatting
+      - name: Check formatting
+        run: flutter format --set-exit-if-changed .
+
+      # Step 6: Analyze project source
+      - name: Analyze code
+        run: flutter analyze
+
+      # Step 7: Run unit/widget tests
+      - name: Run tests
+        run: flutter test
+
+      # Step 8: Build APK
+      - name: Build APK
+        run: flutter build apk --release
+
+      # Step 9: Upload APK as artifact
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
