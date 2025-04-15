@@ -45,13 +45,13 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      # Step 8: Build APK
-      - name: Build APK
-        run: flutter build apk --release
+      # # Step 8: Build APK
+      # - name: Build APK
+      #   run: flutter build apk --release
 
-      # Step 9: Upload APK as artifact
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+      # # Step 9: Upload APK as artifact
+      # - name: Upload APK
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: release-apk
+      #     path: build/app/outputs/flutter-apk/app-release.apk
