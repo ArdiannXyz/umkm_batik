@@ -2,10 +2,10 @@
 -- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Apr 14, 2025 at 06:48 AM
--- Server version: 8.0.30
--- PHP Version: 8.3.19
+-- Host: localhost:3306
+-- Waktu pembuatan: 16 Apr 2025 pada 15.00
+-- Versi server: 8.0.30
+-- Versi PHP: 8.3.16
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,28 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `activity_logs`
---
-
-CREATE TABLE `activity_logs` (
-  `id` int NOT NULL,
-  `user_id` int DEFAULT NULL,
-  `activity` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `activity_logs`
---
-
-INSERT INTO `activity_logs` (`id`, `user_id`, `activity`, `created_at`) VALUES
-(1, 3, 'Menambahkan ulasan untuk produk ID 1', '2025-03-19 15:34:43'),
-(2, 4, 'Menambahkan ulasan untuk produk ID 2', '2025-03-19 15:34:43');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `banners`
+-- Struktur dari tabel `banners`
 --
 
 CREATE TABLE `banners` (
@@ -58,7 +37,7 @@ CREATE TABLE `banners` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `banners`
+-- Dumping data untuk tabel `banners`
 --
 
 INSERT INTO `banners` (`id`, `image_url`, `title`, `description`, `link`, `created_at`) VALUES
@@ -67,7 +46,7 @@ INSERT INTO `banners` (`id`, `image_url`, `title`, `description`, `link`, `creat
 -- --------------------------------------------------------
 
 --
--- Table structure for table `categories`
+-- Struktur dari tabel `categories`
 --
 
 CREATE TABLE `categories` (
@@ -77,7 +56,7 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `categories`
+-- Dumping data untuk tabel `categories`
 --
 
 INSERT INTO `categories` (`id`, `nama`, `created_at`) VALUES
@@ -88,7 +67,7 @@ INSERT INTO `categories` (`id`, `nama`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `favorites`
+-- Struktur dari tabel `favorites`
 --
 
 CREATE TABLE `favorites` (
@@ -99,7 +78,7 @@ CREATE TABLE `favorites` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `favorites`
+-- Dumping data untuk tabel `favorites`
 --
 
 INSERT INTO `favorites` (`id`, `user_id`, `product_id`, `created_at`) VALUES
@@ -110,77 +89,54 @@ INSERT INTO `favorites` (`id`, `user_id`, `product_id`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `notifications`
+-- Struktur dari tabel `orders`
 --
 
-CREATE TABLE `notifications` (
+CREATE TABLE `orders` (
   `id` int NOT NULL,
-  `user_id` int DEFAULT NULL,
-  `message` text,
-  `type` enum('order','promo','info') DEFAULT 'info',
-  `is_read` tinyint(1) DEFAULT '0',
+  `user_id` int NOT NULL,
+  `waktu_order` datetime DEFAULT CURRENT_TIMESTAMP,
+  `status` enum('pending','paid','shipped','completed','cancelled') DEFAULT 'pending',
+  `total_harga` decimal(10,2) NOT NULL,
+  `alamat_pemesanan` text,
+  `metode_pengiriman` varchar(100) DEFAULT NULL,
+  `notes` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Dumping data for table `notifications`
---
-
-INSERT INTO `notifications` (`id`, `user_id`, `message`, `type`, `is_read`, `created_at`) VALUES
-(1, 3, 'Produk favorit Anda kembali tersedia!', 'info', 0, '2025-03-19 15:34:43'),
-(2, 4, 'Promo diskon 20% untuk semua batik!', 'promo', 0, '2025-03-19 15:34:43');
-
---
--- Triggers `notifications`
---
-DELIMITER $$
-CREATE TRIGGER `save_notification_history` AFTER INSERT ON `notifications` FOR EACH ROW BEGIN
-    INSERT INTO notification_history (user_id, message, type, created_at)
-    VALUES (NEW.user_id, NEW.message, NEW.type, NOW());
-END
-$$
-DELIMITER ;
-
 -- --------------------------------------------------------
 
 --
--- Table structure for table `notification_history`
+-- Struktur dari tabel `order_items`
 --
 
-CREATE TABLE `notification_history` (
+CREATE TABLE `order_items` (
   `id` int NOT NULL,
-  `user_id` int DEFAULT NULL,
-  `message` text,
-  `type` enum('order','promo','info') DEFAULT 'info',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `notification_history`
---
-
-INSERT INTO `notification_history` (`id`, `user_id`, `message`, `type`, `created_at`) VALUES
-(1, 3, 'Produk favorit Anda kembali tersedia!', 'info', '2025-03-19 15:34:43'),
-(2, 4, 'Promo diskon 20% untuk semua batik!', 'promo', '2025-03-19 15:34:43');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `price_history`
---
-
-CREATE TABLE `price_history` (
-  `id` int NOT NULL,
-  `product_id` int DEFAULT NULL,
-  `old_price` decimal(10,2) DEFAULT NULL,
-  `new_price` decimal(10,2) DEFAULT NULL,
-  `changed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+  `order_id` int NOT NULL,
+  `product_id` int NOT NULL,
+  `kuantitas` int NOT NULL,
+  `harga` decimal(10,2) NOT NULL,
+  `subtotal` decimal(10,2) GENERATED ALWAYS AS ((`kuantitas` * `harga`)) STORED
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `products`
+-- Struktur dari tabel `payments`
+--
+
+CREATE TABLE `payments` (
+  `id` int NOT NULL,
+  `order_id` int NOT NULL,
+  `metode_pembayaran` varchar(100) DEFAULT NULL,
+  `status_pemnbayaran` enum('pending','paid','failed','refunded') DEFAULT 'pending',
+  `waktu_pembayaran` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `products`
 --
 
 CREATE TABLE `products` (
@@ -198,7 +154,7 @@ CREATE TABLE `products` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `products`
+-- Dumping data untuk tabel `products`
 --
 
 INSERT INTO `products` (`id`, `nama`, `deskripsi`, `harga`, `stok`, `status`, `rating`, `whatsapp_link`, `seller_id`, `category_id`, `created_at`) VALUES
@@ -207,7 +163,7 @@ INSERT INTO `products` (`id`, `nama`, `deskripsi`, `harga`, `stok`, `status`, `r
 (3, 'Batik Parang', 'Motif bergelombang khas Keraton Yogyakarta.', 300000.00, 5, 'available', 4.8, 'https://wa.me/6281234567891', 2, 3, '2025-03-19 15:34:43');
 
 --
--- Triggers `products`
+-- Trigger `products`
 --
 DELIMITER $$
 CREATE TRIGGER `track_price_change` BEFORE UPDATE ON `products` FOR EACH ROW BEGIN
@@ -222,7 +178,7 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `product_images`
+-- Struktur dari tabel `product_images`
 --
 
 CREATE TABLE `product_images` (
@@ -232,7 +188,7 @@ CREATE TABLE `product_images` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `product_images`
+-- Dumping data untuk tabel `product_images`
 --
 
 INSERT INTO `product_images` (`id`, `product_id`, `image_url`) VALUES
@@ -246,7 +202,7 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_url`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `reviews`
+-- Struktur dari tabel `reviews`
 --
 
 CREATE TABLE `reviews` (
@@ -257,10 +213,10 @@ CREATE TABLE `reviews` (
   `komentar` text,
   `is_verified` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `reviews`
+-- Dumping data untuk tabel `reviews`
 --
 
 INSERT INTO `reviews` (`id`, `product_id`, `user_id`, `rating`, `komentar`, `is_verified`, `created_at`) VALUES
@@ -268,7 +224,7 @@ INSERT INTO `reviews` (`id`, `product_id`, `user_id`, `rating`, `komentar`, `is_
 (2, 2, 4, 4, 'Motifnya menarik, tapi agak mahal.', 1, '2025-03-19 15:34:43');
 
 --
--- Triggers `reviews`
+-- Trigger `reviews`
 --
 DELIMITER $$
 CREATE TRIGGER `log_user_activity` AFTER INSERT ON `reviews` FOR EACH ROW BEGIN
@@ -289,7 +245,7 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `seller_reviews`
+-- Struktur dari tabel `seller_reviews`
 --
 
 CREATE TABLE `seller_reviews` (
@@ -299,41 +255,12 @@ CREATE TABLE `seller_reviews` (
   `rating` int DEFAULT NULL,
   `komentar` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `stock_history`
---
-
-CREATE TABLE `stock_history` (
-  `id` int NOT NULL,
-  `product_id` int DEFAULT NULL,
-  `user_id` int DEFAULT NULL,
-  `change_type` enum('increase','decrease') DEFAULT NULL,
-  `amount` int DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Triggers `stock_history`
---
-DELIMITER $$
-CREATE TRIGGER `update_product_stock` AFTER INSERT ON `stock_history` FOR EACH ROW BEGIN
-    IF NEW.change_type = 'increase' THEN
-        UPDATE products SET stok = stok + NEW.amount WHERE id = NEW.product_id;
-    ELSE
-        UPDATE products SET stok = stok - NEW.amount WHERE id = NEW.product_id;
-    END IF;
-END
-$$
-DELIMITER ;
-
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Struktur dari tabel `users`
 --
 
 CREATE TABLE `users` (
@@ -348,7 +275,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table `users`
+-- Dumping data untuk tabel `users`
 --
 
 INSERT INTO `users` (`id`, `nama`, `email`, `password`, `no_hp`, `role`, `avatar`, `created_at`) VALUES
@@ -357,74 +284,25 @@ INSERT INTO `users` (`id`, `nama`, `email`, `password`, `no_hp`, `role`, `avatar
 (3, 'Customer 1', 'customer1@umkm.com', 'password_customer1', '081234567892', 'customer', 'customer1.jpg', '2025-03-19 15:34:43'),
 (4, 'Customer 2', 'customer2@umkm.com', 'password_customer2', '081234567893', 'customer', 'customer2.jpg', '2025-03-19 15:34:43');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `wishlist`
---
-
-CREATE TABLE `wishlist` (
-  `id` int NOT NULL,
-  `user_id` int DEFAULT NULL,
-  `nama` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `wishlist`
---
-
-INSERT INTO `wishlist` (`id`, `user_id`, `nama`, `created_at`) VALUES
-(1, 3, 'Wishlist Saya', '2025-03-19 15:34:43'),
-(2, 4, 'Wishlist Batik Favorit', '2025-03-19 15:34:43');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `wishlist_items`
---
-
-CREATE TABLE `wishlist_items` (
-  `id` int NOT NULL,
-  `wishlist_id` int DEFAULT NULL,
-  `product_id` int DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `wishlist_items`
---
-
-INSERT INTO `wishlist_items` (`id`, `wishlist_id`, `product_id`) VALUES
-(1, 1, 1),
-(2, 1, 2),
-(3, 2, 3);
-
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `activity_logs`
---
-ALTER TABLE `activity_logs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `banners`
+-- Indeks untuk tabel `banners`
 --
 ALTER TABLE `banners`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `categories`
+-- Indeks untuk tabel `categories`
 --
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `nama` (`nama`);
 
 --
--- Indexes for table `favorites`
+-- Indeks untuk tabel `favorites`
 --
 ALTER TABLE `favorites`
   ADD PRIMARY KEY (`id`),
@@ -432,28 +310,29 @@ ALTER TABLE `favorites`
   ADD KEY `product_id` (`product_id`);
 
 --
--- Indexes for table `notifications`
+-- Indeks untuk tabel `orders`
 --
-ALTER TABLE `notifications`
+ALTER TABLE `orders`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `notification_history`
+-- Indeks untuk tabel `order_items`
 --
-ALTER TABLE `notification_history`
+ALTER TABLE `order_items`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `price_history`
---
-ALTER TABLE `price_history`
-  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_id` (`order_id`),
   ADD KEY `product_id` (`product_id`);
 
 --
--- Indexes for table `products`
+-- Indeks untuk tabel `payments`
+--
+ALTER TABLE `payments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_id` (`order_id`);
+
+--
+-- Indeks untuk tabel `products`
 --
 ALTER TABLE `products`
   ADD PRIMARY KEY (`id`),
@@ -461,14 +340,14 @@ ALTER TABLE `products`
   ADD KEY `category_id` (`category_id`);
 
 --
--- Indexes for table `product_images`
+-- Indeks untuk tabel `product_images`
 --
 ALTER TABLE `product_images`
   ADD PRIMARY KEY (`id`),
   ADD KEY `product_id` (`product_id`);
 
 --
--- Indexes for table `reviews`
+-- Indeks untuk tabel `reviews`
 --
 ALTER TABLE `reviews`
   ADD PRIMARY KEY (`id`),
@@ -476,7 +355,7 @@ ALTER TABLE `reviews`
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `seller_reviews`
+-- Indeks untuk tabel `seller_reviews`
 --
 ALTER TABLE `seller_reviews`
   ADD PRIMARY KEY (`id`),
@@ -484,210 +363,138 @@ ALTER TABLE `seller_reviews`
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `stock_history`
---
-ALTER TABLE `stock_history`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `product_id` (`product_id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `users`
+-- Indeks untuk tabel `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
 
 --
--- Indexes for table `wishlist`
---
-ALTER TABLE `wishlist`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `wishlist_items`
---
-ALTER TABLE `wishlist_items`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `wishlist_id` (`wishlist_id`),
-  ADD KEY `product_id` (`product_id`);
-
---
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT untuk tabel yang dibuang
 --
 
 --
--- AUTO_INCREMENT for table `activity_logs`
---
-ALTER TABLE `activity_logs`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `banners`
+-- AUTO_INCREMENT untuk tabel `banners`
 --
 ALTER TABLE `banners`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `categories`
+-- AUTO_INCREMENT untuk tabel `categories`
 --
 ALTER TABLE `categories`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `favorites`
+-- AUTO_INCREMENT untuk tabel `favorites`
 --
 ALTER TABLE `favorites`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `notifications`
+-- AUTO_INCREMENT untuk tabel `orders`
 --
-ALTER TABLE `notifications`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `notification_history`
---
-ALTER TABLE `notification_history`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `price_history`
---
-ALTER TABLE `price_history`
+ALTER TABLE `orders`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `products`
+-- AUTO_INCREMENT untuk tabel `order_items`
+--
+ALTER TABLE `order_items`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `payments`
+--
+ALTER TABLE `payments`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `products`
 --
 ALTER TABLE `products`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `product_images`
+-- AUTO_INCREMENT untuk tabel `product_images`
 --
 ALTER TABLE `product_images`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT for table `reviews`
+-- AUTO_INCREMENT untuk tabel `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT for table `seller_reviews`
+-- AUTO_INCREMENT untuk tabel `seller_reviews`
 --
 ALTER TABLE `seller_reviews`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `stock_history`
---
-ALTER TABLE `stock_history`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `users`
+-- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT for table `wishlist`
---
-ALTER TABLE `wishlist`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `wishlist_items`
---
-ALTER TABLE `wishlist_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- Constraints for dumped tables
+-- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
 --
 
 --
--- Constraints for table `activity_logs`
---
-ALTER TABLE `activity_logs`
-  ADD CONSTRAINT `activity_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `favorites`
+-- Ketidakleluasaan untuk tabel `favorites`
 --
 ALTER TABLE `favorites`
   ADD CONSTRAINT `favorites_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `favorites_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `notifications`
+-- Ketidakleluasaan untuk tabel `orders`
 --
-ALTER TABLE `notifications`
-  ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+ALTER TABLE `orders`
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
--- Constraints for table `notification_history`
+-- Ketidakleluasaan untuk tabel `order_items`
 --
-ALTER TABLE `notification_history`
-  ADD CONSTRAINT `notification_history_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
 
 --
--- Constraints for table `price_history`
+-- Ketidakleluasaan untuk tabel `payments`
 --
-ALTER TABLE `price_history`
-  ADD CONSTRAINT `price_history_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+ALTER TABLE `payments`
+  ADD CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `products`
+-- Ketidakleluasaan untuk tabel `products`
 --
 ALTER TABLE `products`
   ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`seller_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `products_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
 
 --
--- Constraints for table `product_images`
+-- Ketidakleluasaan untuk tabel `product_images`
 --
 ALTER TABLE `product_images`
   ADD CONSTRAINT `product_images_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `reviews`
+-- Ketidakleluasaan untuk tabel `reviews`
 --
 ALTER TABLE `reviews`
   ADD CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `seller_reviews`
+-- Ketidakleluasaan untuk tabel `seller_reviews`
 --
 ALTER TABLE `seller_reviews`
   ADD CONSTRAINT `seller_reviews_ibfk_1` FOREIGN KEY (`seller_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `seller_reviews_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `stock_history`
---
-ALTER TABLE `stock_history`
-  ADD CONSTRAINT `stock_history_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `stock_history_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `wishlist`
---
-ALTER TABLE `wishlist`
-  ADD CONSTRAINT `wishlist_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `wishlist_items`
---
-ALTER TABLE `wishlist_items`
-  ADD CONSTRAINT `wishlist_items_ibfk_1` FOREIGN KEY (`wishlist_id`) REFERENCES `wishlist` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `wishlist_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
