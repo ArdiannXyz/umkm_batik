@@ -6,6 +6,8 @@ import '../widgets/product_card.dart';
 import 'notifikasi_page.dart'; // Import halaman Notifikasi
 
 class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
+
   @override
   _DashboardPageState createState() => _DashboardPageState();
 }
@@ -34,9 +36,12 @@ class _DashboardPageState extends State<DashboardPage> {
           });
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Dashboard"),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favoritku"),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: "Batik terbaik"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard), label: "Dashboard"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.favorite), label: "Favoritku"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.star), label: "Batik terbaik"),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Setting"),
         ],
       ),
@@ -46,21 +51,55 @@ class _DashboardPageState extends State<DashboardPage> {
 
 // Halaman Dashboard utama
 class DashboardView extends StatelessWidget {
+  const DashboardView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Column(
         children: [
+          const SizedBox(height: 20),
+
+          // Foto profil dan ucapan sambutan
+          Row(
+            children: [
+              const SizedBox(width: 20), // Padding kiri
+              CircleAvatar(
+                radius: 40,
+                backgroundImage: AssetImage('assets/images/ado.jpg'),
+              ),
+              const SizedBox(width: 15), // Jarak antara foto dan teks
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    "Hi Ado,",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "Selamat datang",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.blue[50],
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Lanjutkan isi halaman...
+
                   // Search Bar & Notification
                   Row(
                     children: [
@@ -79,14 +118,13 @@ class DashboardView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-
-                      // Icon Notifikasi dengan Navigasi ke NotifikasiPage
                       IconButton(
                         icon: const Icon(Icons.notifications, size: 30),
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => NotifikasiPage()),
+                            MaterialPageRoute(
+                                builder: (context) => NotifikasiPage()),
                           );
                         },
                       ),
@@ -101,11 +139,11 @@ class DashboardView extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  // Grid Produk
                   Expanded(
                     child: GridView.builder(
                       itemCount: 4,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,

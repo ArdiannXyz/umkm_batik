@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../helper/database_helper.dart';
-import '../models/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
@@ -12,8 +13,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  final DatabaseHelper _dbHelper = DatabaseHelper();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   void _register() async {
     String name = _nameController.text.trim();
@@ -22,42 +23,55 @@ class _RegisterPageState extends State<RegisterPage> {
     String password = _passwordController.text.trim();
     String confirmPassword = _confirmPasswordController.text.trim();
 
-    if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Semua field harus diisi!"), backgroundColor: Colors.red),
-      );
+    if (name.isEmpty ||
+        email.isEmpty ||
+        phone.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      _showMessage("Semua field harus diisi!", isError: true);
       return;
     }
 
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Password tidak cocok!"), backgroundColor: Colors.red),
-      );
+      _showMessage("Password tidak cocok!", isError: true);
       return;
     }
 
-    User newUser = User(name: name, email: email, phone: phone, password: password);
-    await _dbHelper.insertUser(newUser);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('name', name);
+    await prefs.setString('email', email);
+    await prefs.setString('phone', phone);
+    await prefs.setString('password', password);
 
+    _showMessage("Registrasi berhasil!");
+
+    // Delay lalu arahkan ke halaman login
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pushReplacementNamed(context, '/');
+    });
+  }
+
+  void _showMessage(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Registrasi berhasil!"), backgroundColor: Colors.green),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+      ),
     );
-
-    Navigator.pushNamed(context, '/');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // Mencegah overflow saat keyboard muncul
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag, // Menutup keyboard saat scroll
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 50), // Tambahkan padding agar tidak terlalu rapat
+            padding: const EdgeInsets.symmetric(vertical: 50),
             child: Container(
-              width: 350,
+              width: MediaQuery.of(context).size.width * 0.9,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -68,81 +82,52 @@ class _RegisterPageState extends State<RegisterPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  const Text(
-                    "Buat akun anda",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Buat akun anda",
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      Image.asset(
+                        'assets/images/griyabatik_hitam.png',
+                        width: 40,
+                        height: 40,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                   const Text("Nama Lengkap"),
                   TextField(
                     controller: _nameController,
-                    decoration: InputDecoration(
-                      hintText: "Masukkan nama lengkap",
-                      filled: true,
-                      fillColor: Colors.blue[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                    decoration: _inputDecoration("Masukkan nama lengkap"),
                   ),
                   const SizedBox(height: 15),
                   const Text("Email"),
                   TextField(
                     controller: _emailController,
-                    decoration: InputDecoration(
-                      hintText: "Masukkan email anda",
-                      filled: true,
-                      fillColor: Colors.blue[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                    decoration: _inputDecoration("Masukkan email anda"),
                   ),
                   const SizedBox(height: 15),
                   const Text("No.hp"),
                   TextField(
                     controller: _phoneController,
-                    decoration: InputDecoration(
-                      hintText: "Masukkan handphone anda",
-                      filled: true,
-                      fillColor: Colors.blue[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                    decoration: _inputDecoration("Masukkan handphone anda"),
                   ),
                   const SizedBox(height: 15),
                   const Text("Password"),
                   TextField(
                     controller: _passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: "Masukkan password anda",
-                      filled: true,
-                      fillColor: Colors.blue[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                    decoration: _inputDecoration("Masukkan password anda"),
                   ),
                   const SizedBox(height: 15),
                   const Text("Konfirmasi Password"),
                   TextField(
                     controller: _confirmPasswordController,
                     obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: "Ulangi password anda",
-                      filled: true,
-                      fillColor: Colors.blue[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                    decoration: _inputDecoration("Ulangi password anda"),
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
@@ -153,7 +138,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
                       onPressed: _register,
-                      child: const Text("Daftar", style: TextStyle(color: Colors.white)),
+                      child: const Text("Daftar",
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -166,7 +152,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           onPressed: () {
                             Navigator.pushNamed(context, '/');
                           },
-                          child: const Text("Masuk sekarang!", style: TextStyle(color: Colors.blue)),
+                          child: const Text("Masuk sekarang!",
+                              style: TextStyle(color: Colors.blue)),
                         ),
                       ],
                     ),
@@ -176,6 +163,18 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      filled: true,
+      fillColor: Colors.blue[50],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(5),
+        borderSide: BorderSide.none,
       ),
     );
   }

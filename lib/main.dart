@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/dashboard_page.dart';
+import 'pages/lupa_password.dart';
+import 'pages/masuk_otp.dart';
+import 'pages/ganti_password.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +22,10 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LoginPage(),
         '/register': (context) => RegisterPage(),
+        '/forgot-password': (context) => ForgotPasswordPage(),
         '/dashboard': (context) => DashboardPage(),
+        '/masuk-otp': (context) => MasukOtpPage(),
+        '/ganti-password': (context) => GantiPasswordPage(),
       },
     );
   }

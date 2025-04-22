@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProductCard extends StatelessWidget {
+  const ProductCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -21,8 +24,8 @@ class ProductCard extends StatelessWidget {
           // Gambar Produk
           ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-            child: Image.network(
-              'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Batik-Indonesia.jpg/640px-Batik-Indonesia.jpg',
+            child: Image.asset(
+              'assets/images/ado2.jpg',
               height: 100,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -32,7 +35,8 @@ class ProductCard extends StatelessWidget {
           // Nama Produk
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text("Batik Jeruk", style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text("Batik Jeruk",
+                style: TextStyle(fontWeight: FontWeight.bold)),
           ),
 
           // Rating & Bookmark
@@ -55,7 +59,8 @@ class ProductCard extends StatelessWidget {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                 onPressed: () {},
-                child: Text("Berikan Rating", style: TextStyle(color: Colors.white)),
+                child: Text("Berikan Rating",
+                    style: TextStyle(color: Colors.white)),
               ),
             ),
           ),
