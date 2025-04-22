@@ -47,7 +47,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git diff --cached --quiet || (git commit -m "chore: auto-format code via CI" && git push)
+          git diff --cached --quiet || (git commit -m "chore: auto-format code via CI" && git push || true)
 
       # Step 7: Analyze code
       - name: Analyze code
