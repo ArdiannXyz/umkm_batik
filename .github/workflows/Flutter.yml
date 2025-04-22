@@ -33,23 +33,29 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Step 5: Check code formatting
-      - name: Check formatting
-        run: dart format --set-exit-if-changed .
+      # Step 5: Check Dart version
+      - name: Check Dart version
+        run: dart --version
 
-      # Step 6: Analyze project source
+      # Step 6: Check formatting
+      - name: Check formatting
+        run: |
+          flutter pub global activate dart_style
+          flutter pub global run dart_style:format --set-exit-if-changed .
+
+      # Step 7: Analyze project source
       - name: Analyze code
         run: flutter analyze
 
-      # Step 7: Run unit/widget tests
+      # Step 8: Run unit/widget tests
       - name: Run tests
         run: flutter test
 
-      # # Step 8: Build APK
+      # # Step 9: Build APK (optional, uncomment if needed)
       # - name: Build APK
       #   run: flutter build apk --release
 
-      # # Step 9: Upload APK as artifact
+      # # Step 10: Upload APK (optional, uncomment if needed)
       # - name: Upload APK
       #   uses: actions/upload-artifact@v3
       #   with:
