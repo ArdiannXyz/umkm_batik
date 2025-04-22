@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class ProductCard extends StatelessWidget {
   const ProductCard({super.key});
