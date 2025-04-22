@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^0.13.3
   sqflite: ^2.2.8+4
   path_provider: ^2.0.5
   shared_preferences: ^2.2.0
@@ -28,10 +29,11 @@ flutter:
     - assets/images/griyabatik_bru.png
     - assets/images/griyabatik_hitam.png
     - assets/images/griyabatik_putih.png
+    - assets/images/asset5.png
 
 flutter_native_splash:
   color: "##2596be"
-  image: assets/images/griyabatik_putih.png
+  image: assets/images/asset5.png
   android: true
   ios: true
 
