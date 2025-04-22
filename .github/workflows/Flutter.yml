@@ -35,7 +35,7 @@ jobs:
 
       # Step 5: Check code formatting
       - name: Check formatting
-        run: flutter format --set-exit-if-changed .
+        run: dart format --set-exit-if-changed .
 
       # Step 6: Analyze project source
       - name: Analyze code
