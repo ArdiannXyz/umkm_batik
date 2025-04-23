@@ -1,181 +1,204 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'register_page.dart'; // Halaman setelah login
 import 'dashboard_page.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginState createState() => _LoginState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+class _LoginState extends State<LoginPage> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
-  void _showMessage(String message, {bool isError = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
+  bool isLoading = false;
+  
+  bool _obscureText = true; // Indikator loading
 
-  void _login() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<void> loginUser() async {
+    setState(() {
+      isLoading = true;
+    });
 
-    String? savedEmail = prefs.getString('email');
-    String? savedPassword = prefs.getString('password');
-
-    String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      _showMessage("Email dan Password harus diisi!", isError: true);
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Email dan password harus diisi!")),
+      );
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
-    if (savedEmail == null || savedPassword == null) {
-      _showMessage("Belum ada akun terdaftar.", isError: true);
-      return;
-    }
+    String url = "http://localhost/umkm_batik/lib/API/login.php";
 
-    if (email == savedEmail && password == savedPassword) {
-      _showMessage("Login berhasil!");
+    try {
+      var response = await http.post(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "email": emailController.text,
+          "password": passwordController.text,
+        }),
+      );
 
-      // Tambahkan delay sebentar supaya pesan "Login berhasil!" sempat tampil
-      Future.delayed(const Duration(seconds: 1), () {
+      var data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['error'] == false) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login berhasil!")),
+        );
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => DashboardPage()),
         );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login gagal: ${data['message']}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Terjadi kesalahan. Coba lagi nanti.")),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
       });
-    } else {
-      _showMessage("Email atau Password salah!", isError: true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 50),
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.9, // lebar responsif
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Selamat Datang",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Selamat Datang",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Image.asset(
-                        'assets/images/griyabatik_hitam.png',
-                        width: 40,
-                        height: 40,
-                      ),
-                    ],
-                  ),
-                  const Text("Kami merindukan anda"),
-                  const SizedBox(height: 20),
-                  const Text("Email"),
-                  TextField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      hintText: "Masukkan email anda",
-                      filled: true,
-                      fillColor: Colors.blue[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  const Text("Password"),
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: "Masukkan password anda",
-                      filled: true,
-                      fillColor: Colors.blue[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context,
-                            '/forgot-password'); // arahkan ke halaman lupa password
-                      },
-                      child: const Text(
-                        "Lupa Password ?",
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      onPressed: _login,
-                      child: const Text("Masuk",
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Tidak punya akun?"),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context,
-                                '/register'); // arahkan ke halaman register
-                          },
-                          child: const Text(
-                            "Daftar sekarang!",
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              SizedBox(height: 20),
+
+              Text("Email"),
+              SizedBox(height: 8,),
+              _buildTextField("Masukkan email anda", controller: emailController),
+              SizedBox(height: 15),
+
+              Text("Password"),
+              SizedBox(height: 8,),
+              _buildTextField("Masukkan password anda", controller: passwordController, 
+              obscureText: _obscureText, // Kontrol visibilitas password // Ikon kunci di kiri
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscureText ? Icons.visibility : Icons.visibility_off, // Ikon mata
             ),
+            onPressed: () {
+              setState(() {
+                _obscureText = !_obscureText; // Toggle visibilitas password
+              });
+            },
+          ),
+              ),
+              SizedBox(height: 4,),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    "Lupa Password Kamu?",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ),
+              SizedBox(height: 4,),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: isLoading ? null : loginUser,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    child: isLoading
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                            "Masuk",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Belum punya akun? ",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => DashboardPage()),
+                        );
+                      },
+                      child: Text(
+                        "Daftar sekarang!",
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                    ),
+                      ),
+                  ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String hint, {bool obscureText = false, TextEditingController? controller,Widget? prefixIcon,
+    Widget? suffixIcon}) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.blue.shade50,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        prefixIcon: prefixIcon, // Tambahkan prefixIcon
+      suffixIcon: suffixIcon,
       ),
     );
   }

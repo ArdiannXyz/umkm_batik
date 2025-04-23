@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => LoginPage(),
-        '/register': (context) => RegisterPage(),
+        '/register': (context) => Register_page(),
         '/forgot-password': (context) => ForgotPasswordPage(),
         '/dashboard': (context) => DashboardPage(),
         '/masuk-otp': (context) => MasukOtpPage(),
