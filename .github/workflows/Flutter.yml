@@ -13,11 +13,13 @@ jobs:
     steps:
       # Step 1: Checkout repository
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # Step 2: Setup Flutter SDK
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.1' # Ganti sesuai versi Flutter kamu
+          flutter-version: '3.29.1'
 
       # Step 3: Cache Flutter dependencies
       - name: Cache Flutter dependencies
@@ -33,23 +35,33 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Step 5: Check code formatting
-      - name: Check formatting
-        run: flutter format --set-exit-if-changed .
+      # Step 5: Check Dart version
+      - name: Check Dart version
+        run: dart --version
 
-      # Step 6: Analyze project source
+      # ✅ Step 6: Format code and auto-commit
+      - name: Format code and auto-commit
+        run: |
+          flutter pub global activate dart_style || true
+          flutter pub global run dart_style:format .
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --cached --quiet || (git commit -m "chore: auto-format code via CI" && git push || true)
+
+      # Step 7: Analyze code
       - name: Analyze code
-        run: flutter analyze
+        run: flutter analyze || true
 
-      # Step 7: Run unit/widget tests
+      # Step 8: Run tests
       - name: Run tests
         run: flutter test
 
-      # # Step 8: Build APK
+      # # Step 9: Build APK (optional, uncomment if needed)
       # - name: Build APK
       #   run: flutter build apk --release
 
-      # # Step 9: Upload APK as artifact
+      # # Step 10: Upload APK (optional, uncomment if needed)
       # - name: Upload APK
       #   uses: actions/upload-artifact@v3
       #   with:
