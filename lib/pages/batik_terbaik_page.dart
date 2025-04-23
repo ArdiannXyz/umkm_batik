@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class BatikTerbaikPage extends StatelessWidget {
+  const BatikTerbaikPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

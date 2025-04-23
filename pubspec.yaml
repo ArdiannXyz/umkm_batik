@@ -32,7 +32,7 @@ flutter:
     - assets/images/asset5.png
 
 flutter_native_splash:
-  color: "##2596be"
+  color: "#2596be"
   image: assets/images/asset5.png
   android: true
   ios: true
