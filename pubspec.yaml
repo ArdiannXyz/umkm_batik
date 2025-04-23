@@ -31,6 +31,8 @@ flutter:
 
 flutter_native_splash:
   color: "#2596be"
+  image: assets/images/asset5.png
+  color: "#2596be"
   image: assets/images/griyabatik_putih.png
   android: true
   ios: true
