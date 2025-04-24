@@ -25,6 +25,8 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:
+          Colors.blue[50], // Mengatur latar belakang seluruh halaman
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -58,31 +60,79 @@ class DashboardView extends StatelessWidget {
     return SafeArea(
       child: Column(
         children: [
-          const SizedBox(height: 20),
-
-          // Foto profil dan ucapan sambutan
-          Row(
-            children: [
-              const SizedBox(width: 20), // Padding kiri
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: AssetImage('assets/images/ado.jpg'),
-              ),
-              const SizedBox(width: 15), // Jarak antara foto dan teks
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "Hi Ado,",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          // Search Bar & Notification dipindahkan ke atas
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Search",
+                      prefixIcon: Icon(Icons.search),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
                   ),
-                  Text(
-                    "Selamat datang",
-                    style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  icon: const Icon(Icons.notifications, size: 30),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => NotifikasiPage()),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // Box Selamat datang dengan gradient dan jarak dari ujung
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 16.0), // Menambahkan jarak dari sisi
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.blue,
+                    Colors.white
+                  ], // Gradient biru dan putih
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.all(16), // Padding dalam container
+              child: Row(
+                children: [
+                  const SizedBox(width: 20), // Padding kiri
+                  // Menghapus CircleAvatar gambar profil
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        "Hi Ado,",
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white), // Teks putih
+                      ),
+                      Text(
+                        "Selamat datang",
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
 
           const SizedBox(height: 20),
@@ -98,40 +148,6 @@ class DashboardView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Lanjutkan isi halaman...
-
-                  // Search Bar & Notification
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: "Search",
-                            prefixIcon: Icon(Icons.search),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      IconButton(
-                        icon: const Icon(Icons.notifications, size: 30),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => NotifikasiPage()),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
                   // Produk Batik
                   Text(
                     "Produk batik kami",

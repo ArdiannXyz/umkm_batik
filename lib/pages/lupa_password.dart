@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -9,6 +10,7 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController _emailController = TextEditingController();
+  bool isLoading = false;
 
   void _submitReset() {
     String email = _emailController.text.trim();
@@ -23,20 +25,21 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       return;
     }
 
-    // Simulasi kirim email berhasil
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Kode OTP dikirim ke $email"),
-        backgroundColor: Colors.green,
-      ),
-    );
+    // Simulasi loading dan pengiriman OTP
+    setState(() => isLoading = true);
 
-    // Arahkan ke halaman OTP setelah 1 detik
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Kode OTP dikirim ke $email"),
+          backgroundColor: Colors.green,
+        ),
+      );
       Navigator.pushNamed(
         context,
         '/masuk-otp',
-        arguments: {'email': email}, // Jika ingin bawa data email
+        arguments: {'email': email},
       );
     });
   }
@@ -44,72 +47,85 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: Center(
-        child: Container(
-          width: MediaQuery.of(context).size.width * 0.9,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "Lupa Password?",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.fredokaOne(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Image.asset(
                     'assets/images/griyabatik_hitam.png',
-                    width: 40,
-                    height: 40,
+                    width: 72,
+                    height: 72,
                   ),
                 ],
               ),
-              const Text("Masukkan email yang terdaftar"),
-              const SizedBox(height: 20),
-              const Text("Email"),
+              SizedBox(height: 10),
+              Text(
+                "Masukkan email yang terdaftar untuk reset password.",
+                style: GoogleFonts.fredokaOne(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              SizedBox(height: 20),
+              Text("Email"),
+              SizedBox(height: 8),
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
                   hintText: "Masukkan email anda",
                   filled: true,
-                  fillColor: Colors.blue[50],
+                  fillColor: Colors.blue.shade50,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  onPressed: _submitReset,
-                  child: const Text(
-                    "Kirim Link Reset",
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  onPressed: isLoading ? null : _submitReset,
+                  child: isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          "Kirim Link Reset",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Kembali ke login
-                },
-                child: const Center(
-                  child: Text("Kembali ke Login",
-                      style: TextStyle(color: Colors.blue)),
+              SizedBox(height: 10),
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    "Kembali ke Login",
+                    style: TextStyle(color: Colors.blue),
+                  ),
                 ),
-              ),
+              )
             ],
           ),
         ),

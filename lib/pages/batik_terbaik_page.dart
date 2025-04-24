@@ -22,7 +22,8 @@ class BatikTerbaikPage extends StatelessWidget {
                   children: [
                     Text(
                       "Batik Terbaik",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
 

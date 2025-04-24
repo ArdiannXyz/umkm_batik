@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:umkm_batik/pages/lupa_password.dart';
 import 'dart:convert';
 import 'register_page.dart'; // Halaman setelah login
 import 'dashboard_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -14,7 +16,7 @@ class _LoginState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
 
   bool isLoading = false;
-  
+
   bool _obscureText = true; // Indikator loading
 
   Future<void> loginUser() async {
@@ -82,47 +84,84 @@ class _LoginState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Selamat Datang",
+                    style: GoogleFonts.fredokaOne(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Image.asset(
+                    'assets/images/griyabatik_hitam.png',
+                    width: 72, // kamu bisa ubah ukuran ini
+                    height: 72,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
               Text(
-                "Selamat Datang",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                "Kami Merindukan Anda",
+                style: GoogleFonts.fredokaOne(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
               SizedBox(height: 20),
-
               Text("Email"),
-              SizedBox(height: 8,),
-              _buildTextField("Masukkan email anda", controller: emailController),
-              SizedBox(height: 15),
-
-              Text("Password"),
-              SizedBox(height: 8,),
-              _buildTextField("Masukkan password anda", controller: passwordController, 
-              obscureText: _obscureText, // Kontrol visibilitas password // Ikon kunci di kiri
-          suffixIcon: IconButton(
-            icon: Icon(
-              _obscureText ? Icons.visibility : Icons.visibility_off, // Ikon mata
-            ),
-            onPressed: () {
-              setState(() {
-                _obscureText = !_obscureText; // Toggle visibilitas password
-              });
-            },
-          ),
+              SizedBox(
+                height: 8,
               ),
-              SizedBox(height: 4,),
+              _buildTextField("Masukkan email anda",
+                  controller: emailController),
+              SizedBox(height: 15),
+              Text("Password"),
+              SizedBox(
+                height: 8,
+              ),
+              _buildTextField(
+                "Masukkan password anda", controller: passwordController,
+                obscureText:
+                    _obscureText, // Kontrol visibilitas password // Ikon kunci di kiri
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureText
+                        ? Icons.visibility
+                        : Icons.visibility_off, // Ikon mata
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureText =
+                          !_obscureText; // Toggle visibilitas password
+                    });
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 4,
+              ),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ForgotPasswordPage()),
+                    );
+                  },
                   child: Text(
                     "Lupa Password Kamu?",
                     style: TextStyle(color: Colors.blue),
                   ),
                 ),
               ),
-              SizedBox(height: 4,),
+              SizedBox(
+                height: 4,
+              ),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -163,7 +202,8 @@ class _LoginState extends State<LoginPage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => DashboardPage()),
+                          MaterialPageRoute(
+                              builder: (context) => Register_page()),
                         );
                       },
                       child: Text(
@@ -171,9 +211,9 @@ class _LoginState extends State<LoginPage> {
                         style: TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,
-                    ),
+                        ),
                       ),
-                  ),
+                    ),
                   ],
                 ),
               ),
@@ -184,8 +224,11 @@ class _LoginState extends State<LoginPage> {
     );
   }
 
-  Widget _buildTextField(String hint, {bool obscureText = false, TextEditingController? controller,Widget? prefixIcon,
-    Widget? suffixIcon}) {
+  Widget _buildTextField(String hint,
+      {bool obscureText = false,
+      TextEditingController? controller,
+      Widget? prefixIcon,
+      Widget? suffixIcon}) {
     return TextField(
       controller: controller,
       obscureText: obscureText,
@@ -198,7 +241,7 @@ class _LoginState extends State<LoginPage> {
           borderSide: BorderSide.none,
         ),
         prefixIcon: prefixIcon, // Tambahkan prefixIcon
-      suffixIcon: suffixIcon,
+        suffixIcon: suffixIcon,
       ),
     );
   }
