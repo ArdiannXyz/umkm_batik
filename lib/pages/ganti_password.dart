@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GantiPasswordPage extends StatefulWidget {
@@ -50,15 +51,10 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: Center(
-        child: Container(
-          width: MediaQuery.of(context).size.width * 0.9,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,20 +62,31 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "Ganti Password",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.fredokaOne(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Image.asset(
                     'assets/images/griyabatik_hitam.png',
-                    width: 40,
-                    height: 40,
+                    width: 72,
+                    height: 72,
                   ),
                 ],
               ),
-              const Text("Masukkan password baru Anda"),
+              const SizedBox(height: 8),
+              Text(
+                "Masukkan password baru Anda",
+                style: GoogleFonts.fredokaOne(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
               const SizedBox(height: 20),
               const Text("Password Baru"),
+              const SizedBox(height: 8),
               TextField(
                 controller: _newPasswordController,
                 obscureText: true,
@@ -88,13 +95,14 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
                   filled: true,
                   fillColor: Colors.blue[50],
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
                   ),
                 ),
               ),
               const SizedBox(height: 15),
               const Text("Konfirmasi Password"),
+              const SizedBox(height: 8),
               TextField(
                 controller: _confirmPasswordController,
                 obscureText: true,
@@ -103,7 +111,7 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
                   filled: true,
                   fillColor: Colors.blue[50],
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
                   ),
                 ),
@@ -114,12 +122,15 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: _changePassword,
                   child: const Text(
                     "Simpan Password",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
               ),

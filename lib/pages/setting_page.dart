@@ -56,7 +56,8 @@ class SettingPage extends StatelessWidget {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
-                        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 50),
                       ),
                       onPressed: () {
                         Navigator.pushReplacement(
@@ -64,7 +65,8 @@ class SettingPage extends StatelessWidget {
                           MaterialPageRoute(builder: (context) => LoginPage()),
                         );
                       },
-                      child: const Text("Keluar", style: TextStyle(color: Colors.white)),
+                      child: const Text("Keluar",
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),

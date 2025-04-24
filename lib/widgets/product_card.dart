@@ -18,8 +18,28 @@ class ProductCard extends StatelessWidget {
         ],
       ),
       child: Column(
+        mainAxisSize:
+            MainAxisSize.min, // Mengatur Column agar tidak memanjang ke bawah
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Nama Produk dan Icon Bookmark di sebelah kanan
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Batik Jeruk",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16)), // Nama produk
+                IconButton(
+                  icon: const Icon(Icons.bookmark_border),
+                  onPressed: () {},
+                ), // Icon bookmark di sebelah kanan
+              ],
+            ),
+          ),
+
           // Gambar Produk
           ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
@@ -31,36 +51,16 @@ class ProductCard extends StatelessWidget {
             ),
           ),
 
-          // Nama Produk
+          // Rating di sebelah kanan dan "Klik untuk lebih lanjut" di kiri
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text("Batik Jeruk",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-
-          // Rating & Bookmark
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("Rating ⭐ 4.2"),
-                Icon(Icons.bookmark_border),
+              children: const [
+                Text("Klik untuk lebih lanjut",
+                    style: TextStyle(fontSize: 10, color: Colors.blue)),
+                Text("Rating ⭐ 4.2", style: TextStyle(fontSize: 14)),
               ],
-            ),
-          ),
-
-          // Tombol Berikan Rating
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                onPressed: () {},
-                child: Text("Berikan Rating",
-                    style: TextStyle(color: Colors.white)),
-              ),
             ),
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MasukOtpPage extends StatefulWidget {
   const MasukOtpPage({super.key});
@@ -9,24 +10,36 @@ class MasukOtpPage extends StatefulWidget {
 
 class _MasukOtpPageState extends State<MasukOtpPage> {
   final TextEditingController _otpController = TextEditingController();
+  bool isLoading = false;
 
   void _submitOtp() {
-    // Untuk sekarang kita langsung skip verifikasi OTP
-    Navigator.pushNamed(context, '/ganti-password');
+    String otp = _otpController.text.trim();
+
+    if (otp.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Kode OTP harus 6 digit."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() => isLoading = false);
+      Navigator.pushNamed(context, '/ganti-password');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: Center(
-        child: Container(
-          width: MediaQuery.of(context).size.width * 0.9,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,20 +47,31 @@ class _MasukOtpPageState extends State<MasukOtpPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    "Masukan Kode OTP",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  Text(
+                    "Masukkan Kode OTP",
+                    style: GoogleFonts.fredokaOne(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Image.asset(
                     'assets/images/griyabatik_hitam.png',
-                    width: 40,
-                    height: 40,
+                    width: 72,
+                    height: 72,
                   ),
                 ],
               ),
-              const Text("Kami telah mengirimkan kode ke email Anda"),
+              const SizedBox(height: 8),
+              Text(
+                "Kami telah mengirimkan kode ke email Anda.",
+                style: GoogleFonts.fredokaOne(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
               const SizedBox(height: 20),
               const Text("Kode OTP"),
+              const SizedBox(height: 8),
               TextField(
                 controller: _otpController,
                 keyboardType: TextInputType.number,
@@ -58,7 +82,7 @@ class _MasukOtpPageState extends State<MasukOtpPage> {
                   filled: true,
                   fillColor: Colors.blue[50],
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
                   ),
                 ),
@@ -69,21 +93,28 @@ class _MasukOtpPageState extends State<MasukOtpPage> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  onPressed: _submitOtp,
-                  child: const Text(
-                    "Lanjut",
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  onPressed: isLoading ? null : _submitOtp,
+                  child: isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          "Lanjut",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Balik ke lupa password
-                },
-                child: const Center(
-                  child: Text("Kembali", style: TextStyle(color: Colors.blue)),
+              const SizedBox(height: 10),
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    "Kembali",
+                    style: TextStyle(color: Colors.blue),
+                  ),
                 ),
               ),
             ],

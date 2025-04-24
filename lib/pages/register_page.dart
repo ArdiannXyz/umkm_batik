@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'login_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(Register_page());
@@ -27,101 +28,102 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   bool isLoading = false;
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
 
   Future<void> registerUser() async {
-  setState(() {
-    isLoading = true;
-  });
-
-  // Validasi input sebelum mengirim ke server
-  if (nameController.text.isEmpty ||
-      emailController.text.isEmpty ||
-      phoneController.text.isEmpty ||
-      passwordController.text.isEmpty ||
-      confirmPasswordController.text.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Semua kolom harus diisi!")),
-    );
     setState(() {
-      isLoading = false;
+      isLoading = true;
     });
-    return;
-  }
 
-  // Validasi format email
-  if (!RegExp(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
-      .hasMatch(emailController.text)) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Masukkan email yang valid!")),
-    );
-    setState(() {
-      isLoading = false;
-    });
-    return;
-  }
-
-  // Validasi panjang password
-  if (passwordController.text.length < 6) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Password harus minimal 6 karakter!")),
-    );
-    setState(() {
-      isLoading = false;
-    });
-    return;
-  }
-
-  // Validasi password dan konfirmasi password
-  if (passwordController.text != confirmPasswordController.text) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Password dan konfirmasi password tidak cocok!")),
-    );
-    setState(() {
-      isLoading = false;
-    });
-    return;
-  }
-
-  String url = "http://localhost/umkm_batik/lib/API/register.php";
-
-  try {
-    var response = await http.post(
-      Uri.parse(url),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "nama": nameController.text,
-        "email": emailController.text,
-        "no_hp": phoneController.text,
-        "password": passwordController.text,
-        'role': 'user',
-      }),
-    );
-
-    var data = jsonDecode(response.body);
-
-    if (response.statusCode == 200 && data['error'] == false) {
-      showSuccessDialog();
-    } else {
+    // Validasi input sebelum mengirim ke server
+    if (nameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        phoneController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Registrasi gagal: ${data['message']}")),
+        SnackBar(content: Text("Semua kolom harus diisi!")),
       );
+      setState(() {
+        isLoading = false;
+      });
+      return;
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Terjadi kesalahan. Coba lagi nanti.")),
-    );
-  } finally {
-    setState(() {
-      isLoading = false;
-    });
-  }
-}
 
+    // Validasi format email
+    if (!RegExp(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
+        .hasMatch(emailController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Masukkan email yang valid!")),
+      );
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    // Validasi panjang password
+    if (passwordController.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password harus minimal 6 karakter!")),
+      );
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    // Validasi password dan konfirmasi password
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("Password dan konfirmasi password tidak cocok!")),
+      );
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    String url = "http://localhost/umkm_batik/lib/API/register.php";
+
+    try {
+      var response = await http.post(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "nama": nameController.text,
+          "email": emailController.text,
+          "no_hp": phoneController.text,
+          "password": passwordController.text,
+          'role': 'user',
+        }),
+      );
+
+      var data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['error'] == false) {
+        showSuccessDialog();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Registrasi gagal: ${data['message']}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Terjadi kesalahan. Coba lagi nanti.")),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   void showSuccessDialog() {
     showDialog(
@@ -159,20 +161,33 @@ class _SignupScreenState extends State<SignupScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Buat akun\nanda",
-                style: TextStyle(
-                  fontFamily: 'Fredokaone',
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Buat akun\nanda",
+                      style: GoogleFonts.fredokaOne(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Image.asset(
+                    'assets/images/griyabatik_hitam.png',
+                    width: 64,
+                    height: 64,
+                  ),
+                ],
               ),
-              SizedBox(height: 20),
 
+              SizedBox(height: 20),
               // Nama Lengkap
-              
               const Text("Nama Lengkap"),
-              SizedBox(height: 8,),
+              SizedBox(
+                height: 8,
+              ),
               TextField(
                 controller: nameController,
                 decoration: buildInputDecoration("Masukkan nama lengkap"),
@@ -181,7 +196,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
               // Email
               const Text("Email"),
-              SizedBox(height: 8,),
+              SizedBox(
+                height: 8,
+              ),
               TextField(
                 controller: emailController,
                 decoration: buildInputDecoration("Masukkan email anda"),
@@ -190,16 +207,21 @@ class _SignupScreenState extends State<SignupScreen> {
 
               // No HP
               const Text("No.hp"),
-              SizedBox(height: 8,),
+              SizedBox(
+                height: 8,
+              ),
               TextField(
                 controller: phoneController,
-                decoration: buildInputDecoration("Masukkan nomor handphone anda"),
+                decoration:
+                    buildInputDecoration("Masukkan nomor handphone anda"),
               ),
               SizedBox(height: 15),
 
               // Password
               const Text("Password"),
-              SizedBox(height: 8,),
+              SizedBox(
+                height: 8,
+              ),
               TextField(
                 controller: passwordController,
                 obscureText: obscurePassword,
@@ -217,7 +239,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
               // Konfirmasi Password
               const Text("Konfirmasi Password"),
-              SizedBox(height: 8,),
+              SizedBox(
+                height: 8,
+              ),
               TextField(
                 controller: confirmPasswordController,
                 obscureText: obscureConfirmPassword,
@@ -261,7 +285,7 @@ class _SignupScreenState extends State<SignupScreen> {
               SizedBox(height: 10),
 
               // Sudah punya akun?
-             Center(
+              Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -284,10 +308,9 @@ class _SignupScreenState extends State<SignupScreen> {
                         style: TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,
-                          
+                        ),
                       ),
                     ),
-                  ),
                   ],
                 ),
               ),
@@ -321,7 +344,8 @@ class _SignupScreenState extends State<SignupScreen> {
         borderSide: BorderSide.none,
       ),
       suffixIcon: IconButton(
-        icon: Icon(isObscure ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
+        icon: Icon(isObscure ? Icons.visibility_off : Icons.visibility,
+            color: Colors.grey),
         onPressed: toggleObscure,
       ),
     );
