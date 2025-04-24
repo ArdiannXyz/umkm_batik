@@ -30,7 +30,7 @@ flutter:
     - assets/images/griyabatik_bru.png
     - assets/images/griyabatik_hitam.png
     - assets/images/griyabatik_putih.png
-    - assets/images/asset5.png
+    - assets/images/Asset5.png
 
 flutter_native_splash:
   color: "#2596be"
