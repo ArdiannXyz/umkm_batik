@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProductCard extends StatelessWidget {
   const ProductCard({super.key});
@@ -6,10 +7,13 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 100, // Tetap
+      width: 100,
+      margin: const EdgeInsets.symmetric(horizontal: 5,vertical: 5),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 5,
@@ -17,49 +21,60 @@ class ProductCard extends StatelessWidget {
           ),
         ],
       ),
+
       child: Column(
-        mainAxisSize:
-            MainAxisSize.min, // Mengatur Column agar tidak memanjang ke bawah
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Nama Produk dan Icon Bookmark di sebelah kanan
+          // Header
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric( vertical: 5.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Batik Jeruk",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16)), // Nama produk
+                SizedBox(width: 10),
+                Text(
+                  "Batik Jeruk",
+                  style: GoogleFonts.fredokaOne(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                SizedBox(width: 25),
                 IconButton(
                   icon: const Icon(Icons.bookmark_border),
                   onPressed: () {},
-                ), // Icon bookmark di sebelah kanan
+                  padding: EdgeInsets.symmetric(horizontal: 5),
+                  constraints: const BoxConstraints(),
+                ),
               ],
             ),
           ),
 
-          // Gambar Produk
-          ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-            child: Image.asset(
-              'assets/images/ado2.jpg',
-              height: 100,
-              width: double.infinity,
-              fit: BoxFit.cover,
+          // Gambar produk yang fleksibel menyesuaikan sisa ruang
+          Expanded(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(2)),
+              child: Image.asset(
+                'assets/images/ado2.jpg',
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
 
-          // Rating di sebelah kanan dan "Klik untuk lebih lanjut" di kiri
+          // Footer
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
-                Text("Klik untuk lebih lanjut",
-                    style: TextStyle(fontSize: 10, color: Colors.blue)),
-                Text("Rating ⭐ 4.2", style: TextStyle(fontSize: 14)),
+                
+                Text(
+                  "Klik untuk lebih lanjut",
+                  
+                  style: TextStyle(fontSize: 10, color: Colors.blue),
+                ),
+                Text("⭐ 4.2", style: TextStyle(fontSize: 14)),
               ],
             ),
           ),

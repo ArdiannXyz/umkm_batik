@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:umkm_batik/pages/lupa_password.dart';
 import 'dart:convert';
 import 'register_page.dart'; // Halaman setelah login
@@ -53,6 +54,10 @@ class _LoginState extends State<LoginPage> {
           SnackBar(content: Text("Login berhasil!")),
         );
 
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('isLoggedIn', true);
+          await prefs.setString('role', 'user');
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => DashboardPage()),
@@ -71,6 +76,9 @@ class _LoginState extends State<LoginPage> {
         isLoading = false;
       });
     }
+    // Saat berhasil login
+    
+
   }
 
   @override
@@ -102,7 +110,7 @@ class _LoginState extends State<LoginPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              
               Text(
                 "Kami Merindukan Anda",
                 style: GoogleFonts.fredokaOne(

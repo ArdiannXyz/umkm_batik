@@ -3,7 +3,7 @@ import 'favorit_page.dart';
 import 'batik_terbaik_page.dart';
 import 'setting_page.dart';
 import '../widgets/product_card.dart';
-import 'notifikasi_page.dart'; // Import halaman Notifikasi
+ // Import halaman Notifikasi
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -58,11 +58,13 @@ class DashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      child: SingleChildScrollView(
       child: Column(
         children: [
           // Search Bar & Notification dipindahkan ke atas
+          const SizedBox(height: 10),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
             child: Row(
               children: [
                 Expanded(
@@ -80,23 +82,15 @@ class DashboardView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                IconButton(
-                  icon: const Icon(Icons.notifications, size: 30),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => NotifikasiPage()),
-                    );
-                  },
-                ),
+                
               ],
             ),
           ),
-
+          const SizedBox(height: 10),
           // Box Selamat datang dengan gradient dan jarak dari ujung
           Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: 16.0), // Menambahkan jarak dari sisi
+                horizontal: 15.0), // Menambahkan jarak dari sisi
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -112,13 +106,13 @@ class DashboardView extends StatelessWidget {
               padding: const EdgeInsets.all(16), // Padding dalam container
               child: Row(
                 children: [
-                  const SizedBox(width: 20), // Padding kiri
+                  const SizedBox(width: 24), // Padding kiri
                   // Menghapus CircleAvatar gambar profil
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       Text(
-                        "Hi Ado,",
+                        "Hi DeepM1nd,",
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -135,47 +129,42 @@ class DashboardView extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 20),
+          
 
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
-              ),
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 16),
+              
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Produk Batik
+                  const SizedBox(width: 20),
                   Text(
                     "Produk batik kami",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
 
-                  Expanded(
-                    child: GridView.builder(
+                  GridView.builder(
+                    physics: NeverScrollableScrollPhysics(), // Kunci penting - mencegah grid punya scroll sendiri
+                    shrinkWrap: true,
                       itemCount: 4,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 0.7,
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 250,
+                        mainAxisExtent: 270, // Tinggi tetap untuk setiap item
+                        crossAxisSpacing: 0,
+                        mainAxisSpacing: 5,
                       ),
                       itemBuilder: (context, index) {
                         return ProductCard();
                       },
-                    ),
-                  ),
+                  )
                 ],
               ),
             ),
-          ),
         ],
       ),
+    ),
     );
   }
 }
