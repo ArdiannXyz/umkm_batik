@@ -31,6 +31,7 @@ flutter:
     - assets/images/griyabatik_hitam.png
     - assets/images/griyabatik_putih.png
     - assets/images/Asset5.png
+    - assets/images/profil_orang.png
 
 flutter_native_splash:
   color: "#2596be"
