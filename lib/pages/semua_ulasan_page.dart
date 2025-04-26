@@ -84,42 +84,57 @@ class SemuaUlasanPage extends StatelessWidget {
   Widget _buildReviewCard() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const CircleAvatar(
-            radius: 24,
-            backgroundColor: Colors.blueGrey,
-            child: Icon(Icons.person, color: Colors.white),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Ahmad Sumbul',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(Icons.star, color: Colors.blue, size: 16),
-                    Icon(Icons.star, color: Colors.blue, size: 16),
-                    Icon(Icons.star, color: Colors.blue, size: 16),
-                    Icon(Icons.star, color: Colors.blue, size: 16),
-                    Icon(Icons.star, color: Colors.blue, size: 16),
-                  ],
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Batikinya dari segi kainnya lumayan bagus untuk harga segitu. Dan saya juga senang ketika mengunjungi tempatnya, pelayanannya ramah dan dengan beli batik ini bisa support umkm.',
-                  style: TextStyle(fontSize: 13),
-                ),
-              ],
+      child: Container(
+        padding: const EdgeInsets.all(16), // Add padding inside the container
+        decoration: BoxDecoration(
+          color: Colors.white, // Set background to white
+          borderRadius: BorderRadius.circular(12), // Rounded corners
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3), // Shadow position
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const CircleAvatar(
+              radius: 24,
+              backgroundColor: Colors.blueGrey,
+              child: Icon(Icons.person, color: Colors.white),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    'Ahmad Sumbul',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.star, color: Colors.blue, size: 16),
+                      Icon(Icons.star, color: Colors.blue, size: 16),
+                      Icon(Icons.star, color: Colors.blue, size: 16),
+                      Icon(Icons.star, color: Colors.blue, size: 16),
+                      Icon(Icons.star, color: Colors.blue, size: 16),
+                    ],
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Batikinya dari segi kainnya lumayan bagus untuk harga segitu. Dan saya juga senang ketika mengunjungi tempatnya, pelayanannya ramah dan dengan beli batik ini bisa support umkm.',
+                    style: TextStyle(fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

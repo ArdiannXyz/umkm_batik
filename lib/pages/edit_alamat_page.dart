@@ -8,7 +8,7 @@ class EditAddressPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFE0F7FA), // Background biru muda
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xFF0D6EFD),
         title: const Text("Ubah Alamat"),
         centerTitle: true,
       ),
@@ -33,7 +33,7 @@ class EditAddressPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const _InputField(label: "Nama Lengkap", value: "Farhan Jaya"),
+                const _InputField(label: "Nama Lengkap", value: "Ado Chann"),
                 const SizedBox(height: 16),
                 const _InputField(label: "No. Telepon", value: "08172937333"),
                 const SizedBox(height: 16),

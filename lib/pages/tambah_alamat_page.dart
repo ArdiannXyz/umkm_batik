@@ -8,7 +8,7 @@ class TambahAlamatPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFE0F7FA), // Background biru muda
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xFF0D6EFD),
         title: const Text("Tambah Alamat"),
         centerTitle: true,
       ),

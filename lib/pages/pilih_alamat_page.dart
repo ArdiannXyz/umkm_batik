@@ -11,7 +11,8 @@ class PilihAlamatPage extends StatelessWidget {
       backgroundColor: const Color(0xFFE0F7FA),
       appBar: AppBar(
         title: const Text('Pilih Alamat'),
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xFF0D6EFD),
+        centerTitle: true,
       ),
       body: Column(
         children: [
@@ -37,7 +38,7 @@ class PilihAlamatPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
-                            Text('Farhan Jaya',
+                            Text('Ado Chann',
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             SizedBox(height: 4),
                             Text(

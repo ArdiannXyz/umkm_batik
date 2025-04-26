@@ -112,7 +112,7 @@ class DashboardView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
                         Text(
-                          "Hi DeepM1nd,",
+                          "Hi Ado Chann,",
                           style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

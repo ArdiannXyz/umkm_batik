@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pilih_alamat_page.dart';
+import 'pesanan_page.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -17,7 +18,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       backgroundColor: const Color(0xFFE0F7FA), // Background biru muda
       appBar: AppBar(
         title: const Text("Checkout"),
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xFF0D6EFD),
+        centerTitle: true, // Supaya title di tengah
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -133,10 +135,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ),
                         ),
                         onPressed: () {
+                          // Tampilkan snackbar dulu
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text("Pesanan berhasil dibuat!")),
                           );
+
+                          // Delay sedikit supaya Snackbar sempat muncul
+                          Future.delayed(const Duration(seconds: 1), () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PesananPage()),
+                            );
+                          });
                         },
                         child: const Text("Buat Pesanan",
                             style: TextStyle(color: Colors.white)),
