@@ -9,8 +9,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-    sqflite: ^2.2.8+4
-    path_provider: ^2.0.5
+  http: ^1.3.0
+  google_fonts: ^4.0.4
+  sqflite: ^2.2.8+4
+  path_provider: ^2.0.5
+  shared_preferences: ^2.2.0
+  cached_network_image: ^3.2.0
+  flutter_native_splash: ^2.3.1
 
 dev_dependencies:
   flutter_test:
@@ -19,3 +24,17 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/ado.jpg
+    - assets/images/ado2.jpg
+    - assets/images/griyabatik_bru.png
+    - assets/images/griyabatik_hitam.png
+    - assets/images/griyabatik_putih.png
+    - assets/images/Asset5.png
+    - assets/images/profil_orang.png
+
+flutter_native_splash:
+  color: "#2596be"
+  image: assets/images/asset5.png
+  android: true
+  ios: true
