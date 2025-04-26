@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -12,7 +14,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController _emailController = TextEditingController();
   bool isLoading = false;
 
-  void _submitReset() {
+  // GANTI URL ini sesuai Kebutuhan ya gaess
+  // final String apiUrl = "http://localhost/umkm_batik/API/lupa_password.php";
+  // final String apiUrl = "https://namadomain.com/API/lupa_password.php"; //Pakai Domain
+   final String apiUrl = "https://10.0.2.2/API/lupa_password.php"; // Pakai Emulator Android
+
+  Future<void> _submitReset() async {
     String email = _emailController.text.trim();
 
     if (email.isEmpty) {
@@ -25,23 +32,50 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       return;
     }
 
-    // Simulasi loading dan pengiriman OTP
     setState(() => isLoading = true);
 
-    Future.delayed(Duration(seconds: 2), () {
-      setState(() => isLoading = false);
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({'email': email}),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['error'] == false) {
+        // Email ditemukan
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Kode OTP dikirim ke $email"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pushNamed(
+          context,
+          '/masuk-otp',
+          arguments: {'email': email},
+        );
+      } else {
+        // Email tidak ditemukan
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(data['message']),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      // Error koneksi
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Kode OTP dikirim ke $email"),
-          backgroundColor: Colors.green,
+          content: Text("Terjadi kesalahan, coba lagi nanti."),
+          backgroundColor: Colors.red,
         ),
       );
-      Navigator.pushNamed(
-        context,
-        '/masuk-otp',
-        arguments: {'email': email},
-      );
-    });
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 
   @override

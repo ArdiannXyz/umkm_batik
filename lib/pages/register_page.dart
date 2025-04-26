@@ -9,6 +9,8 @@ void main() {
 }
 
 class Register_page extends StatelessWidget {
+  const Register_page({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,6 +21,8 @@ class Register_page extends StatelessWidget {
 }
 
 class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
   @override
   _SignupScreenState createState() => _SignupScreenState();
 }
@@ -28,8 +32,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   bool isLoading = false;
   bool obscurePassword = true;
@@ -40,7 +43,6 @@ class _SignupScreenState extends State<SignupScreen> {
       isLoading = true;
     });
 
-    // Validasi input sebelum mengirim ke server
     if (nameController.text.isEmpty ||
         emailController.text.isEmpty ||
         phoneController.text.isEmpty ||
@@ -55,7 +57,6 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    // Validasi format email
     if (!RegExp(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
         .hasMatch(emailController.text)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -67,7 +68,6 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    // Validasi panjang password
     if (passwordController.text.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Password harus minimal 6 karakter!")),
@@ -78,11 +78,9 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    // Validasi password dan konfirmasi password
     if (passwordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text("Password dan konfirmasi password tidak cocok!")),
+        SnackBar(content: Text("Password dan konfirmasi password tidak cocok!")),
       );
       setState(() {
         isLoading = false;
@@ -90,7 +88,10 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    String url = "http://localhost/umkm_batik/lib/API/register.php";
+       //Ganti sesuai kebutuhan ya gaess
+    // String url = "http://localhost/umkm_batik/API/register.php"; //pakai web
+    // String url = "http://namaDomain.com/umkm_batik/API/register.php"; // Pakai Domain
+    String url = "http://10.0.2.2/umkm_batik/API/register.php"; // Pakai Emulator Android
 
     try {
       var response = await http.post(
@@ -101,7 +102,7 @@ class _SignupScreenState extends State<SignupScreen> {
           "email": emailController.text,
           "no_hp": phoneController.text,
           "password": passwordController.text,
-          'role': 'user',
+          "role": "user",
         }),
       );
 
@@ -154,167 +155,155 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Buat akun\nanda",
-                      style: GoogleFonts.fredokaOne(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Image.asset(
-                    'assets/images/griyabatik_hitam.png',
-                    width: 64,
-                    height: 64,
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 20),
-              // Nama Lengkap
-              const Text("Nama Lengkap"),
-              SizedBox(
-                height: 8,
-              ),
-              TextField(
-                controller: nameController,
-                decoration: buildInputDecoration("Masukkan nama lengkap"),
-              ),
-              SizedBox(height: 15),
-
-              // Email
-              const Text("Email"),
-              SizedBox(
-                height: 8,
-              ),
-              TextField(
-                controller: emailController,
-                decoration: buildInputDecoration("Masukkan email anda"),
-              ),
-              SizedBox(height: 15),
-
-              // No HP
-              const Text("No.hp"),
-              SizedBox(
-                height: 8,
-              ),
-              TextField(
-                controller: phoneController,
-                decoration:
-                    buildInputDecoration("Masukkan nomor handphone anda"),
-              ),
-              SizedBox(height: 15),
-
-              // Password
-              const Text("Password"),
-              SizedBox(
-                height: 8,
-              ),
-              TextField(
-                controller: passwordController,
-                obscureText: obscurePassword,
-                decoration: buildPasswordInputDecoration(
-                  "Masukkan password anda",
-                  obscurePassword,
-                  () {
-                    setState(() {
-                      obscurePassword = !obscurePassword;
-                    });
-                  },
-                ),
-              ),
-              SizedBox(height: 15),
-
-              // Konfirmasi Password
-              const Text("Konfirmasi Password"),
-              SizedBox(
-                height: 8,
-              ),
-              TextField(
-                controller: confirmPasswordController,
-                obscureText: obscureConfirmPassword,
-                decoration: buildPasswordInputDecoration(
-                  "Ulangi password anda",
-                  obscureConfirmPassword,
-                  () {
-                    setState(() {
-                      obscureConfirmPassword = !obscureConfirmPassword;
-                    });
-                  },
-                ),
-              ),
-              SizedBox(height: 20),
-
-              // Tombol Daftar
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: isLoading ? null : registerUser,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
-                    child: isLoading
-                        ? CircularProgressIndicator(color: Colors.white)
-                        : Text(
-                            "Daftar",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
-                          ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 10),
-
-              // Sudah punya akun?
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+      body: SafeArea(
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus(); // <<< dismiss keyboard
+          },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 40),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
-                      "Sudah punya akun? ",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
-                      },
+                    Expanded(
                       child: Text(
-                        "Masuk sekarang!",
-                        style: TextStyle(
-                          color: Colors.blue,
+                        "Daftarkan akun\nanda",
+                        style: GoogleFonts.fredokaOne(
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
+                    Image.asset(
+                      'assets/images/griyabatik_hitam.png',
+                      width: 64,
+                      height: 64,
+                    ),
                   ],
                 ),
-              ),
-            ],
+                SizedBox(height: 30),
+
+                const Text("Nama Lengkap"),
+                SizedBox(height: 8),
+                TextField(
+                  controller: nameController,
+                  decoration: buildInputDecoration("Masukkan nama lengkap"),
+                ),
+                SizedBox(height: 15),
+
+                const Text("Email"),
+                SizedBox(height: 8),
+                TextField(
+                  controller: emailController,
+                  decoration: buildInputDecoration("Masukkan email anda"),
+                ),
+                SizedBox(height: 15),
+
+                const Text("No.hp"),
+                SizedBox(height: 8),
+                TextField(
+                  controller: phoneController,
+                  decoration: buildInputDecoration("Masukkan nomor handphone anda"),
+                ),
+                SizedBox(height: 15),
+
+                const Text("Password"),
+                SizedBox(height: 8),
+                TextField(
+                  controller: passwordController,
+                  obscureText: obscurePassword,
+                  decoration: buildPasswordInputDecoration(
+                    "Masukkan password anda",
+                    obscurePassword,
+                    () {
+                      setState(() {
+                        obscurePassword = !obscurePassword;
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(height: 15),
+
+                const Text("Konfirmasi Password"),
+                SizedBox(height: 8),
+                TextField(
+                  controller: confirmPasswordController,
+                  obscureText: obscureConfirmPassword,
+                  decoration: buildPasswordInputDecoration(
+                    "Ulangi password anda",
+                    obscureConfirmPassword,
+                    () {
+                      setState(() {
+                        obscureConfirmPassword = !obscureConfirmPassword;
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(height: 30),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: isLoading ? null : registerUser,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      child: isLoading
+                          ? CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              "Daftar",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Sudah punya akun? ",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginPage()),
+                          );
+                        },
+                        child: Text(
+                          "Masuk sekarang!",
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 30), // Tambahan bottom spacing
+              ],
+            ),
           ),
         ),
       ),

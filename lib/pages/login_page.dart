@@ -8,6 +8,8 @@ import 'dashboard_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   _LoginState createState() => _LoginState();
 }
@@ -35,7 +37,10 @@ class _LoginState extends State<LoginPage> {
       return;
     }
 
-    String url = "http://localhost/umkm_batik/lib/API/login.php";
+    //Ganti sesuai kebutuhan ya gaess
+    // String url = "http://localhost/umkm_batik/API/login.php";
+    // String url = "http://namaDomain.com/umkm_batik/API/login.php"; // Pakai Domain
+     String url = "http://10.0.2.2/umkm_batik/API/login.php"; // Pakai Emulator Android
 
     try {
       var response = await http.post(
