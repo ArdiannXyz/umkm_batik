@@ -38,9 +38,9 @@ class _LoginState extends State<LoginPage> {
     }
 
     //Ganti sesuai kebutuhan ya gaess
-    // String url = "http://localhost/umkm_batik/API/login.php";
+    String url = "http://localhost/umkm_batik/API/login.php"; //pakai web
     // String url = "http://namaDomain.com/umkm_batik/API/login.php"; // Pakai Domain
-     String url = "http://10.0.2.2/umkm_batik/API/login.php"; // Pakai Emulator Android
+    //  String url = "http://10.0.2.2/umkm_batik/API/login.php"; // Pakai Emulator Android
 
     try {
       var response = await http.post(
@@ -60,8 +60,8 @@ class _LoginState extends State<LoginPage> {
         );
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setBool('isLoggedIn', true);
-          await prefs.setString('role', 'user');
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('role', 'user');
 
         Navigator.pushReplacement(
           context,
@@ -81,16 +81,14 @@ class _LoginState extends State<LoginPage> {
         isLoading = false;
       });
     }
-    // Saat berhasil login
-    
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
+      resizeToAvoidBottomInset: true, // Menghindari elemen tumpang tindih saat keyboard muncul
+      body: SingleChildScrollView( // Membungkus konten dengan SingleChildScrollView untuk mendukung scroll
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
@@ -138,7 +136,7 @@ class _LoginState extends State<LoginPage> {
               _buildTextField(
                 "Masukkan password anda", controller: passwordController,
                 obscureText:
-                    _obscureText, // Kontrol visibilitas password // Ikon kunci di kiri
+                    _obscureText, // Kontrol visibilitas password
                 suffixIcon: IconButton(
                   icon: Icon(
                     _obscureText
@@ -163,7 +161,7 @@ class _LoginState extends State<LoginPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ForgotPasswordPage()),
+                          builder: (context) => LupaPasswordPage()),
                     );
                   },
                   child: Text(

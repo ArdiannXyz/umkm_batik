@@ -3,21 +3,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class ForgotPasswordPage extends StatefulWidget {
-  const ForgotPasswordPage({super.key});
+class LupaPasswordPage extends StatefulWidget {
+  const LupaPasswordPage({super.key});
 
   @override
-  _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
+  _LupaPasswordPageState createState() => _LupaPasswordPageState();
 }
 
-class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+class _LupaPasswordPageState extends State<LupaPasswordPage> {
   final TextEditingController _emailController = TextEditingController();
   bool isLoading = false;
 
-  // GANTI URL ini sesuai Kebutuhan ya gaess
-  // final String apiUrl = "http://localhost/umkm_batik/API/lupa_password.php";
-  // final String apiUrl = "https://namadomain.com/API/lupa_password.php"; //Pakai Domain
-   final String apiUrl = "https://10.0.2.2/API/lupa_password.php"; // Pakai Emulator Android
+  final String apiUrl = "http://localhost/umkm_batik/API/lupa_password.php";
+  // final String apiUrl = "https://namadomain.com/API/lupa_password.php"; // Pakai Domain
+  // final String apiUrl = "https://10.0.2.2/API/lupa_password.php"; // Pakai Emulator Android
 
   Future<void> _submitReset() async {
     String email = _emailController.text.trim();
@@ -44,7 +43,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data['error'] == false) {
-        // Email ditemukan
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Kode OTP dikirim ke $email"),
@@ -57,7 +55,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           arguments: {'email': email},
         );
       } else {
-        // Email tidak ditemukan
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(data['message']),
@@ -66,7 +63,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         );
       }
     } catch (e) {
-      // Error koneksi
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Terjadi kesalahan, coba lagi nanti."),
@@ -153,13 +149,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               SizedBox(height: 10),
               Center(
                 child: TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pushReplacementNamed(context, '/'),
                   child: Text(
                     "Kembali ke Login",
                     style: TextStyle(color: Colors.blue),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

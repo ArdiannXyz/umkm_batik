@@ -89,9 +89,9 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
        //Ganti sesuai kebutuhan ya gaess
-    // String url = "http://localhost/umkm_batik/API/register.php"; //pakai web
+    String url = "http://localhost/umkm_batik/API/register.php"; //pakai web
     // String url = "http://namaDomain.com/umkm_batik/API/register.php"; // Pakai Domain
-    String url = "http://10.0.2.2/umkm_batik/API/register.php"; // Pakai Emulator Android
+    // String url = "http://10.0.2.2/umkm_batik/API/register.php"; // Pakai Emulator Android
 
     try {
       var response = await http.post(
