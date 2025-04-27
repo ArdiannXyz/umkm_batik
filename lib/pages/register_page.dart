@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'login_page.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:umkm_batik/Services/UserService.dart';
 
 void main() {
   runApp(Register_page());
@@ -90,39 +91,30 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    String url = "http://localhost/umkm_batik/lib/API/register.php";
+     try {
+    final data = await UserService.registerUser(
+      nama: nameController.text,
+      email: emailController.text,
+      noHp: phoneController.text,
+      password: passwordController.text,
+    );
 
-    try {
-      var response = await http.post(
-        Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "nama": nameController.text,
-          "email": emailController.text,
-          "no_hp": phoneController.text,
-          "password": passwordController.text,
-          'role': 'user',
-        }),
-      );
-
-      var data = jsonDecode(response.body);
-
-      if (response.statusCode == 200 && data['error'] == false) {
-        showSuccessDialog();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Registrasi gagal: ${data['message']}")),
-        );
-      }
-    } catch (e) {
+    if (data['error'] == false) {
+      showSuccessDialog();
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Terjadi kesalahan. Coba lagi nanti.")),
+        SnackBar(content: Text("Registrasi gagal: ${data['message']}")),
       );
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Terjadi kesalahan. Coba lagi nanti.")),
+    );
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
+  }
   }
 
   void showSuccessDialog() {

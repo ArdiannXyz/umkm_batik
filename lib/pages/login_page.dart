@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'register_page.dart'; // Halaman setelah login
 import 'dashboard_page.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:umkm_batik/Services/UserService.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -18,8 +19,12 @@ class _LoginState extends State<LoginPage> {
 
   bool isLoading = false;
 
-  bool _obscureText = true; // Indikator loading
+  bool _obscureText = true;
 
+  Future<void> saveUserId(int id) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setInt('id', id); // Indikator loading
+  }
   Future<void> loginUser() async {
     setState(() {
       isLoading = true;
@@ -35,47 +40,28 @@ class _LoginState extends State<LoginPage> {
       return;
     }
 
-    String url = "http://localhost/umkm_batik/lib/API/login.php";
-
     try {
-      var response = await http.post(
-        Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "email": emailController.text,
-          "password": passwordController.text,
-        }),
+    var data = await UserService.login(emailController.text, passwordController.text);
+
+    if (data['error'] == false) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardPage()),
       );
-
-      var data = jsonDecode(response.body);
-
-      if (response.statusCode == 200 && data['error'] == false) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Login berhasil!")),
-        );
-
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setBool('isLoggedIn', true);
-          await prefs.setString('role', 'user');
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => DashboardPage()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Login gagal: ${data['message']}")),
-        );
-      }
-    } catch (e) {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Terjadi kesalahan. Coba lagi nanti.")),
+        SnackBar(content: Text("Login gagal: ${data['message']}")),
       );
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Terjadi kesalahan. Coba lagi nanti.")),
+    );
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
+  }
     // Saat berhasil login
     
 

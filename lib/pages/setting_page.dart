@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart'; // Import halaman login
+import "detail_informasiakun.dart";
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
@@ -49,7 +50,10 @@ class SettingPage extends StatelessWidget {
                           SizedBox(height: 10,),
                           ListTile(
                             title: Text("Detail Informasi Akun"),
-                            onTap: () {},
+                            onTap: () { Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => DetailInformasiAkun()),
+                            );},
                           ),
                           Divider(height: 15,),
                           ListTile(
