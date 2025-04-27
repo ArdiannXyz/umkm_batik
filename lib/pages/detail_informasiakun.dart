@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:umkm_batik/services/userService.dart';
+import 'package:umkm_batik/services/UserService.dart';
 import 'package:umkm_batik/models/user_model.dart';
 import 'editprofil.dart'; // Pastikan import ini sesuai file kamu
 
