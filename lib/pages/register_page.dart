@@ -10,6 +10,8 @@ void main() {
 }
 
 class Register_page extends StatelessWidget {
+  const Register_page({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,6 +22,8 @@ class Register_page extends StatelessWidget {
 }
 
 class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
   @override
   _SignupScreenState createState() => _SignupScreenState();
 }

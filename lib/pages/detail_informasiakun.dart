@@ -5,7 +5,7 @@ import 'package:umkm_batik/models/user_model.dart';
 import 'editprofil.dart'; // Pastikan import ini sesuai file kamu
 
 class DetailInformasiAkun extends StatefulWidget {
-  const DetailInformasiAkun({Key? key}) : super(key: key);
+  const DetailInformasiAkun({super.key});
 
   @override
   State<DetailInformasiAkun> createState() => _DetailInformasiAkunState();

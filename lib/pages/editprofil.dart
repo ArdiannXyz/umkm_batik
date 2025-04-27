@@ -6,7 +6,7 @@ import 'package:umkm_batik/models/user_model.dart';
 class EditProfilPage extends StatefulWidget {
 final User user;
   
-  const EditProfilPage({Key? key, required this.user}) : super(key: key);
+  const EditProfilPage({super.key, required this.user});
   
 
   @override

@@ -9,6 +9,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:umkm_batik/Services/UserService.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   _LoginState createState() => _LoginState();
 }
