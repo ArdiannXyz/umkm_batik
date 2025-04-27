@@ -4,7 +4,7 @@ import 'package:umkm_batik/pages/lupa_password.dart';
 import 'package:umkm_batik/pages/register_page.dart';
 import 'package:umkm_batik/pages/dashboard_page.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:umkm_batik/Services/UserService.dart'; // Pakai UserService baru
+import 'package:umkm_batik/services/user_service.dart'; 
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

@@ -64,7 +64,7 @@ class SettingPage extends StatelessWidget {
                         ListTile(
                           title: const Text("Lupa Password"),
                           onTap: () {
-                            Navigator.pushNamed(context, '/lupa-password');
+                            Navigator.pushNamed(context, '/lupa_password');
                           },
                         ),
                         const SizedBox(height: 10),
