@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-// Import halaman lupa password
+import 'login_page.dart'; // Import halaman login
+import 'detail_informasiakun.dart'; // Import halaman detail informasi akun
+import 'lupa_password.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
@@ -13,7 +15,7 @@ class SettingPage extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.blue[50],
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -23,7 +25,7 @@ class SettingPage extends StatelessWidget {
                   radius: 50,
                   child: ClipOval(
                     child: Image.asset(
-                      'assets/images/profil_orang.png', // Path gambar kamu
+                      'assets/images/profil_orang.png',
                       width: 250,
                       height: 250,
                       fit: BoxFit.cover,
@@ -41,7 +43,12 @@ class SettingPage extends StatelessWidget {
                         const SizedBox(height: 10),
                         ListTile(
                           title: const Text("Detail Informasi Akun"),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const DetailInformasiAkun()),
+                            );
+                          },
                         ),
                         const Divider(height: 15),
                         ListTile(
@@ -57,7 +64,7 @@ class SettingPage extends StatelessWidget {
                         ListTile(
                           title: const Text("Lupa Password"),
                           onTap: () {
-                            Navigator.pushNamed(context, '/lupa-password'); // Navigasi pakai Named Routes
+                            Navigator.pushNamed(context, '/lupa-password');
                           },
                         ),
                         const SizedBox(height: 10),
@@ -70,11 +77,10 @@ class SettingPage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(360, 40),
                     backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 50),
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                   ),
                   onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/'); // Navigasi ke login pakai Named Routes
+                    Navigator.pushReplacementNamed(context, '/');
                   },
                   child: const Text(
                     "Keluar",

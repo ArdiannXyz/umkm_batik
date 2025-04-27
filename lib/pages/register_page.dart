@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'login_page.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:umkm_batik/Services/UserService.dart';
 
 void main() {
   runApp(Register_page());
@@ -88,27 +89,15 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-       //Ganti sesuai kebutuhan ya gaess
-    String url = "http://localhost/umkm_batik/API/register.php"; //pakai web
-    // String url = "http://namaDomain.com/umkm_batik/API/register.php"; // Pakai Domain
-    // String url = "http://10.0.2.2/umkm_batik/API/register.php"; // Pakai Emulator Android
-
     try {
-      var response = await http.post(
-        Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "nama": nameController.text,
-          "email": emailController.text,
-          "no_hp": phoneController.text,
-          "password": passwordController.text,
-          "role": "user",
-        }),
+      final data = await UserService.registerUser(
+        nama: nameController.text,
+        email: emailController.text,
+        noHp: phoneController.text,
+        password: passwordController.text,
       );
 
-      var data = jsonDecode(response.body);
-
-      if (response.statusCode == 200 && data['error'] == false) {
+      if (data['error'] == false) {
         showSuccessDialog();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -158,7 +147,7 @@ class _SignupScreenState extends State<SignupScreen> {
       body: SafeArea(
         child: GestureDetector(
           onTap: () {
-            FocusScope.of(context).unfocus(); // <<< dismiss keyboard
+            FocusScope.of(context).unfocus();
           },
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -301,7 +290,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 30), // Tambahan bottom spacing
+                SizedBox(height: 30),
               ],
             ),
           ),
