@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'login_page.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:umkm_batik/Services/UserService.dart';
+import 'package:umkm_batik/services/user_service.dart';
 
 void main() {
   runApp(Register_page());

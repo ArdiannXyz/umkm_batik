@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:umkm_batik/Services/UserService.dart';
+import 'package:umkm_batik/services/user_service.dart';
 import 'package:umkm_batik/models/user_model.dart';
 
 class EditProfilPage extends StatefulWidget {
