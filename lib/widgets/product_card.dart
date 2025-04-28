@@ -32,8 +32,7 @@ class ProductCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(
-                  padding:
-                      const EdgeInsets.only(left: 16.0), // Tambah padding kiri
+                  padding: const EdgeInsets.only(left: 16.0), // Tambah padding kiri
                   child: Text(
                     "Batik Jeruk",
                     style: GoogleFonts.fredokaOne(
@@ -55,8 +54,7 @@ class ProductCard extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(2)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(2)),
                 child: Image.asset(
                   'assets/images/batikpng.jpg',
                   width: double.infinity,
@@ -68,8 +66,7 @@ class ProductCard extends StatelessWidget {
 
           // Footer dengan navigasi ke detail
           Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -78,7 +75,8 @@ class ProductCard extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const DetailProdukPage()),
+                        builder: (context) => const DetailProdukPage(),
+                      ),
                     );
                   },
                   child: const Text(
@@ -86,7 +84,10 @@ class ProductCard extends StatelessWidget {
                     style: TextStyle(fontSize: 10, color: Colors.blue),
                   ),
                 ),
-                const Text("⭐ 4.2", style: TextStyle(fontSize: 14)),
+                const Text(
+                  "⭐ 4.2",
+                  style: TextStyle(fontSize: 14),
+                ),
               ],
             ),
           ),

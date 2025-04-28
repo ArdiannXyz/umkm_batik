@@ -7,7 +7,7 @@ import 'pages/masuk_otp.dart';
 import 'pages/ganti_password.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyApp ());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LoginPage(),
         '/register': (context) => Register_page(),
-        '/forgot-password': (context) => ForgotPasswordPage(),
+        '/lupa-password': (context) => LupaPasswordPage(),
         '/dashboard': (context) => DashboardPage(),
         '/masuk-otp': (context) => MasukOtpPage(),
         '/ganti-password': (context) => GantiPasswordPage(),

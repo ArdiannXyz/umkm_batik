@@ -13,11 +13,10 @@ class FavoritPage extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.blue[50],
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,20 +25,21 @@ class FavoritPage extends StatelessWidget {
                     Text(
                       "Favoritku",
                       style: GoogleFonts.fredokaOne(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 20),
-
                     // Search Bar
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5.0),
                       child: TextField(
                         decoration: InputDecoration(
                           hintText: "Search",
-                          prefixIcon: Icon(Icons.search),
+                          prefixIcon: const Icon(Icons.search),
                           filled: true,
                           fillColor: Colors.white,
-                          contentPadding: EdgeInsets.all(16),
+                          contentPadding: const EdgeInsets.all(16),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide.none,
@@ -48,15 +48,12 @@ class FavoritPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Produk Favorit (Placeholder)
+                    // Produk Favorit
                     GridView.builder(
-                      physics:
-                          NeverScrollableScrollPhysics(), // Kunci penting - mencegah grid punya scroll sendiri
+                      physics: const NeverScrollableScrollPhysics(), // Mencegah grid punya scroll sendiri
                       shrinkWrap: true,
                       itemCount: 4,
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 250,
                         mainAxisExtent: 270, // Tinggi tetap untuk setiap item
                         crossAxisSpacing: 0,
@@ -65,7 +62,7 @@ class FavoritPage extends StatelessWidget {
                       itemBuilder: (context, index) {
                         return ProductCard();
                       },
-                    )
+                    ),
                   ],
                 ),
               ),

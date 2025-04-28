@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../models/user.dart';
+import '../models/user_model.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -36,7 +36,7 @@ class DatabaseHelper {
 
   Future<int> insertUser(User user) async {
     Database db = await database;
-    return await db.insert('users', user.toMap());
+    return await db.insert('users', user.toJson());
   }
 
   Future<User?> getUserByEmail(String email) async {
@@ -47,7 +47,7 @@ class DatabaseHelper {
       whereArgs: [email],
     );
     if (result.isNotEmpty) {
-      return User.fromMap(result.first);
+      return User.fromJson(result.first);
     }
     return null;
   }

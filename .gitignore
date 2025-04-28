@@ -43,3 +43,15 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# CMake/NDK build artifacts (jangan ikut commit)
+**/CMakeFiles/
+**/CMakeCache.txt
+**/*.o
+**/*.so
+**/*.a
+**/*.bin
+**/*.json
+**/build.ninja
+**/cmake_install.cmake
+/android/app/.cxx/

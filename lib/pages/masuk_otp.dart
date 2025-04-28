@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MasukOtpPage extends StatefulWidget {
   const MasukOtpPage({super.key});
@@ -12,8 +14,15 @@ class _MasukOtpPageState extends State<MasukOtpPage> {
   final TextEditingController _otpController = TextEditingController();
   bool isLoading = false;
 
-  void _submitOtp() {
+  final String apiUrl = "http://localhost/umkm_batik/API/cek_otp.php"; 
+  // Ganti kalau pakai domain: "https://namadomainmu.com/API/cek_otp.php"
+  // atau emulator Android: "http://10.0.2.2/umkm_batik/API/cek_otp.php"
+
+  Future<void> _submitOtp() async {
     String otp = _otpController.text.trim();
+
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    String email = args['email'];
 
     if (otp.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -27,10 +36,39 @@ class _MasukOtpPageState extends State<MasukOtpPage> {
 
     setState(() => isLoading = true);
 
-    Future.delayed(Duration(seconds: 2), () {
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({'email': email, 'otp': otp}),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['error'] == false) {
+        Navigator.pushNamed(
+          context,
+          '/ganti-password',
+          arguments: {'email': email},
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(data['message']),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Terjadi kesalahan, coba lagi."),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
       setState(() => isLoading = false);
-      Navigator.pushNamed(context, '/ganti-password');
-    });
+    }
   }
 
   @override
