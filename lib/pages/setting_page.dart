@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart'; // Import halaman login
+//import 'login_page.dart'; // Import halaman login
 import 'detail_informasiakun.dart'; // Import halaman detail informasi akun
-import 'lupa_password.dart';
+//import 'lupa_password.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
