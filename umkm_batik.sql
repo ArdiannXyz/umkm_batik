@@ -242,7 +242,7 @@ CREATE TABLE `users` (
   `email` varchar(100) DEFAULT NULL,
   `no_hp` varchar(20) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
-  `otp` int DEFAULT NULL,
+  `otp` varchar(6) DEFAULT NULL,
   `otp_expiry` datetime DEFAULT NULL,
   `role` enum('admin','user') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `avatar` varchar(255) DEFAULT NULL,
