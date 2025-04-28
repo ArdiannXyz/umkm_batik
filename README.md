@@ -23,7 +23,7 @@ Aplikasi ini bertujuan untuk membantu mendigitalisasi UMKM Batik yang ada di Kab
 
 ![App Preview](https://via.placeholder.com/600x400.png?text=Preview+Coming+Soon)
 
-*(Akan diganti dengan GIF preview aplikasi)*
+*(Akan diganti dengan GIF preview aplikasi , berhubung belum selesai , hehehehe)*
 
 ---
 
@@ -45,4 +45,4 @@ lib/
 │    ├── lupa_password.dart
 │    ├── masuk_otp.dart
 │    ├── ganti_password.dart
-├── widgets/                # (Opsional) Komponen kecil reusable
+├── widgets/                
