@@ -27,7 +27,7 @@ class _PesananPageState extends State<PesananPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F7FA),
+      backgroundColor: const Color(0xFFDEF1FF),
       appBar: AppBar(
         title: const Text("Pesanan saya"),
         backgroundColor: const Color(0xFF0D6EFD),
@@ -40,6 +40,8 @@ class _PesananPageState extends State<PesananPage>
             Tab(text: "Selesai"),
             Tab(text: "Batal"),
           ],
+          labelColor: Colors.black, // Mengubah warna label yang aktif menjadi hitam
+          unselectedLabelColor: Colors.black, // Mengubah warna label yang tidak aktif menjadi hitam
         ),
       ),
       body: TabBarView(
@@ -67,16 +69,16 @@ class _PesananPageState extends State<PesananPage>
             );
           },
           child: Container(
-            padding: const EdgeInsets.all(16), // Add padding to the container
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white, // Set the background color to white
-              borderRadius: BorderRadius.circular(12), // Rounded corners
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.2),
                   spreadRadius: 2,
                   blurRadius: 5,
-                  offset: Offset(0, 3), // Shadow position
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),

@@ -44,7 +44,7 @@ class _DetailInformasiAkunState extends State<DetailInformasiAkun> {
         elevation: 0,
         
         leading: IconButton(
-          padding: const EdgeInsets.symmetric(vertical: 25),
+          padding: const EdgeInsets.symmetric(vertical: 0),
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
@@ -54,7 +54,7 @@ class _DetailInformasiAkunState extends State<DetailInformasiAkun> {
         centerTitle: true,
         
         title: const Padding(
-          padding: EdgeInsets.only(top: 20),
+          padding: EdgeInsets.only(top: 0),
         
         child: Text(
           

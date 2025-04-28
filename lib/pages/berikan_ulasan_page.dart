@@ -11,32 +11,6 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
   int selectedRating = 0;
   final TextEditingController _reviewController = TextEditingController();
 
-  void _showDraftDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        content: const Text('Hapus Draf?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              _reviewController.clear();
-              Navigator.pop(context);
-            },
-            child: const Text('Hapus'),
-          ),
-          TextButton(
-            onPressed: () {
-              // Simpan draf jika perlu
-              Navigator.pop(context);
-            },
-            child: const Text('Simpan'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   void dispose() {
     _reviewController.dispose();
@@ -46,7 +20,7 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue[50],
+      backgroundColor: const Color(0xFFDEF1FF),
       appBar: AppBar(
         title: const Text('Berikan Ulasan'),
         centerTitle: true,
@@ -61,10 +35,10 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Rating bintang
+            // Rating bintang dengan jarak antar bintang
             Container(
               decoration: BoxDecoration(
-                color: Colors.blue[50],
+                color: const Color.fromARGB(255, 255, 255, 255),
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -72,16 +46,19 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(
                   5,
-                  (index) => IconButton(
-                    onPressed: () {
-                      setState(() {
-                        selectedRating = index + 1;
-                      });
-                    },
-                    icon: Icon(
-                      index < selectedRating ? Icons.star : Icons.star_border,
-                      size: 40,
-                      color: Colors.amber,
+                  (index) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8), // Jarak antar bintang
+                    child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedRating = index + 1;
+                        });
+                      },
+                      icon: Icon(
+                        index < selectedRating ? Icons.star : Icons.star_border,
+                        size: 42,
+                        color: Colors.amber,
+                      ),
                     ),
                   ),
                 ),
@@ -103,37 +80,6 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Hapus Draf
-            GestureDetector(
-              onTap: _showDraftDialog,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                decoration: BoxDecoration(
-                  color: Colors.blue[50],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Row(
-                      children: [
-                        Text('Hapus',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black)),
-                        SizedBox(width: 16),
-                        Text('Simpan',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black)),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
 
             const Spacer(),
 

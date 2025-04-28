@@ -6,7 +6,7 @@ class EditAddressPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F7FA), // Background biru muda
+      backgroundColor: const Color(0xFFDEF1FF), 
       appBar: AppBar(
         backgroundColor: const Color(0xFF0D6EFD),
         title: const Text("Ubah Alamat"),
@@ -54,6 +54,7 @@ class EditAddressPage extends StatelessWidget {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white, // Teks berwarna putih
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -72,6 +73,7 @@ class EditAddressPage extends StatelessWidget {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
+                          foregroundColor: Colors.white, // Teks berwarna putih
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),

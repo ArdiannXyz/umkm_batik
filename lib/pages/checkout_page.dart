@@ -15,11 +15,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F7FA), // Background biru muda
+      backgroundColor: const Color(0xFFDEF1FF), // Background biru muda
       appBar: AppBar(
         title: const Text("Checkout"),
         backgroundColor: const Color(0xFF0D6EFD),
-        centerTitle: true, // Supaya title di tengah
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -29,20 +29,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
               _buildSection(
                 child: ListTile(
                   leading: const Icon(Icons.location_on, color: Colors.blue),
-                  title: Text(alamat), // Alamat yang diupdate
+                  title: Text(alamat),
                   subtitle: const Text(
                       "Sukoreno gang 6 ketimur toko tingkat selatan jalan UMBULSARI,KAB Jember,JAWA TIMUR"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () async {
-                    // Navigasi ke halaman PilihAlamatPage dan tunggu hasilnya
                     final result = await Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => const PilihAlamatPage()),
+                      MaterialPageRoute(builder: (context) => const PilihAlamatPage()),
                     );
 
                     if (result != null) {
-                      // Jika ada hasil, update alamat
                       setState(() {
                         alamat = result;
                       });
@@ -118,47 +115,55 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Total : 419.000"),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
-                          ),
-                        ),
-                        onPressed: () {
-                          // Tampilkan snackbar dulu
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("Pesanan berhasil dibuat!")),
-                          );
-
-                          // Delay sedikit supaya Snackbar sempat muncul
-                          Future.delayed(const Duration(seconds: 1), () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => PesananPage()),
-                            );
-                          });
-                        },
-                        child: const Text("Buat Pesanan",
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              const SizedBox(height: 100), // Spasi supaya tidak ketutupan tombol
             ],
           ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        height: 70,
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Total : 419.000",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black54,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF0D6EFD),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Pesanan berhasil dibuat!")),
+                );
+                Future.delayed(const Duration(seconds: 1), () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => PesananPage()),
+                  );
+                });
+              },
+              child: const Text(
+                "Buat Pesanan",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -169,7 +174,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white, // Putih untuk section card
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
       child: child,
