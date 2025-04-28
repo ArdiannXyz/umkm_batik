@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GantiPasswordPage extends StatefulWidget {
@@ -14,6 +16,9 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
+  // URL API untuk ganti password
+  final String changePasswordApiUrl = "http://localhost/umkm_batik/API/ganti_password.php";
+
   void _showMessage(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -23,10 +28,14 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
     );
   }
 
-  void _changePassword() async {
+  void _GantiPasswordPage() async {
     String newPassword = _newPasswordController.text.trim();
     String confirmPassword = _confirmPasswordController.text.trim();
 
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    String email = args['email'];
+
+    // Validasi input
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
       _showMessage("Semua kolom harus diisi.", isError: true);
       return;
@@ -37,15 +46,27 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
       return;
     }
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('password', newPassword);
+    try {
+      final response = await http.post(
+        Uri.parse(changePasswordApiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({'email': email, 'password': newPassword}),
+      );
 
-    _showMessage("Password berhasil diubah.");
+      final data = jsonDecode(response.body);
 
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushNamedAndRemoveUntil(
-          context, '/', (route) => false); // kembali ke login
-    });
+      // Cek respon dari server
+      if (response.statusCode == 200 && data['error'] == false) {
+        _showMessage(data['message']);
+        Future.delayed(const Duration(seconds: 2), () {
+          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+        });
+      } else {
+        _showMessage(data['message'], isError: true);
+      }
+    } catch (e) {
+      _showMessage("Terjadi kesalahan, coba lagi.", isError: true);
+    }
   }
 
   @override
@@ -127,7 +148,7 @@ class _GantiPasswordPageState extends State<GantiPasswordPage> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  onPressed: _changePassword,
+                  onPressed: _GantiPasswordPage,
                   child: const Text(
                     "Simpan Password",
                     style: TextStyle(color: Colors.white, fontSize: 16),
