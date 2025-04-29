@@ -6,9 +6,9 @@ class SemuaUlasanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue[50],
+      backgroundColor: const Color(0xFFDEF1FF),
       appBar: AppBar(
-        backgroundColor: Colors.blue[50],
+        backgroundColor: const Color(0xFFDEF1FF),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -64,7 +64,7 @@ class SemuaUlasanPage extends StatelessWidget {
   // Widget untuk tombol filter rating
   Widget _ratingFilterButton(String label, bool isSelected) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.only(right: 0),
       child: ElevatedButton(
         onPressed: () {},
         style: ElevatedButton.styleFrom(
@@ -93,7 +93,7 @@ class SemuaUlasanPage extends StatelessWidget {
             BoxShadow(
               color: Colors.grey.withOpacity(0.2),
               spreadRadius: 2,
-              blurRadius: 5,
+              blurRadius: 0,
               offset: Offset(0, 3), // Shadow position
             ),
           ],

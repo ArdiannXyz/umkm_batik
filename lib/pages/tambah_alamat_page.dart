@@ -6,7 +6,7 @@ class TambahAlamatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F7FA), // Background biru muda
+      backgroundColor: const Color(0xFFDEF1FF), 
       appBar: AppBar(
         backgroundColor: const Color(0xFF0D6EFD),
         title: const Text("Tambah Alamat"),
@@ -54,12 +54,12 @@ class TambahAlamatPage extends StatelessWidget {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white, // Tambahkan ini
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         onPressed: () {
-                          // TODO: Aksi simpan
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text("Alamat disimpan")),
                           );
@@ -72,12 +72,12 @@ class TambahAlamatPage extends StatelessWidget {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
+                          foregroundColor: Colors.white, // Tambahkan ini
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         onPressed: () {
-                          // TODO: Aksi hapus alamat
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text("Alamat dihapus")),
                           );

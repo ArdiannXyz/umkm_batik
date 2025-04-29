@@ -16,7 +16,7 @@ class FavoritPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.blue[50],
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +55,7 @@ class FavoritPage extends StatelessWidget {
                       itemCount: 4,
                       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 250,
-                        mainAxisExtent: 270, // Tinggi tetap untuk setiap item
+                        mainAxisExtent: 230, // Tinggi tetap untuk setiap item
                         crossAxisSpacing: 0,
                         mainAxisSpacing: 5,
                       ),

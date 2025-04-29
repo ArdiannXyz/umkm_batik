@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String baseUrl = 'http://localhost/umkm_batik/API/'; // Base URL di sini
+const String baseUrl = 'http://192.168.1.11/umkm_batik/API/'; // Base URL di sini
 
 class UserService {
   //GET user detailakun
@@ -59,7 +59,7 @@ class UserService {
     }
   }
         // register
-static Future<Map<String, dynamic>> registerUser({
+  static Future<Map<String, dynamic>> registerUser({
   required String nama,
   required String email,
   required String noHp,
@@ -90,7 +90,7 @@ static Future<Map<String, dynamic>> registerUser({
   }
 }
         //login
-static Future<Map<String, dynamic>> login(String email, String password) async {
+  static Future<Map<String, dynamic>> login(String email, String password) async {
     String url = "${baseUrl}login.php";
 
     try {
