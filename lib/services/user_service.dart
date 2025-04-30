@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String baseUrl = 'http://192.168.1.11/umkm_batik/API/'; // Base URL di sini
+const String baseUrl = 'http://localhost/umkm_batik/API/'; // Base URL di sini
 
 class UserService {
   //GET user detailakun
@@ -118,5 +118,66 @@ class UserService {
       throw Exception('Gagal login: $e');
     }
   }
+
+  // lupa_password
+static Future<Map<String, dynamic>> lupaPassword(String email) async {
+  try {
+    final response = await http.post(
+      Uri.parse('${baseUrl}lupa_password.php'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return {'error': true, 'message': 'Server error'};
+    }
+  } catch (e) {
+    print('Exception saat lupa password: $e');
+    return {'error': true, 'message': 'Terjadi kesalahan.'};
+  }
+}
+
+  //cek_otp
+static Future<Map<String, dynamic>> cekOtp(String email, String otp) async {
+  try {
+    final response = await http.post(
+      Uri.parse('${baseUrl}cek_otp.php'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({'email': email, 'otp': otp}),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return {'error': true, 'message': 'Server error'};
+    }
+  } catch (e) {
+    print('Exception saat cek OTP: $e');
+    return {'error': true, 'message': 'Terjadi kesalahan.'};
+  }
+}
+
   
+  // ganti_password
+static Future<Map<String, dynamic>> gantiPassword(String email, String password) async {
+  try {
+    final response = await http.post(
+      Uri.parse('${baseUrl}ganti_password.php'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return {'error': true, 'message': 'Server error'};
+    }
+  } catch (e) {
+    print('Exception saat ganti password: $e');
+    return {'error': true, 'message': 'Terjadi kesalahan.'};
+  }
+}
+
 }
