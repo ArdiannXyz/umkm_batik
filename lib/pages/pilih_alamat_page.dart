@@ -8,7 +8,7 @@ class PilihAlamatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F7FA),
+      backgroundColor: const Color(0xFFDEF1FF),
       appBar: AppBar(
         title: const Text('Pilih Alamat'),
         backgroundColor: const Color(0xFF0D6EFD),
@@ -24,7 +24,7 @@ class PilihAlamatPage extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(0),
                   ),
                   child: Row(
                     children: [
@@ -65,22 +65,30 @@ class PilihAlamatPage extends StatelessWidget {
             ),
           ),
           Container(
+            width: double.infinity, // biar tombol full lebar
             padding: const EdgeInsets.all(16),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 minimumSize: const Size.fromHeight(48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
               ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const TambahAlamatPage(), // ✅ Sudah diarahkan dengan benar
-                  ),
+                  MaterialPageRoute(builder: (context) => const TambahAlamatPage()),
                 );
               },
-              child: const Text('Tambah Alamat'),
+              child: const Text(
+                'Tambah Alamat',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
             ),
           ),
         ],

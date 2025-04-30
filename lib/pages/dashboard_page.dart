@@ -109,7 +109,7 @@ class DashboardView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
                         Text(
-                          "Hi Ado Chann,",
+                          "Hi Ado Chann Nani ga suki ?,",
                           style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -142,7 +142,7 @@ class DashboardView extends StatelessWidget {
                     itemCount: 4,
                     gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                       maxCrossAxisExtent: 250,
-                      mainAxisExtent: 270,
+                      mainAxisExtent: 230,
                       crossAxisSpacing: 0,
                       mainAxisSpacing: 5,
                     ),

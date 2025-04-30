@@ -7,7 +7,7 @@ class DetailPesananPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F7FA),
+      backgroundColor: const Color(0xFFDEF1FF),
       appBar: AppBar(
         title: const Text("Detail Pemesanan"),
         backgroundColor: const Color(0xFF0D6EFD),
