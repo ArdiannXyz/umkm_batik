@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/user_service.dart'; // Import UserService
 
 class MasukOtpPage extends StatefulWidget {
   const MasukOtpPage({super.key});
@@ -14,61 +13,56 @@ class _MasukOtpPageState extends State<MasukOtpPage> {
   final TextEditingController _otpController = TextEditingController();
   bool isLoading = false;
 
-  final String apiUrl = "http://localhost/umkm_batik/API/cek_otp.php"; 
-  // Ganti kalau pakai domain: "https://namadomainmu.com/API/cek_otp.php"
-  // atau emulator Android: "http://10.0.2.2/umkm_batik/API/cek_otp.php"
-
   Future<void> _submitOtp() async {
     String otp = _otpController.text.trim();
-
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     String email = args['email'];
 
     if (otp.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Kode OTP harus 6 digit."),
           backgroundColor: Colors.red,
         ),
       );
+      _otpController.clear();
+      return;
+    }
+
+    if (!RegExp(r'^\d{6}$').hasMatch(otp)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Kode OTP hanya boleh berisi angka."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      _otpController.clear();
       return;
     }
 
     setState(() => isLoading = true);
 
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({'email': email, 'otp': otp}),
+    final result = await UserService.cekOtp(email, otp);
+
+    if (!mounted) return;
+
+    if (result['error'] == false) {
+      Navigator.pushNamed(
+        context,
+        '/ganti-password',
+        arguments: {'email': email},
       );
-
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode == 200 && data['error'] == false) {
-        Navigator.pushNamed(
-          context,
-          '/ganti-password',
-          arguments: {'email': email},
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data['message']),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Terjadi kesalahan, coba lagi."),
+          content: Text(result['message']),
           backgroundColor: Colors.red,
         ),
       );
-    } finally {
-      setState(() => isLoading = false);
+      _otpController.clear();
     }
+
+    setState(() => isLoading = false);
   }
 
   @override
@@ -138,7 +132,7 @@ class _MasukOtpPageState extends State<MasukOtpPage> {
                   ),
                   onPressed: isLoading ? null : _submitOtp,
                   child: isLoading
-                      ? CircularProgressIndicator(color: Colors.white)
+                      ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           "Lanjut",
                           style: TextStyle(color: Colors.white, fontSize: 16),
