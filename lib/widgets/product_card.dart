@@ -13,11 +13,11 @@ class ProductCard extends StatelessWidget {
 
   const ProductCard({
     
-    Key? key,
+    super.key,
     required this.product,
     this.isFavorite = false,
     this.onFavoriteToggle,
-  }) : super(key: key);
+  });
 
 
           @override
