@@ -34,6 +34,8 @@ flutter:
     - assets/images/Asset5.png
     - assets/images/profil_orang.png
     - assets/images/batikpng.jpg
+    - assets/images/home_agreement.png
+    - assets/images/brokenimage.png
 
 flutter_native_splash:
   color: "#2596be"

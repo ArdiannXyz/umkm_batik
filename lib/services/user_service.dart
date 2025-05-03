@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String baseUrl = 'http://192.168.1.11/umkm_batik/API/'; // Base URL di sini
+
+const String baseUrl = 'http://localhost/umkm_batik/API/'; // Base URL di sini
 
 class UserService {
   //GET user detailakun
@@ -119,4 +120,69 @@ class UserService {
     }
   }
   
+  
+ static Future<void> toggleFavorite(int userId, int productId) async {
+  try {
+    final response = await http.post(
+      Uri.parse('${baseUrl}toggle_favorite.php'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'user_id': userId,
+        'product_id': productId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success']) {
+        print("Toggle favorite success. Favorited: ${data['favorited']}");
+      } else {
+        print("Gagal toggle favorite: ${data['message']}");
+      }
+    } else {
+      print('HTTP error: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Exception saat toggle favorite: $e');
+  }
+}
+
+
+  // GET FAVORITES
+  static Future<Set<int>> getFavorites(int userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${baseUrl}get_favorite.php?user_id=$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          return Set<int>.from(data['favorites']);
+        }
+      }
+    } catch (e) {
+      print('Exception saat get favorites: $e');
+    }
+    return {};
+  }
+
+  static Future<List<int>> fetchFavorites(int userId) async {
+  final response = await http.get(
+    Uri.parse('${baseUrl}get_favorite.php?user_id=$userId'),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    if (data['success']) {
+      List favorites = data['favorites'];
+      return favorites.cast<int>().toList();
+
+    }
+  }
+  return [];
+}
+
 }
