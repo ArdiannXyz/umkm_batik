@@ -17,9 +17,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFDEF1FF), // Background biru muda
       appBar: AppBar(
-        title: const Text("Checkout"),
-        backgroundColor: const Color(0xFF0D6EFD),
-        centerTitle: true,
+        title: Text(
+    'Checkout',
+       style:TextStyle(
+    color: Colors.white,
+        
+        ),
+      ),
+      backgroundColor: const Color(0xFF0D6EFD),
+      centerTitle: true,
+      leading: IconButton(
+    icon: Icon(Icons.arrow_back, color: Colors.white),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -32,7 +44,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   title: Text(alamat),
                   subtitle: const Text(
                       "Sukoreno gang 6 ketimur toko tingkat selatan jalan UMBULSARI,KAB Jember,JAWA TIMUR"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
                   onTap: () async {
                     final result = await Navigator.push(
                       context,

@@ -9,9 +9,21 @@ class DetailPesananPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFDEF1FF),
       appBar: AppBar(
-        title: const Text("Detail Pemesanan"),
+        title: Text(
+    'Detail pemesanan',
+       style:TextStyle(
+    color: Colors.white,
+        
+        ),
+      ),
         backgroundColor: const Color(0xFF0D6EFD),
         centerTitle: true,
+        leading: IconButton(
+    icon: Icon(Icons.arrow_back, color: Colors.white),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  ),
       ),
       body: SingleChildScrollView(
         child: Padding(
