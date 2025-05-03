@@ -10,7 +10,11 @@ class SettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
+         child: LayoutBuilder(
+    builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -91,7 +95,11 @@ class SettingPage extends StatelessWidget {
               ],
             ),
           ),
-        ),
+          ),
+    
+        );
+    },
+         ),
       ),
     );
   }

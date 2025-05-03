@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String baseUrl = 'http://192.168.1.11/umkm_batik/API/'; // Base URL di sini
+const String baseUrl = 'http://localhost/umkm_batik/API/'; // Base URL di sini
 
 class UserService {
   //GET user detailakun
@@ -28,8 +28,10 @@ class UserService {
     }
     return null;
   }
-      //update_user
-  static Future<bool> updateUser(int id, String nama, String email, String noHp) async {
+
+  //update_user
+  static Future<bool> updateUser(
+      int id, String nama, String email, String noHp) async {
     try {
       final response = await http.post(
         Uri.parse('${baseUrl}update_user.php'),
@@ -58,39 +60,41 @@ class UserService {
       return false;
     }
   }
-        // register
-  static Future<Map<String, dynamic>> registerUser({
-  required String nama,
-  required String email,
-  required String noHp,
-  required String password,
-}) async {
-  
-  try {
-    final response = await http.post(
-      Uri.parse('${baseUrl}register.php'),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        'nama': nama,
-        'email': email,
-        'no_hp': noHp,
-        'password': password,
-        'role': 'user',
-      }),
-    );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      return {'error': true, 'message': 'Server error'};
+  // register
+  static Future<Map<String, dynamic>> registerUser({
+    required String nama,
+    required String email,
+    required String noHp,
+    required String password,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${baseUrl}register.php'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          'nama': nama,
+          'email': email,
+          'no_hp': noHp,
+          'password': password,
+          'role': 'user',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': true, 'message': 'Server error'};
+      }
+    } catch (e) {
+      print('Exception saat register: $e');
+      return {'error': true, 'message': 'Terjadi kesalahan.'};
     }
-  } catch (e) {
-    print('Exception saat register: $e');
-    return {'error': true, 'message': 'Terjadi kesalahan.'};
   }
-}
-        //login
-  static Future<Map<String, dynamic>> login(String email, String password) async {
+
+  //login
+  static Future<Map<String, dynamic>> login(
+      String email, String password) async {
     String url = "${baseUrl}login.php";
 
     try {
@@ -118,5 +122,128 @@ class UserService {
       throw Exception('Gagal login: $e');
     }
   }
-  
+
+  // lupa_password
+  static Future<Map<String, dynamic>> lupaPassword(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${baseUrl}lupa_password.php'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({'email': email}),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': true, 'message': 'Server error'};
+      }
+    } catch (e) {
+      print('Exception saat lupa password: $e');
+      return {'error': true, 'message': 'Terjadi kesalahan.'};
+    }
+  }
+
+  //cek_otp
+  static Future<Map<String, dynamic>> cekOtp(String email, String otp) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${baseUrl}cek_otp.php'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({'email': email, 'otp': otp}),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': true, 'message': 'Server error'};
+      }
+    } catch (e) {
+      print('Exception saat cek OTP: $e');
+      return {'error': true, 'message': 'Terjadi kesalahan.'};
+    }
+  }
+
+  // ganti_password
+  static Future<Map<String, dynamic>> gantiPassword(
+      String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${baseUrl}ganti_password.php'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': true, 'message': 'Server error'};
+      }
+    } catch (e) {
+      print('Exception saat ganti password: $e');
+      return {'error': true, 'message': 'Terjadi kesalahan.'};
+    }
+  }
+
+  static Future<void> toggleFavorite(int userId, int productId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${baseUrl}toggle_favorite.php'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'user_id': userId,
+          'product_id': productId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          print("Toggle favorite success. Favorited: ${data['favorited']}");
+        } else {
+          print("Gagal toggle favorite: ${data['message']}");
+        }
+      } else {
+        print('HTTP error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception saat toggle favorite: $e');
+    }
+  }
+
+  // GET FAVORITES
+  static Future<Set<int>> getFavorites(int userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${baseUrl}get_favorite.php?user_id=$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          return Set<int>.from(data['favorites']);
+        }
+      }
+    } catch (e) {
+      print('Exception saat get favorites: $e');
+    }
+    return {};
+  }
+
+  //fetch Favorites
+  static Future<List<int>> fetchFavorites(int userId) async {
+    final response = await http.get(
+      Uri.parse('${baseUrl}get_favorite.php?user_id=$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success']) {
+        List favorites = data['favorites'];
+        return favorites.cast<int>().toList();
+      }
+    }
+    return [];
+  }
 }

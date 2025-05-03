@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/user_service.dart'; // Import user_service
 
 class LupaPasswordPage extends StatefulWidget {
   const LupaPasswordPage({super.key});
@@ -14,16 +13,12 @@ class _LupaPasswordPageState extends State<LupaPasswordPage> {
   final TextEditingController _emailController = TextEditingController();
   bool isLoading = false;
 
-  final String apiUrl = "http://localhost/umkm_batik/API/lupa_password.php";
-  // final String apiUrl = "https://namadomain.com/API/lupa_password.php"; // Pakai Domain
-  // final String apiUrl = "https://10.0.2.2/API/lupa_password.php"; // Pakai Emulator Android
-
   Future<void> _submitReset() async {
     String email = _emailController.text.trim();
 
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Silakan masukkan email Anda."),
           backgroundColor: Colors.red,
         ),
@@ -33,45 +28,32 @@ class _LupaPasswordPageState extends State<LupaPasswordPage> {
 
     setState(() => isLoading = true);
 
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({'email': email}),
-      );
+    final result = await UserService.lupaPassword(email);
 
-      final data = jsonDecode(response.body);
+    if (!mounted) return;
 
-      if (response.statusCode == 200 && data['error'] == false) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Kode OTP dikirim ke $email"),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pushNamed(
-          context,
-          '/masuk-otp',
-          arguments: {'email': email},
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data['message']),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
+    if (result['error'] == false) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Terjadi kesalahan, coba lagi nanti."),
+          content: Text("Kode OTP dikirim ke $email"),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pushNamed(
+        context,
+        '/masuk-otp',
+        arguments: {'email': email},
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message']),
           backgroundColor: Colors.red,
         ),
       );
-    } finally {
-      setState(() => isLoading = false);
     }
+
+    setState(() => isLoading = false);
   }
 
   @override
@@ -103,7 +85,7 @@ class _LupaPasswordPageState extends State<LupaPasswordPage> {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 "Masukkan email yang terdaftar untuk reset password.",
                 style: GoogleFonts.fredokaOne(
@@ -111,9 +93,9 @@ class _LupaPasswordPageState extends State<LupaPasswordPage> {
                   fontWeight: FontWeight.w400,
                 ),
               ),
-              SizedBox(height: 20),
-              Text("Email"),
-              SizedBox(height: 8),
+              const SizedBox(height: 20),
+              const Text("Email"),
+              const SizedBox(height: 8),
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
@@ -126,7 +108,7 @@ class _LupaPasswordPageState extends State<LupaPasswordPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -139,18 +121,19 @@ class _LupaPasswordPageState extends State<LupaPasswordPage> {
                   ),
                   onPressed: isLoading ? null : _submitReset,
                   child: isLoading
-                      ? CircularProgressIndicator(color: Colors.white)
-                      : Text(
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
                           "Kirim Link Reset",
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Center(
                 child: TextButton(
-                  onPressed: () => Navigator.pushReplacementNamed(context, '/'),
-                  child: Text(
+                  onPressed: () =>
+                      Navigator.pushReplacementNamed(context, '/'),
+                  child: const Text(
                     "Kembali ke Login",
                     style: TextStyle(color: Colors.blue),
                   ),

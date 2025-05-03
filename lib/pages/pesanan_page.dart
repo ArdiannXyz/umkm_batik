@@ -24,37 +24,49 @@ class _PesananPageState extends State<PesananPage>
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFDEF1FF),
-      appBar: AppBar(
-        title: const Text("Pesanan saya"),
-        backgroundColor: const Color(0xFF0D6EFD),
-        centerTitle: true,
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: "Dikemas"),
-            Tab(text: "Dikirim"),
-            Tab(text: "Selesai"),
-            Tab(text: "Batal"),
-          ],
-          labelColor: Colors.black, // Mengubah warna label yang aktif menjadi hitam
-          unselectedLabelColor: Colors.black, // Mengubah warna label yang tidak aktif menjadi hitam
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: const Color(0xFFDEF1FF),
+    appBar: AppBar(
+      title: Text(
+        'Pesanan saya',
+        style: TextStyle(
+          color: Colors.white,
+           backgroundColor: const Color(0xFF0D6EFD),
         ),
       ),
-      body: TabBarView(
+      leading: IconButton(
+    icon: Icon(Icons.arrow_back, color: Colors.white),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  ),
+      backgroundColor: const Color(0xFF0D6EFD),
+      bottom: TabBar(
         controller: _tabController,
-        children: [
-          _buildOrderList("Dikemas"),
-          _buildOrderList("Dikirim"),
-          _buildOrderList("Selesai"),
-          _buildOrderList("Batal"),
+        tabs: const [
+          Tab(text: "Dikemas"),
+          Tab(text: "Dikirim"),
+          Tab(text: "Selesai"),
+          Tab(text: "Batal"),
         ],
+        labelColor: Colors.white, // Mengubah warna label yang aktif menjadi hitam
+        unselectedLabelColor: Colors.black, // Mengubah warna label yang tidak aktif menjadi hitam
       ),
-    );
-  }
+      centerTitle: true,
+    ),
+    body: TabBarView(
+      controller: _tabController,
+      children: [
+        _buildOrderList("Dikemas"),
+        _buildOrderList("Dikirim"),
+        _buildOrderList("Selesai"),
+        _buildOrderList("Batal"),
+      ],
+    ),
+  );
+}
 
   Widget _buildOrderList(String status) {
     return ListView(
@@ -75,7 +87,7 @@ class _PesananPageState extends State<PesananPage>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: Colors.white,
                   spreadRadius: 2,
                   blurRadius: 5,
                   offset: const Offset(0, 3),
