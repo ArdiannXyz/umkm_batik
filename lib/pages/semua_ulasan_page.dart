@@ -1,7 +1,63 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-class SemuaUlasanPage extends StatelessWidget {
-  const SemuaUlasanPage({super.key});
+class SemuaUlasanPage extends StatefulWidget {
+  final int productId;
+  const SemuaUlasanPage({super.key, required this.productId});
+
+  @override
+  State<SemuaUlasanPage> createState() => _SemuaUlasanPageState();
+}
+
+class _SemuaUlasanPageState extends State<SemuaUlasanPage> {
+  List<dynamic> allReviews = [];
+  List<dynamic> filteredReviews = [];
+  bool isLoading = true;
+  int? selectedRating;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchReviews();
+  }
+
+  Future<void> fetchReviews() async {
+    final response = await http.get(
+      Uri.parse(
+          "http://localhost/umkm_batik/API/get_reviews.php?product_id=${widget.productId}"),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data is List) {
+        setState(() {
+          allReviews = data;
+          filteredReviews = data;
+          isLoading = false;
+        });
+      }
+    } else {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal memuat ulasan")),
+      );
+    }
+  }
+
+  void filterReviews(int? rating) {
+    setState(() {
+      selectedRating = rating;
+      if (rating == null) {
+        filteredReviews = allReviews;
+      } else {
+        filteredReviews = allReviews
+            .where(
+                (review) => int.tryParse(review['rating'].toString()) == rating)
+            .toList();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,57 +76,63 @@ class SemuaUlasanPage extends StatelessWidget {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Filter Rating
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _ratingFilterButton('Semua', true),
-                  _ratingFilterButton('5 ⭐', false),
-                  _ratingFilterButton('4 ⭐', false),
-                  _ratingFilterButton('3 ⭐', false),
-                  _ratingFilterButton('2 ⭐', false),
-                  _ratingFilterButton('1 ⭐', false),
+                  // Filter Rating
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _ratingFilterButton(
+                            'Semua', selectedRating == null, null),
+                        _ratingFilterButton('5 ⭐', selectedRating == 5, 5),
+                        _ratingFilterButton('4 ⭐', selectedRating == 4, 4),
+                        _ratingFilterButton('3 ⭐', selectedRating == 3, 3),
+                        _ratingFilterButton('2 ⭐', selectedRating == 2, 2),
+                        _ratingFilterButton('1 ⭐', selectedRating == 1, 1),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Semua',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Daftar Ulasan
+                  Expanded(
+                    child: filteredReviews.isEmpty
+                        ? const Center(child: Text("Belum ada ulasan."))
+                        : ListView.builder(
+                            itemCount: filteredReviews.length,
+                            itemBuilder: (context, index) {
+                              final ulasan = filteredReviews[index];
+                              return _buildReviewCard(ulasan);
+                            },
+                          ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Semua',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            const SizedBox(height: 16),
-
-            // Daftar Ulasan
-            Expanded(
-              child: ListView.builder(
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return _buildReviewCard();
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
-  // Widget untuk tombol filter rating
-  Widget _ratingFilterButton(String label, bool isSelected) {
+  // Tombol filter rating
+  Widget _ratingFilterButton(String label, bool isSelected, int? ratingValue) {
     return Padding(
-      padding: const EdgeInsets.only(right: 0),
+      padding: const EdgeInsets.only(right: 8),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () => filterReviews(ratingValue),
         style: ElevatedButton.styleFrom(
           backgroundColor: isSelected ? Colors.blue : Colors.white,
           foregroundColor: isSelected ? Colors.white : Colors.black,
-          side: BorderSide(color: Colors.blue),
+          side: const BorderSide(color: Colors.blue),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
@@ -80,21 +142,23 @@ class SemuaUlasanPage extends StatelessWidget {
     );
   }
 
-  // Widget untuk setiap ulasan
-  Widget _buildReviewCard() {
+  // Widget untuk satu review
+  Widget _buildReviewCard(dynamic ulasan) {
+    int rating = int.tryParse(ulasan['rating'].toString()) ?? 0;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Container(
-        padding: const EdgeInsets.all(16), // Add padding inside the container
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white, // Set background to white
-          borderRadius: BorderRadius.circular(12), // Rounded corners
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.2),
               spreadRadius: 2,
               blurRadius: 0,
-              offset: Offset(0, 3), // Shadow position
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -110,25 +174,23 @@ class SemuaUlasanPage extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
-                    'Ahmad Sumbul',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    ulasan['nama'] ?? 'Pengguna',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.blue, size: 16),
-                      Icon(Icons.star, color: Colors.blue, size: 16),
-                      Icon(Icons.star, color: Colors.blue, size: 16),
-                      Icon(Icons.star, color: Colors.blue, size: 16),
-                      Icon(Icons.star, color: Colors.blue, size: 16),
-                    ],
+                    children: List.generate(
+                      rating,
+                      (index) =>
+                          const Icon(Icons.star, color: Colors.blue, size: 16),
+                    ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'Batikinya dari segi kainnya lumayan bagus untuk harga segitu. Dan saya juga senang ketika mengunjungi tempatnya, pelayanannya ramah dan dengan beli batik ini bisa support umkm.',
-                    style: TextStyle(fontSize: 13),
+                    ulasan['komentar'] ?? '',
+                    style: const TextStyle(fontSize: 13),
                   ),
                 ],
               ),
