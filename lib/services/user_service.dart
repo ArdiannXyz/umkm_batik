@@ -231,6 +231,21 @@ class UserService {
     return {};
   }
 
+  static Future<List<int>> fetchadd_alamats(int userId) async {
+    final response = await http.get(
+      Uri.parse('${baseUrl}get_user.php?user_id=$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success']) {
+        List favorites = data['favorites'];
+        return favorites.cast<int>().toList();
+      }
+    }
+    return [];
+  }
+
   //fetch Favorites
   static Future<List<int>> fetchFavorites(int userId) async {
     final response = await http.get(

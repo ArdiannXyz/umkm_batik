@@ -19,6 +19,8 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
   Map<String, dynamic>? product;
   List<dynamic> ulasanList = [];
   bool isLoading = true;
+  int currentImageIndex = 0;
+  final PageController _pageController = PageController();
 
   @override
   void initState() {
@@ -89,6 +91,257 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
     }
   }
 
+  Widget _buildProductImageGallery() {
+    // Check if we have images to display
+    if (product?['images'] != null &&
+        product!['images'].isNotEmpty &&
+        product!['images'][0]['image_base64'] != null) {
+      // Create a PageView for swiping through multiple images if available
+      return Stack(
+        children: [
+          // Main image container with border styling
+          Container(
+            height: 450,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: Colors.grey.shade200,
+                width: 1.0,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 0,
+                  blurRadius: 0,
+                  offset: const Offset(0, 0),
+                ),
+              ],
+            ),
+            child: product!['images'].length > 1
+                ? PageView.builder(
+                    controller: _pageController,
+                    itemCount: product!['images'].length,
+                    onPageChanged: (index) {
+                      setState(() {
+                        currentImageIndex = index;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onHorizontalDragEnd: (details) {
+                          if (details.primaryVelocity! > 0) {
+                            // Swipe right
+                            if (currentImageIndex > 0) {
+                              _pageController.previousPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          } else if (details.primaryVelocity! < 0) {
+                            // Swipe left
+                            if (currentImageIndex <
+                                product!['images'].length - 1) {
+                              _pageController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(1),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade100),
+                          ),
+                          child: Image.memory(
+                            _base64ToImage(
+                                product!['images'][index]['image_base64']),
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    padding: const EdgeInsets.all(1),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade100),
+                    ),
+                    child: Image.memory(
+                      _base64ToImage(product!['images'][0]['image_base64']),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+          ),
+
+          // Image counter indicator (like in Shopee)
+          if (product!['images'].length > 1)
+            Positioned(
+              right: 10,
+              bottom: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${currentImageIndex + 1}/${product!['images'].length}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
+          // Pagination dots for multiple images
+          if (product!['images'].length > 1)
+            Positioned(
+              bottom: 40,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  product!['images'].length,
+                  (index) => Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: currentImageIndex == index
+                          ? Colors.blue
+                          : Colors.grey.withOpacity(0.0),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+          // Left and right navigation arrows for multiple images
+          if (product!['images'].length > 1) ...[
+            // Left arrow
+            Positioned(
+              left: 10,
+              top: 0,
+              bottom: 0,
+              child: GestureDetector(
+                onTap: () {
+                  if (currentImageIndex > 0) {
+                    _pageController.previousPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+            // Right arrow
+            Positioned(
+              right: 10,
+              top: 0,
+              bottom: 0,
+              child: GestureDetector(
+                onTap: () {
+                  if (currentImageIndex < product!['images'].length - 1) {
+                    _pageController.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      );
+    } else {
+      // Fallback if no images are available
+      return Container(
+        height: 250,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.image_not_supported, size: 50, color: Colors.grey),
+              SizedBox(height: 8),
+              Text(
+                "Tidak ada gambar produk",
+                style: TextStyle(color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildThumbnailInBottomSheet() {
+    if (product?['images'] != null && product!['images'].isNotEmpty) {
+      return Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(7),
+          child: Image.memory(
+            _base64ToImage(product!['images'][0]['image_base64']),
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    } else {
+      return Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.image_not_supported, color: Colors.grey),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,42 +368,57 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
           : SingleChildScrollView(
               child: Column(
                 children: <Widget>[
-                  product?['images'] != null &&
-                          product!['images'].isNotEmpty &&
-                          product!['images'][0]['image_base64'] != null
-                      ? Image.memory(
-                          _base64ToImage(product!['images'][0]['image_base64']),
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        )
-                      : const Center(child: Text("Tidak ada gambar")),
+                  // Using our enhanced product image gallery
+                  _buildProductImageGallery(),
+
+                  // Adding spacing between image and title/price container
+                  const SizedBox(height: 8),
+
                   Container(
-                    decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                      BoxShadow(
-                          color: Colors.grey.withOpacity(0.2), spreadRadius: 2),
-                    ]),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.2),
+                            spreadRadius: 0,
+                            blurRadius: 0,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]),
+                    margin: const EdgeInsets.symmetric(horizontal: 0),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                        horizontal: 16, vertical: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(product?['nama'] ?? 'Batik',
+                            Expanded(
+                              child: Text(
+                                product?['nama'] ?? 'Batik',
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16)),
+                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
                             Text(
                               'Rp.${double.parse(product?['harga'] ?? '0').toStringAsFixed(0)}',
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.blue,
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
                         Text(
                           product?['deskripsi'] ?? 'Deskripsi tidak tersedia.',
-                          style: const TextStyle(fontSize: 13),
+                          style: const TextStyle(fontSize: 14),
                         ),
                       ],
                     ),
@@ -168,7 +436,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                       children: [
                         const Text('Beri rating produk ini',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 24)),
+                                fontWeight: FontWeight.bold, fontSize: 16)),
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -187,7 +455,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 8),
                                 child: Icon(Icons.star_border,
-                                    color: Colors.amber, size: 50),
+                                    color: Colors.amber, size: 40),
                               ),
                             );
                           }),
@@ -273,7 +541,8 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                                                       .toString()) ??
                                                   0,
                                               (index) => const Icon(Icons.star,
-                                                  size: 14, color: Colors.blue),
+                                                  size: 14,
+                                                  color: Colors.amber),
                                             ),
                                           ),
                                           const SizedBox(height: 4),
@@ -348,15 +617,8 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          if (product?['images'] != null &&
-                                              product!['images'].isNotEmpty)
-                                            Image.memory(
-                                              _base64ToImage(product!['images']
-                                                  [0]['image_base64']),
-                                              width: 80,
-                                              height: 80,
-                                              fit: BoxFit.cover,
-                                            ),
+                                          // Use our enhanced thumbnail method
+                                          _buildThumbnailInBottomSheet(),
                                           const SizedBox(width: 12),
                                           Expanded(
                                             child: Column(
