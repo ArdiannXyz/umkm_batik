@@ -70,7 +70,7 @@ if ($result && $result->num_rows > 0) {
         'success' => true,
         'data' => $products
     ]);
-} else {
+} else {  
     echo json_encode([
         'success' => true,
         'data' => []

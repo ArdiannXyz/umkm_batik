@@ -10,7 +10,7 @@ header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // Create a log file for debugging
-$logFile = fopen("review_api_log.txt", "a");
+$logFile = fopen("check_review_log.txt", "a");
 fwrite($logFile, "-------------- " . date('Y-m-d H:i:s') . " --------------\n");
 fwrite($logFile, "Request method: " . $_SERVER['REQUEST_METHOD'] . "\n");
 
@@ -81,113 +81,74 @@ if ($jsonError !== JSON_ERROR_NONE) {
 fwrite($logFile, "Decoded data: " . print_r($data, true) . "\n");
 
 // Pastikan semua field ada
-$required_fields = ['product_id', 'user_id', 'rating', 'komentar'];
+$required_fields = ['product_id', 'user_id'];
 $missing_fields = [];
 
 foreach ($required_fields as $field) {
-    if (!isset($data[$field]) || trim($data[$field] === '')) {
+    if (!isset($data[$field])) {
         $missing_fields[] = $field;
     }
 }
 
 if (!empty($missing_fields)) {
-    sendError("Field berikut tidak ditemukan atau kosong: " . implode(", ", $missing_fields));
+    sendError("Field berikut tidak ditemukan: " . implode(", ", $missing_fields));
 }
 
 // Persiapkan dan bersihkan data untuk mencegah SQL injection
 $product_id = (int)$data['product_id'];
 $user_id = (int)$data['user_id'];
-$rating = (int)$data['rating'];
-$komentar = $data['komentar'];
-
-// Validasi nilai rating
-if ($rating < 1 || $rating > 5) {
-    sendError("Rating harus antara 1-5");
-}
-
-// Check if database table exists
-$tableCheckQuery = "SHOW TABLES LIKE 'reviews'";
-$tableExists = $conn->query($tableCheckQuery);
-
-if ($tableExists->num_rows == 0) {
-    // Table doesn't exist, create it
-    fwrite($logFile, "Table 'reviews' doesn't exist. Creating it...\n");
-    
-    $createTableSQL = "CREATE TABLE reviews (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        product_id INT NOT NULL,
-        user_id INT NOT NULL,
-        rating INT NOT NULL,
-        komentar TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY unique_review (product_id, user_id)
-    )";
-    
-    if (!$conn->query($createTableSQL)) {
-        sendError("Failed to create table: " . $conn->error, 500);
-    }
-    
-    fwrite($logFile, "Table 'reviews' created successfully\n");
-}
 
 try {
-    // Cek apakah user sudah memberikan ulasan untuk produk ini sebelumnya
-    $check_sql = "SELECT id FROM reviews WHERE user_id = ? AND product_id = ?";
-    $check_stmt = $conn->prepare($check_sql);
+    // Check if reviews table exists
+    $tableCheckQuery = "SHOW TABLES LIKE 'reviews'";
+    $tableExists = $conn->query($tableCheckQuery);
     
-    if (!$check_stmt) {
-        sendError("Gagal mempersiapkan query cek ulasan: " . $conn->error, 500);
+    if ($tableExists->num_rows == 0) {
+        // Table doesn't exist yet, so user hasn't reviewed
+        fwrite($logFile, "Reviews table doesn't exist yet\n");
+        http_response_code(200);
+        echo json_encode([
+            "success" => true,
+            "has_reviewed" => false
+        ]);
+        exit;
     }
     
-    $check_stmt->bind_param("ii", $user_id, $product_id);
-    $check_stmt->execute();
-    $check_result = $check_stmt->get_result();
-    
-    if ($check_result->num_rows > 0) {
-        $check_stmt->close();
-        sendError("Anda sudah memberikan ulasan untuk produk ini");
-    }
-    
-    $check_stmt->close();
-    
-    // User belum memberikan ulasan, lanjutkan proses insert
-    $sql = "INSERT INTO reviews (product_id, user_id, rating, komentar) 
-            VALUES (?, ?, ?, ?)";
-            
+    // Cek apakah user sudah memberikan ulasan untuk produk ini dan ambil datanya jika ada
+    $sql = "SELECT * FROM reviews WHERE user_id = ? AND product_id = ?";
     $stmt = $conn->prepare($sql);
-
+    
     if (!$stmt) {
         sendError("Gagal mempersiapkan query: " . $conn->error, 500);
     }
-
-    $stmt->bind_param(
-        "iiis",
-        $product_id,
-        $user_id,
-        $rating,
-        $komentar
-    );
-
-    // Eksekusi query dan tangani hasilnya
-    if ($stmt->execute()) {
-        fwrite($logFile, "Insert successful. New review ID: " . $conn->insert_id . "\n");
-        
-        http_response_code(200);
-        echo json_encode([
-            "success" => true, 
-            "message" => "Review berhasil ditambahkan",
-            "id" => $conn->insert_id
-        ]);
-    } else {
-        // Check for duplicate entry error (code 1062)
-        if ($stmt->errno == 1062) {
-            sendError("Anda sudah memberikan ulasan untuk produk ini");
-        } else {
-            sendError("Gagal menyimpan ulasan: " . $stmt->error, 500);
-        }
+    
+    $stmt->bind_param("ii", $user_id, $product_id);
+    
+    if (!$stmt->execute()) {
+        sendError("Gagal menjalankan query: " . $stmt->error, 500);
     }
-
-    // Tutup koneksi
+    
+    $result = $stmt->get_result();
+    $has_reviewed = $result->num_rows > 0;
+    
+    fwrite($logFile, "Has reviewed: " . ($has_reviewed ? "Yes" : "No") . "\n");
+    
+    // Response data
+    $response = [
+        "success" => true,
+        "has_reviewed" => $has_reviewed
+    ];
+    
+    // Jika user sudah memberikan ulasan, tambahkan data ulasan ke response
+    if ($has_reviewed) {
+        $review_data = $result->fetch_assoc();
+        $response["review_data"] = $review_data;
+        fwrite($logFile, "Review data: " . print_r($review_data, true) . "\n");
+    }
+    
+    http_response_code(200);
+    echo json_encode($response);
+    
     $stmt->close();
 } catch (Exception $e) {
     sendError("Error processing request: " . $e->getMessage(), 500);
