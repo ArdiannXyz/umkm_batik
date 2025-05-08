@@ -10,28 +10,28 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  String alamat = "Ado Chann"; // Alamat default
+  // Tambahkan variabel untuk menyimpan objek Address yang dipilih
+  Address? selectedAddress;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFDEF1FF), // Background biru muda
       appBar: AppBar(
-        title: Text(
-    'Checkout',
-       style:TextStyle(
-    color: Colors.white,
-        
+        title: const Text(
+          'Checkout',
+          style: TextStyle(
+            color: Colors.white,
+          ),
         ),
-      ),
-      backgroundColor: const Color(0xFF0D6EFD),
-      centerTitle: true,
-      leading: IconButton(
-    icon: Icon(Icons.arrow_back, color: Colors.white),
-    onPressed: () {
-      Navigator.pop(context);
-    },
-  ),
+        backgroundColor: const Color(0xFF0D6EFD),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -39,24 +39,65 @@ class _CheckoutPageState extends State<CheckoutPage> {
           child: Column(
             children: [
               _buildSection(
-                child: ListTile(
-                  leading: const Icon(Icons.location_on, color: Colors.blue),
-                  title: Text(alamat),
-                  subtitle: const Text(
-                      "Sukoreno gang 6 ketimur toko tingkat selatan jalan UMBULSARI,KAB Jember,JAWA TIMUR"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                child: InkWell(
                   onTap: () async {
                     final result = await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const PilihAlamatPage()),
+                      MaterialPageRoute(
+                          builder: (context) => const PilihAlamatPage()),
                     );
 
-                    if (result != null) {
+                    if (result != null && result is Address) {
                       setState(() {
-                        alamat = result;
+                        selectedAddress = result;
                       });
                     }
                   },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.location_on, color: Colors.blue),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                selectedAddress?.namaLengkap ?? "Pilih Alamat",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              selectedAddress != null
+                                  ? Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(selectedAddress!.alamatLengkap),
+                                        Text(
+                                          "${selectedAddress!.kecamatan}, ${selectedAddress!.kota}, ${selectedAddress!.provinsi}",
+                                        ),
+                                        Text(
+                                            "Kode Pos: ${selectedAddress!.kodePos}"),
+                                        Text(
+                                            "No. HP: ${selectedAddress!.nomorHp}"),
+                                      ],
+                                    )
+                                  : const Text(
+                                      "Tap untuk memilih alamat pengiriman",
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios,
+                            size: 16, color: Colors.grey),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -87,27 +128,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               const SizedBox(height: 12),
               _buildSection(
-                child: ListTile(
-                  title: const Text("Informasi Pengiriman"),
-                  trailing: const Text("Rp.15.000"),
-                  leading: const Radio(
+                child: const ListTile(
+                  title: Text("Informasi Pengiriman"),
+                  trailing: Text("Rp.15.000"),
+                  leading: Radio(
                     value: true,
                     groupValue: true,
                     onChanged: null,
                   ),
-                  subtitle: const Text("JNE"),
+                  subtitle: Text("JNE"),
                 ),
               ),
               const SizedBox(height: 12),
               _buildSection(
-                child: ListTile(
-                  title: const Text("Metode Pembayaran"),
-                  leading: const Radio(
+                child: const ListTile(
+                  title: Text("Metode Pembayaran"),
+                  leading: Radio(
                     value: true,
                     groupValue: true,
                     onChanged: null,
                   ),
-                  subtitle: const Text("MidTrans"),
+                  subtitle: Text("MidTrans"),
                 ),
               ),
               const SizedBox(height: 12),
@@ -127,7 +168,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 100), // Spasi supaya tidak ketutupan tombol
+              const SizedBox(
+                  height: 100), // Spasi supaya tidak ketutupan tombol
             ],
           ),
         ),
@@ -149,23 +191,28 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF0D6EFD),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                backgroundColor: const Color(0xFF0D6EFD),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Pesanan berhasil dibuat!")),
-                );
-                Future.delayed(const Duration(seconds: 1), () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => PesananPage()),
-                  );
-                });
-              },
+              onPressed: selectedAddress == null
+                  ? null // Disable button jika alamat belum dipilih
+                  : () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text("Pesanan berhasil dibuat!")),
+                      );
+                      Future.delayed(const Duration(seconds: 1), () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const PesananPage()),
+                        );
+                      });
+                    },
               child: const Text(
                 "Buat Pesanan",
                 style: TextStyle(
