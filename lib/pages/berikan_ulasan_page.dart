@@ -71,7 +71,7 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
   Future<void> checkExistingReview(int userId) async {
     try {
       final url =
-          Uri.parse("http://localhost/umkm_batik/API/check_reviews.php");
+          Uri.parse("http://192.168.231.254/umkm_batik/API/check_reviews.php");
 
       final response = await http.post(
         url,

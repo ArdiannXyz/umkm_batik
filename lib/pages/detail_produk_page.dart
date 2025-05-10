@@ -33,7 +33,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
     try {
       final response = await http.get(
         Uri.parse(
-            "http://localhost/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
+            "http://192.168.231.254/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
       );
 
       if (response.statusCode == 200) {
@@ -66,7 +66,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
 
   Future<void> fetchUlasan() async {
     final response = await http.get(Uri.parse(
-        'http://localhost/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
+        'http://192.168.231.254/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
