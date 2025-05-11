@@ -360,23 +360,7 @@ class _DashboardViewState extends State<DashboardView> {
                 style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
             ),
-            // Container(
-            //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            //   decoration: BoxDecoration(
-            //     color: Colors.blue.withOpacity(0.1),
-            //     borderRadius: BorderRadius.circular(4),
-            //   ),
-            //   child: const Row(
-            //     children: [
-            //       //Icon(Icons.filter_list, color: Colors.blue, size: 16),
-            //       SizedBox(width: 4),
-            //       Text(
-            //         "Filter",
-            //         style: TextStyle(color: Colors.blue, fontSize: 12),
-            //       ),
-            //     ],
-            //   ),
-            // ),
+            
           ],
         ),
       ),
@@ -384,45 +368,7 @@ class _DashboardViewState extends State<DashboardView> {
   );
 }
   
-  // Widget _buildFilterButton() {
-  //   return GestureDetector(
-  //     onTap: _toggleFilterOptions,
-  //     child: Container(
-  //       padding: const EdgeInsets.all(10),
-  //       decoration: BoxDecoration(
-  //         color: Colors.blue,
-  //         borderRadius: BorderRadius.circular(10),
-  //         boxShadow: [
-  //           BoxShadow(
-  //             color: Colors.grey.withOpacity(0.3),
-  //             spreadRadius: 1,
-  //             blurRadius: 3,
-  //             offset: const Offset(0, 1),
-  //           ),
-  //         ],
-  //       ),
-  //       child: const Row(
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: [
-  //           Icon(
-  //             //Icons.filter_list,
-  //             color: Colors.white,
-  //             size: 18,
-  //           ),
-  //           SizedBox(width: 2),
-  //           Text(
-  //             "Filter",
-  //             style: TextStyle(
-  //               color: Colors.white,
-  //               fontWeight: FontWeight.bold,
-  //               fontSize: 12,
-  //             ),
-  //           )
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
+
   
   Widget _buildSearchHistory() {
     return Container(
@@ -519,7 +465,7 @@ class _DashboardViewState extends State<DashboardView> {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -713,7 +659,7 @@ class _DashboardViewState extends State<DashboardView> {
   
   Widget _buildProductGrid() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -768,8 +714,8 @@ class _DashboardViewState extends State<DashboardView> {
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 250,
         mainAxisExtent: 230,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 15,
+        crossAxisSpacing: 0,
+        mainAxisSpacing: 5,
       ),
       itemBuilder: (context, index) {
         final product = filteredProducts[index];

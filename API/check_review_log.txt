@@ -662,3 +662,244 @@ Review data: Array
 
 -------------- END --------------
 
+-------------- 2025-05-10 01:38:12 --------------
+Request method: OPTIONS
+-------------- 2025-05-10 01:38:12 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 1
+    [product_id] => 1
+    [user_id] => 5
+    [rating] => 5
+    [komentar] => Ado Chan nani ga suki ?
+    [updated_at] => 
+    [created_at] => 2025-05-04 23:49:43
+)
+
+-------------- END --------------
+
+-------------- 2025-05-10 01:38:37 --------------
+Request method: OPTIONS
+-------------- 2025-05-10 01:38:37 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-10 01:38:57 --------------
+Request method: OPTIONS
+-------------- 2025-05-10 01:38:57 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 28
+    [product_id] => 1
+    [user_id] => 5
+    [rating] => 3
+    [komentar] => ssw
+    [updated_at] => 
+    [created_at] => 2025-05-10 08:38:44
+)
+
+-------------- END --------------
+
+-------------- 2025-05-10 01:39:50 --------------
+Request method: OPTIONS
+-------------- 2025-05-10 01:39:50 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 28
+    [product_id] => 1
+    [user_id] => 5
+    [rating] => 3
+    [komentar] => ssw
+    [updated_at] => 
+    [created_at] => 2025-05-10 08:38:44
+)
+
+-------------- END --------------
+
+-------------- 2025-05-10 02:49:10 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 28
+    [product_id] => 1
+    [user_id] => 5
+    [rating] => 3
+    [komentar] => ssw
+    [updated_at] => 
+    [created_at] => 2025-05-10 08:38:44
+)
+
+-------------- END --------------
+
+-------------- 2025-05-10 02:50:26 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 28
+    [product_id] => 1
+    [user_id] => 5
+    [rating] => 3
+    [komentar] => ssw
+    [updated_at] => 
+    [created_at] => 2025-05-10 08:38:44
+)
+
+-------------- END --------------
+
+-------------- 2025-05-10 02:51:09 --------------
+Request method: POST
+Raw input: {"product_id":3,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 3
+    [user_id] => 5
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-10 13:58:12 --------------
+Request method: POST
+Raw input: {"product_id":2,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 2
+    [user_id] => 5
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-10 14:51:41 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 28
+    [product_id] => 1
+    [user_id] => 5
+    [rating] => 3
+    [komentar] => ssw
+    [updated_at] => 
+    [created_at] => 2025-05-10 08:38:44
+)
+
+-------------- END --------------
+
+-------------- 2025-05-10 14:56:36 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 28
+    [product_id] => 1
+    [user_id] => 5
+    [rating] => 3
+    [komentar] => ssw
+    [updated_at] => 
+    [created_at] => 2025-05-10 08:38:44
+)
+
+-------------- END --------------
+
+-------------- 2025-05-10 14:56:39 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-10 14:57:59 --------------
+Request method: POST
+Raw input: {"product_id":2,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 2
+    [user_id] => 5
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-10 14:58:08 --------------
+Request method: POST
+Raw input: {"product_id":3,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 3
+    [user_id] => 5
+)
+
+Has reviewed: No
+-------------- END --------------
+

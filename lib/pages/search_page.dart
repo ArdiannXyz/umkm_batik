@@ -264,12 +264,14 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return Scaffold(
+        backgroundColor: Colors.blue[50],
         appBar: _buildSearchAppBar(),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
+      backgroundColor: Colors.blue[50],
       appBar: _buildSearchAppBar(),
       body: Column(
         children: [
@@ -298,12 +300,14 @@ class _SearchPageState extends State<SearchPage> {
         icon: const Icon(Icons.arrow_back, color: Colors.black87),
         onPressed: () => Navigator.of(context).pop(),
       ),
+      
       title: TextField(
         controller: searchController,
         focusNode: searchFocusNode,
         decoration: InputDecoration(
           hintText: "Cari batik...",
           border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric( vertical: 18),
           suffixIcon: searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear, color: Colors.grey),
@@ -332,7 +336,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildSuggestionsView() {
-    return ListView(
+  return Container(
+    color: Colors.white, // Tambahkan ini untuk background putih
+    child: ListView(
       children: [
         // Display search suggestions if typing
         if (searchSuggestions.isNotEmpty) _buildSuggestionsList(),
@@ -343,8 +349,9 @@ class _SearchPageState extends State<SearchPage> {
         // Popular keywords section
         _buildPopularKeywordsSection(),
       ],
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildSuggestionsList() {
     return Column(
@@ -682,10 +689,10 @@ class _SearchPageState extends State<SearchPage> {
     return GridView.builder(
       padding: const EdgeInsets.all(8),
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 200,
-        mainAxisExtent: 280,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 12,
+        maxCrossAxisExtent: 250,
+        mainAxisExtent: 250,
+        crossAxisSpacing: 0,
+        mainAxisSpacing: 5,
       ),
       itemCount: searchResults.length,
       itemBuilder: (context, index) {

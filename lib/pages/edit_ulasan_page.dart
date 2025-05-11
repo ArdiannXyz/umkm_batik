@@ -84,7 +84,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
 
     setState(() => isSubmitting = true);
 
-    final url = Uri.parse("http://localhost/umkm_batik/API/edit_reviews.php");
+    final url = Uri.parse("http://192.168.231.254/umkm_batik/API/edit_reviews.php");
 
     try {
       final response = await http.post(
@@ -157,7 +157,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
 
     setState(() => isDeleting = true);
 
-    final url = Uri.parse("http://localhost/umkm_batik/API/delete_reviews.php");
+    final url = Uri.parse("http://192.168.231.254/umkm_batik/API/delete_reviews.php");
 
     try {
       final response = await http.post(
@@ -257,7 +257,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
               children: List.generate(
                 5,
                 (index) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
                   child: IconButton(
                     onPressed: () {
                       setState(() {
