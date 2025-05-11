@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'detail_pesanan_page.dart';
 
 class PesananPage extends StatefulWidget {
-  const PesananPage({super.key});
+  final int initialTabIndex;
+
+  const PesananPage({super.key, this.initialTabIndex = 0}); // default: tab pertama
 
   @override
   State<PesananPage> createState() => _PesananPageState();
@@ -15,7 +17,7 @@ class _PesananPageState extends State<PesananPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 4, vsync: this, initialIndex: widget.initialTabIndex);
   }
 
   @override
