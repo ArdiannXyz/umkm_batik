@@ -809,3 +809,97 @@ Decoded data: Array
 Has reviewed: No
 -------------- END --------------
 
+-------------- 2025-05-10 13:58:12 --------------
+Request method: POST
+Raw input: {"product_id":2,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 2
+    [user_id] => 5
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-10 14:51:41 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 28
+    [product_id] => 1
+    [user_id] => 5
+    [rating] => 3
+    [komentar] => ssw
+    [updated_at] => 
+    [created_at] => 2025-05-10 08:38:44
+)
+
+-------------- END --------------
+
+-------------- 2025-05-10 14:56:36 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 28
+    [product_id] => 1
+    [user_id] => 5
+    [rating] => 3
+    [komentar] => ssw
+    [updated_at] => 
+    [created_at] => 2025-05-10 08:38:44
+)
+
+-------------- END --------------
+
+-------------- 2025-05-10 14:56:39 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-10 14:57:59 --------------
+Request method: POST
+Raw input: {"product_id":2,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 2
+    [user_id] => 5
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-10 14:58:08 --------------
+Request method: POST
+Raw input: {"product_id":3,"user_id":5}
+Decoded data: Array
+(
+    [product_id] => 3
+    [user_id] => 5
+)
+
+Has reviewed: No
+-------------- END --------------
+

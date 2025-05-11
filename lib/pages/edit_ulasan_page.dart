@@ -257,7 +257,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
               children: List.generate(
                 5,
                 (index) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
                   child: IconButton(
                     onPressed: () {
                       setState(() {

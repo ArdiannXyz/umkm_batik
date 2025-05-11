@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:umkm_batik/pages/panduan.dart';
 import 'detail_informasiakun.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'pesanan_page.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
@@ -16,7 +18,7 @@ class SettingPage extends StatelessWidget {
             Stack(
               children: [
                 SizedBox(
-                  height: 200,
+                  height: 180,
                   width: double.infinity,
                   child: SvgPicture.asset(
                     'assets/images/pattern_s.svg',
@@ -55,31 +57,73 @@ class SettingPage extends StatelessWidget {
  child: Column(
   children: [
     // 🔹 Pesanan Saya
-    Container(
-      width: double.infinity,
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Pesanan saya", style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          Row(
-  mainAxisAlignment: MainAxisAlignment.center, // Center the icons
-  children: const [
-    _PesananItem(icon: Icons.inbox, label: "Dikemas"),
-    SizedBox(width: 50), // Add spacing between icons
-    _PesananItem(icon: Icons.local_shipping, label: "Dikirim"),
-    SizedBox(width: 50), // Add spacing between icons
-    _PesananItem(icon: Icons.assignment_turned_in, label: "Selesai"),
-    SizedBox(width: 50), // Add spacing between icons
-    _PesananItem(icon: Icons.cancel, label: "Batal"),
+    InkWell(
+  onTap: () {
+    Navigator.push(context,
+      MaterialPageRoute(builder: (context) => const PesananPage()),
+    );
+  },
+  child: Container(
+    width: double.infinity,
+    color: Colors.white,
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Pesanan saya", style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+         Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    _PesananItem(
+      icon: Icons.inbox,
+      label: "Dikemas",
+      onTap: () {
+        Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const PesananPage(initialTabIndex: 0)),
+        );
+      },
+    ),
+     SizedBox(width: 20),
+    _PesananItem(
+      icon: Icons.local_shipping,
+      label: "Dikirim",
+      onTap: () {
+        Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const PesananPage(initialTabIndex: 1)),
+        );
+      },
+    ),
+     SizedBox(width: 20),
+    _PesananItem(
+      icon: Icons.assignment_turned_in,
+      label: "Selesai",
+      onTap: () {
+        Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const PesananPage(initialTabIndex: 2)),
+        );
+      },
+    ),
+     SizedBox(width: 20),
+    _PesananItem(
+      icon: Icons.cancel,
+      label: "Batal",
+      onTap: () {
+        Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const PesananPage(initialTabIndex: 3)),
+        );
+      },
+    ),
   ],
 ),
 
-        ],
-      ),
+
+            ],
     ),
+  ),
+),
+  
+
 
     const SizedBox(height: 10),
 
@@ -103,7 +147,10 @@ class SettingPage extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.help_outline),
             title: const Text("Panduan"),
-            onTap: () {},
+            onTap: () {Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PanduanChatbot()),
+              );},
           ),
           const SizedBox(height: 10),
           ListTile(
@@ -149,17 +196,22 @@ class SettingPage extends StatelessWidget {
 class _PesananItem extends StatelessWidget {
   final IconData icon;
   final String label;
+  final VoidCallback onTap;
 
-  const _PesananItem({required this.icon, required this.label});
+  const _PesananItem({required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, size: 30),
-        const SizedBox(height: 10),
-        Text(label, style: const TextStyle(fontSize: 12)),
-      ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Icon(icon, size: 30),
+          const SizedBox(height: 10),
+          Text(label, style: const TextStyle(fontSize: 12)),
+        ],
+      ),
     );
   }
 }
+

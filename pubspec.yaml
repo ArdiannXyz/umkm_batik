@@ -38,9 +38,10 @@ flutter:
     - assets/images/home_agreement.png
     - assets/images/brokenimage.png
     - assets/images/pattern_s.svg
+    - assets/images/splash_2.png
 
 flutter_native_splash:
   color: "#2596be"
-  image: assets/images/Asset5.png
+  image: assets/images/splash_2.png
   android: true
   ios: true
