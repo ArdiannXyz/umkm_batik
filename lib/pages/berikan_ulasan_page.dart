@@ -71,7 +71,7 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
   Future<void> checkExistingReview(int userId) async {
     try {
       final url =
-          Uri.parse("http://localhost/umkm_batik/API/check_reviews.php");
+          Uri.parse("http://192.168.231.254/umkm_batik/API/check_reviews.php");
 
       final response = await http.post(
         url,
@@ -350,7 +350,7 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
 
   Widget _buildReviewForm() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 16),
       child: Column(
         children: [
           const SizedBox(height: 8),
@@ -367,7 +367,7 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
               children: List.generate(
                 5,
                 (index) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
                   child: IconButton(
                     onPressed: () {
                       setState(() {

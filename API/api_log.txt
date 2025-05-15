@@ -529,3 +529,27 @@ Requested user_id: 13
 Found 2 addresses for user_id: 13
 -------------- END --------------
 
+-------------- 2025-05-10 01:57:43 --------------
+Request method: GET
+Requested user_id: 5
+Found 1 addresses for user_id: 5
+-------------- END --------------
+
+-------------- 2025-05-10 01:57:57 --------------
+Request method: GET
+Requested user_id: 5
+Found 1 addresses for user_id: 5
+-------------- END --------------
+
+-------------- 2025-05-10 03:36:10 --------------
+Request method: GET
+Requested user_id: 5
+Found 1 addresses for user_id: 5
+-------------- END --------------
+
+-------------- 2025-05-10 03:36:17 --------------
+Request method: GET
+Requested user_id: 5
+Found 1 addresses for user_id: 5
+-------------- END --------------
+

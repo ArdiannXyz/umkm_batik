@@ -5,11 +5,17 @@ import 'package:http/http.dart' as http;
 import 'semua_ulasan_page.dart';
 import 'berikan_ulasan_page.dart';
 import 'checkout_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:umkm_batik/services/user_service.dart';
 
 class DetailProdukPage extends StatefulWidget {
   final int productId;
+  final bool isFavorite;
+final Function()? onFavoriteToggle;
 
-  const DetailProdukPage({super.key, required this.productId});
+
+  const DetailProdukPage({super.key, required this.productId, this.isFavorite = false,
+    this.onFavoriteToggle,});
 
   @override
   State<DetailProdukPage> createState() => _DetailProdukPageState();
@@ -20,6 +26,8 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
   List<dynamic> ulasanList = [];
   bool isLoading = true;
   int currentImageIndex = 0;
+  Set<int> favoriteProductIds = {}; 
+  int? userId;
   final PageController _pageController = PageController();
 
   @override
@@ -27,13 +35,40 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
     super.initState();
     fetchProduct();
     fetchUlasan();
+    loadUserAndFavorites();
+  }
+
+  Future<void> loadUserAndFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('user_id');
+
+    if (userId != null) {
+      final favorites = await UserService.getFavorites(userId!);
+      setState(() {
+        favoriteProductIds = favorites;
+      });
+    }
+  }
+
+  void handleFavoriteToggle(int productId) async {
+    if (userId != null) {
+      await UserService.toggleFavorite(userId!, productId);
+
+      setState(() {
+        if (favoriteProductIds.contains(productId)) {
+          favoriteProductIds.remove(productId);
+        } else {
+          favoriteProductIds.add(productId);
+        }
+      });
+    }
   }
 
   Future<void> fetchProduct() async {
     try {
       final response = await http.get(
         Uri.parse(
-            "http://localhost/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
+            "http://192.168.231.254/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
       );
 
       if (response.statusCode == 200) {
@@ -66,7 +101,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
 
   Future<void> fetchUlasan() async {
     final response = await http.get(Uri.parse(
-        'http://localhost/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
+        'http://192.168.231.254/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -358,8 +393,13 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.bookmark_border, color: Colors.black),
-            onPressed: () {},
+           icon: Icon(
+              favoriteProductIds.contains(widget.productId)
+                  ? Icons.bookmark
+                  : Icons.bookmark_border,
+              color: Colors.red,
+            ),
+            onPressed: () => handleFavoriteToggle(widget.productId),
           ),
         ],
       ),
@@ -453,7 +493,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                                 );
                               },
                               child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                padding: EdgeInsets.symmetric(horizontal: 14),
                                 child: Icon(Icons.star_border,
                                     color: Colors.amber, size: 40),
                               ),
