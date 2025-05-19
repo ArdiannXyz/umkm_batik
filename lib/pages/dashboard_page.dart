@@ -18,7 +18,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
-  
+
   // Menyimpan instance dari setiap halaman
   final List<Widget> _pages = const [
     DashboardView(),
@@ -40,7 +40,6 @@ class _DashboardPageState extends State<DashboardPage> {
         showUnselectedLabels: true,
         selectedFontSize: 12,
         unselectedFontSize: 12,
-        
         onTap: (index) {
           setState(() {
             _currentIndex = index;
@@ -93,18 +92,18 @@ class _DashboardViewState extends State<DashboardView> {
   List<Product> filteredProducts = [];
   Set<int> favoriteProductIds = {};
   List<String> searchHistory = [];
-  
+
   // UI state variables
   bool isLoading = true;
   String? errorMessage;
   String userName = "Pengguna";
   bool showSearchHistory = false;
   bool showFilterOptions = false;
-  
+
   // Filter state variables
   RangeValues priceRange = const RangeValues(0, 5000000);
   double minRating = 0;
-  
+
   // Controllers
   final TextEditingController searchController = TextEditingController();
 
@@ -114,8 +113,8 @@ class _DashboardViewState extends State<DashboardView> {
     _loadData();
     _loadSearchHistory();
     // Tambahan ini untuk memastikan filter tidak muncul di awal
-  showFilterOptions = false;
-  showSearchHistory = false;
+    showFilterOptions = false;
+    showSearchHistory = false;
   }
 
   @override
@@ -128,7 +127,7 @@ class _DashboardViewState extends State<DashboardView> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getInt('user_id');
-      
+
       if (userId != null) {
         // Load user data
         final user = await UserService.fetchUser(userId);
@@ -137,7 +136,7 @@ class _DashboardViewState extends State<DashboardView> {
             userName = user.nama;
           });
         }
-        
+
         // Load favorites
         final favoriteIds = await UserService.fetchFavorites(userId);
         setState(() {
@@ -151,7 +150,7 @@ class _DashboardViewState extends State<DashboardView> {
         products = fetchedProducts;
         filteredProducts = fetchedProducts;
         isLoading = false;
-        
+
         // Set price range based on available products
         if (products.isNotEmpty) {
           double maxPrice = products
@@ -183,7 +182,7 @@ class _DashboardViewState extends State<DashboardView> {
 
   void _addToSearchHistory(String query) {
     if (query.isEmpty) return;
-    
+
     setState(() {
       searchHistory.remove(query);
       searchHistory.insert(0, query);
@@ -213,7 +212,7 @@ class _DashboardViewState extends State<DashboardView> {
     if (query.isNotEmpty) {
       _addToSearchHistory(query);
     }
-    
+
     _applyFilters(query);
     setState(() {
       showSearchHistory = false;
@@ -226,16 +225,17 @@ class _DashboardViewState extends State<DashboardView> {
         // Text search filter
         bool matchesQuery = true;
         if (query != null && query.isNotEmpty) {
-          matchesQuery = product.nama.toLowerCase().contains(query.toLowerCase());
+          matchesQuery =
+              product.nama.toLowerCase().contains(query.toLowerCase());
         }
-        
+
         // Price range filter
-        bool matchesPrice = product.harga >= priceRange.start && 
-                            product.harga <= priceRange.end;
-        
+        bool matchesPrice = product.harga >= priceRange.start &&
+            product.harga <= priceRange.end;
+
         // Rating filter
         bool matchesRating = product.rating >= minRating;
-        
+
         return matchesQuery && matchesPrice && matchesRating;
       }).toList();
     });
@@ -245,8 +245,8 @@ class _DashboardViewState extends State<DashboardView> {
     setState(() {
       if (products.isNotEmpty) {
         double maxPrice = products
-          .map((p) => p.harga)
-          .reduce((value, element) => value > element ? value : element);
+            .map((p) => p.harga)
+            .reduce((value, element) => value > element ? value : element);
         priceRange = RangeValues(0, maxPrice);
       }
       minRating = 0;
@@ -290,86 +290,80 @@ class _DashboardViewState extends State<DashboardView> {
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     if (errorMessage != null) {
       return Center(child: Text(errorMessage!));
     }
-    
+
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 10),
             _buildSearchBar(),
-            
+
             // Search History
             if (showSearchHistory && searchHistory.isNotEmpty)
               _buildSearchHistory(),
-            
+
             // Filter Options
-            if (showFilterOptions)
-              _buildFilterOptions(),
-            
+            if (showFilterOptions) _buildFilterOptions(),
+
             // Welcome Banner
-            if (!showSearchHistory && !showFilterOptions)
-              _buildWelcomeBanner(),
-            
+            if (!showSearchHistory && !showFilterOptions) _buildWelcomeBanner(),
+
             // Product Grid
-            if (!showSearchHistory && !showFilterOptions)
-              _buildProductGrid(),
+            if (!showSearchHistory && !showFilterOptions) _buildProductGrid(),
           ],
         ),
       ),
     );
   }
-  
+
   // UI Builder methods
   Widget _buildSearchBar() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
-    child: GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const SearchPage(),
-          ),
-        );
-      },
-      child: Container(
-        height: 46,
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0, 1),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const SearchPage(),
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.search, color: Colors.grey),
-            const SizedBox(width: 10),
-            const Expanded(
-              child: Text(
-                "Cari batik...",
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+          );
+        },
+        child: Container(
+          height: 46,
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 1,
+                blurRadius: 3,
+                offset: const Offset(0, 1),
               ),
-            ),
-            
-          ],
+            ],
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.search, color: Colors.grey),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  "Cari batik...",
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
-  
+    );
+  }
 
-  
   Widget _buildSearchHistory() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
@@ -449,7 +443,7 @@ class _DashboardViewState extends State<DashboardView> {
       ),
     );
   }
-  
+
   Widget _buildFilterOptions() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
@@ -486,7 +480,7 @@ class _DashboardViewState extends State<DashboardView> {
             ],
           ),
           const Divider(),
-          
+
           // Price Range Filter
           const Text(
             "Harga",
@@ -516,9 +510,8 @@ class _DashboardViewState extends State<DashboardView> {
             values: priceRange,
             min: 0,
             max: products.isNotEmpty
-                ? products
-                    .map((p) => p.harga)
-                    .reduce((value, element) => value > element ? value : element)
+                ? products.map((p) => p.harga).reduce(
+                    (value, element) => value > element ? value : element)
                 : 5000000,
             divisions: 10,
             labels: RangeLabels(
@@ -534,7 +527,7 @@ class _DashboardViewState extends State<DashboardView> {
               _applyFilters(searchController.text);
             },
           ),
-          
+
           // Rating Filter
           const Text(
             "Rating",
@@ -575,7 +568,7 @@ class _DashboardViewState extends State<DashboardView> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -590,7 +583,8 @@ class _DashboardViewState extends State<DashboardView> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -603,7 +597,7 @@ class _DashboardViewState extends State<DashboardView> {
       ),
     );
   }
-  
+
   Widget _buildWelcomeBanner() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
@@ -645,7 +639,7 @@ class _DashboardViewState extends State<DashboardView> {
                 const Text(
                   "Selamat datang",
                   style: TextStyle(
-                    fontSize: 16, 
+                    fontSize: 16,
                     color: Colors.white,
                   ),
                 ),
@@ -656,7 +650,7 @@ class _DashboardViewState extends State<DashboardView> {
       ),
     );
   }
-  
+
   Widget _buildProductGrid() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -675,7 +669,7 @@ class _DashboardViewState extends State<DashboardView> {
       ),
     );
   }
-  
+
   Widget _buildEmptyProductState() {
     return Center(
       child: Padding(
@@ -705,7 +699,7 @@ class _DashboardViewState extends State<DashboardView> {
       ),
     );
   }
-  
+
   Widget _buildProductGridView() {
     return GridView.builder(
       physics: const NeverScrollableScrollPhysics(),

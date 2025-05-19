@@ -300,14 +300,13 @@ class _SearchPageState extends State<SearchPage> {
         icon: const Icon(Icons.arrow_back, color: Colors.black87),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      
       title: TextField(
         controller: searchController,
         focusNode: searchFocusNode,
         decoration: InputDecoration(
           hintText: "Cari batik...",
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric( vertical: 18),
+          contentPadding: const EdgeInsets.symmetric(vertical: 18),
           suffixIcon: searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear, color: Colors.grey),
@@ -336,22 +335,22 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildSuggestionsView() {
-  return Container(
-    color: Colors.white, // Tambahkan ini untuk background putih
-    child: ListView(
-      children: [
-        // Display search suggestions if typing
-        if (searchSuggestions.isNotEmpty) _buildSuggestionsList(),
+    return Container(
+      color: Colors.white, // Tambahkan ini untuk background putih
+      child: ListView(
+        children: [
+          // Display search suggestions if typing
+          if (searchSuggestions.isNotEmpty) _buildSuggestionsList(),
 
-        // Display search history
-        if (searchHistory.isNotEmpty) _buildSearchHistorySection(),
+          // Display search history
+          if (searchHistory.isNotEmpty) _buildSearchHistorySection(),
 
-        // Popular keywords section
-        _buildPopularKeywordsSection(),
-      ],
-    ),
-  );
-}
+          // Popular keywords section
+          _buildPopularKeywordsSection(),
+        ],
+      ),
+    );
+  }
 
   Widget _buildSuggestionsList() {
     return Column(

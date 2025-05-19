@@ -33,7 +33,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   bool isLoading = false;
   bool obscurePassword = true;
@@ -81,7 +82,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
     if (passwordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Password dan konfirmasi password tidak cocok!")),
+        SnackBar(
+            content: Text("Password dan konfirmasi password tidak cocok!")),
       );
       setState(() {
         isLoading = false;
@@ -176,7 +178,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   ],
                 ),
                 SizedBox(height: 30),
-
                 const Text("Nama Lengkap"),
                 SizedBox(height: 8),
                 TextField(
@@ -184,7 +185,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   decoration: buildInputDecoration("Masukkan nama lengkap"),
                 ),
                 SizedBox(height: 15),
-
                 const Text("Email"),
                 SizedBox(height: 8),
                 TextField(
@@ -192,15 +192,14 @@ class _SignupScreenState extends State<SignupScreen> {
                   decoration: buildInputDecoration("Masukkan email anda"),
                 ),
                 SizedBox(height: 15),
-
                 const Text("No.hp"),
                 SizedBox(height: 8),
                 TextField(
                   controller: phoneController,
-                  decoration: buildInputDecoration("Masukkan nomor handphone anda"),
+                  decoration:
+                      buildInputDecoration("Masukkan nomor handphone anda"),
                 ),
                 SizedBox(height: 15),
-
                 const Text("Password"),
                 SizedBox(height: 8),
                 TextField(
@@ -217,7 +216,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
                 SizedBox(height: 15),
-
                 const Text("Konfirmasi Password"),
                 SizedBox(height: 8),
                 TextField(
@@ -234,7 +232,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
                 SizedBox(height: 30),
-
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -260,7 +257,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
-
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -276,7 +272,8 @@ class _SignupScreenState extends State<SignupScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => LoginPage()),
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()),
                           );
                         },
                         child: Text(

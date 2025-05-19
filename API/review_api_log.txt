@@ -116,3 +116,19 @@ Decoded data: Array
 Insert successful. New review ID: 28
 -------------- END --------------
 
+-------------- 2025-05-15 00:35:36 --------------
+Request method: OPTIONS
+-------------- 2025-05-15 00:35:36 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":13,"rating":4,"komentar":"Immortal 155 season ini"}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 13
+    [rating] => 4
+    [komentar] => Immortal 155 season ini
+)
+
+Insert successful. New review ID: 28
+-------------- END --------------
+

@@ -11,11 +11,14 @@ import 'package:umkm_batik/services/user_service.dart';
 class DetailProdukPage extends StatefulWidget {
   final int productId;
   final bool isFavorite;
-final Function()? onFavoriteToggle;
+  final Function()? onFavoriteToggle;
 
-
-  const DetailProdukPage({super.key, required this.productId, this.isFavorite = false,
-    this.onFavoriteToggle,});
+  const DetailProdukPage({
+    super.key,
+    required this.productId,
+    this.isFavorite = false,
+    this.onFavoriteToggle,
+  });
 
   @override
   State<DetailProdukPage> createState() => _DetailProdukPageState();
@@ -26,7 +29,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
   List<dynamic> ulasanList = [];
   bool isLoading = true;
   int currentImageIndex = 0;
-  Set<int> favoriteProductIds = {}; 
+  Set<int> favoriteProductIds = {};
   int? userId;
   final PageController _pageController = PageController();
 
@@ -68,7 +71,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
     try {
       final response = await http.get(
         Uri.parse(
-            "http://192.168.231.254/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
+            "http://localhost/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
       );
 
       if (response.statusCode == 200) {
@@ -101,7 +104,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
 
   Future<void> fetchUlasan() async {
     final response = await http.get(Uri.parse(
-        'http://192.168.231.254/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
+        'http://localhost/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -124,6 +127,28 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
       debugPrint('Decode error: $e');
       return Uint8List(0);
     }
+  }
+
+  // Create ProductItem from product data
+  ProductItem _createProductItem(int quantity) {
+    String imageBase64 = '';
+    Uint8List? imageBytes;
+
+    if (product?['images'] != null &&
+        product!['images'].isNotEmpty &&
+        product!['images'][0]['image_base64'] != null) {
+      imageBase64 = product!['images'][0]['image_base64'];
+      imageBytes = _base64ToImage(imageBase64);
+    }
+
+    return ProductItem(
+      id: int.parse(product?['id'].toString() ?? '0'),
+      name: product?['nama'] ?? 'Batik',
+      price: double.parse(product?['harga']?.toString() ?? '0'),
+      quantity: quantity,
+      image: imageBytes,
+      imageBase64: imageBase64,
+    );
   }
 
   Widget _buildProductImageGallery() {
@@ -393,7 +418,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
         centerTitle: true,
         actions: [
           IconButton(
-           icon: Icon(
+            icon: Icon(
               favoriteProductIds.contains(widget.productId)
                   ? Icons.bookmark
                   : Icons.bookmark_border,
@@ -627,7 +652,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                     width: double.infinity,
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: const BoxDecoration(color: Colors.blue),
+                      decoration: const BoxDecoration(color: Color(0xFF0D6EFD)),
                       child: InkWell(
                         onTap: () {
                           showModalBottomSheet(
@@ -674,7 +699,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                                                 ),
                                                 const SizedBox(height: 4),
                                                 Text(
-                                                    "Stok : ${product?['stok_id'] ?? 0}",
+                                                    "Stok : ${product?['quantity'] ?? 0}",
                                                     style: const TextStyle(
                                                         color: Colors.grey)),
                                               ],
@@ -712,7 +737,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                                               IconButton(
                                                 onPressed: () {
                                                   int stok = int.tryParse(
-                                                          product?['stok_id']
+                                                          product?['quantity']
                                                                   .toString() ??
                                                               '0') ??
                                                       0;
@@ -745,11 +770,18 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                                                 vertical: 12),
                                           ),
                                           onPressed: () {
+                                            // Create ProductItem with selected quantity
+                                            final productItem =
+                                                _createProductItem(jumlah);
+
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const CheckoutPage()),
+                                                builder: (context) =>
+                                                    CheckoutPage(
+                                                  product: productItem,
+                                                ),
+                                              ),
                                             );
                                           },
                                           child: const Text("Bayar Sekarang",
