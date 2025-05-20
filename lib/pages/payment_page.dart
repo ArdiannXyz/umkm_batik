@@ -63,7 +63,7 @@ class _PaymentPageState extends State<PaymentPage> {
       }
 
       // Use your actual API endpoint
-      final apiUrl = 'http://localhost/umkm_batik/API/cancel_order.php';
+      final apiUrl = 'http://192.168.1.3/umkm_batik/API/cancel_order.php';
 
       // Ensure the API is called with proper POST method and headers
       final response = await http.post(
@@ -78,10 +78,6 @@ class _PaymentPageState extends State<PaymentPage> {
           'reason': reason,
         }),
       );
-
-      // Debug the response
-      print('Status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
 
       // Parse response based on its format
       Map<String, dynamic> result;
@@ -218,14 +214,14 @@ class _PaymentPageState extends State<PaymentPage> {
               children: [
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(10),
                     children: [
                       _buildOrderInfo(),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 0),
                       _buildBankInfo(),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 0),
                       _buildInstructions(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 0),
                       _buildHelpText(),
                     ],
                   ),
@@ -245,7 +241,7 @@ class _PaymentPageState extends State<PaymentPage> {
             value: widget.orderId,
             showCopy: true,
           ),
-          const Divider(height: 1),
+          const Divider(height: 10),
           _buildInfoRow(
             label: 'Total Pembayaran',
             value: 'Rp ${_formatCurrency(widget.totalPayment)}',
@@ -275,7 +271,7 @@ class _PaymentPageState extends State<PaymentPage> {
               Text(
                 widget.paymentMethod.accountNumber,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 25,
                   color: Color(0xFF0D6EFD),
                   fontWeight: FontWeight.bold,
                 ),
@@ -458,11 +454,11 @@ class _PaymentPageState extends State<PaymentPage> {
     bool showCopy = false,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 7),
       child: Row(
         children: [
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Text(
               label,
               style: const TextStyle(fontSize: 14),

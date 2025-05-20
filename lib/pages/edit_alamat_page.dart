@@ -35,7 +35,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
   String _errorMessage = '';
 
   // API base URL
-  final String apiBaseUrl = 'http://localhost/umkm_batik/API';
+  final String apiBaseUrl = 'http://192.168.1.3/umkm_batik/API';
 
   @override
   void initState() {
@@ -441,7 +441,7 @@ class _EditAddressPageState extends State<EditAddressPage> {
                                             strokeWidth: 2.0,
                                           ),
                                         )
-                                      : const Text("Hapus Alamat"),
+                                      : const Text("Hapus"),
                                 ),
                               ),
                             ],

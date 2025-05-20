@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'payment_page.dart'; // Import the payment page
+import 'payment_method.dart'; // Import the payment method enum
 
 class DetailPesananPage extends StatefulWidget {
   final String? orderId;
@@ -16,7 +18,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   bool isLoading = true;
   Map<String, dynamic>? orderDetail;
   String? userId;
-  final String baseUrl = 'http://localhost/umkm_batik/API';
+  final String baseUrl = 'http://192.168.1.3/umkm_batik/API';
 
   @override
   void initState() {
@@ -110,6 +112,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
             orderDetail = data['data'];
             isLoading = false;
           });
+          print('Order detail fetched: $orderDetail');
         } else {
           setState(() {
             orderDetail = null;
@@ -127,6 +130,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
         orderDetail = null;
         isLoading = false;
       });
+      print('Error fetching order detail: $e');
     }
   }
 
@@ -266,7 +270,32 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
     }
   }
 
-  bool _canMarkAsCompleted() {
+  // Function to navigate to payment page
+  void _navigateToPayment() {
+    if (orderDetail == null || widget.orderId == null) return;
+    
+    // Get total price from order details
+    double totalPrice = 0;
+    try {
+      totalPrice = double.parse(orderDetail!['total_harga'].toString());
+    } catch (e) {
+      print('Error parsing total_harga: $e');
+    }
+    
+    // Navigate to payment page with default payment method (BCA)
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentPage(
+          paymentMethod: PaymentMethod.bca,
+          totalPayment: totalPrice,
+          orderId: widget.orderId!,
+        ),
+      ),
+    );
+  }
+
+ bool _canMarkAsCompleted() {
     if (orderDetail == null) return false;
 
     final orderStatus = orderDetail!['status']?.toString().toLowerCase();
@@ -293,16 +322,35 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
           paymentStatus == 'selesai';
     }
 
-    // Check if order status allows completion (paid/dibayar or shipped/dikirim)
-    bool statusAllowsCompletion = orderStatus == 'paid' ||
-        orderStatus == 'dibayar' ||
-        orderStatus == 'shipped' ||
+    // Check if order status is shipped/dikirim
+    bool isShipped = orderStatus == 'shipped' ||
         orderStatus == 'dikirim' ||
-        statusDisplay == 'dibayar' ||
         statusDisplay == 'dikirim';
 
-    // Show button only if paid and status allows completion
-    return isPaid && statusAllowsCompletion;
+    // Show button only if paid AND shipped status
+    return isPaid && isShipped;
+  }
+
+  // Check if the order needs payment
+  bool _needsPayment() {
+    if (orderDetail == null) return false;
+
+    final orderStatus = orderDetail!['status']?.toString().toLowerCase();
+    final statusDisplay = orderDetail!['status_display']?.toString().toLowerCase();
+    
+    // Check if order is in pending/belum bayar status
+    return orderStatus == 'pending' || 
+           orderStatus == 'belum bayar' || 
+           statusDisplay == 'pending' || 
+           statusDisplay == 'belum bayar';
+  }
+
+  // Check if the order has shipping information
+  bool _hasShippingInfo() {
+    return orderDetail != null && 
+           orderDetail!['shipping'] != null && 
+           (orderDetail!['status'] == 'shipped' || 
+            orderDetail!['status_display'] == 'Dikirim');
   }
 
   Widget _buildInfoRow(String label, String value) {
@@ -366,7 +414,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
       width: 60,
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Colors.grey[400],
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
@@ -377,7 +425,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.grey,
+            color: Colors.white,
           ),
         ),
       ),
@@ -403,18 +451,22 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
           : orderDetail == null
               ? const Center(child: Text('Data pesanan tidak ditemukan'))
               : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildOrderInfoCard(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 5),
                       _buildOrderItemsList(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 5),
                       _buildShippingInfoCard(),
-                      const SizedBox(height: 16),
+                      if (_hasShippingInfo()) ...[
+                          const SizedBox(height: 5),
+                          _buildShippingStatusCard(),
+                      ],
+                      const SizedBox(height: 5),
                       _buildPaymentInfoCard(),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 10),
                       _buildActionButtons(),
                     ],
                   ),
@@ -425,6 +477,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   Widget _buildOrderInfoCard() {
     return Card(
       elevation: 2,
+      color: const Color.fromARGB(255, 255, 255, 255),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -469,6 +522,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
     final items = List<Map<String, dynamic>>.from(orderDetail!['items'] ?? []);
     return Card(
       elevation: 2,
+      color: const Color.fromARGB(255, 255, 255, 255),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -540,6 +594,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   Widget _buildShippingInfoCard() {
     return Card(
       elevation: 2,
+      color: const Color.fromARGB(255, 255, 255, 255),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -561,10 +616,39 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
     );
   }
 
+  // New method for showing shipping status details
+  Widget _buildShippingStatusCard() {
+    final shipping = orderDetail!['shipping'];
+    if (shipping == null) return const SizedBox.shrink();
+    
+    return Card(
+      elevation: 2,
+      color: const Color.fromARGB(255, 255, 255, 255),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Status Pengiriman',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Divider(),
+            _buildInfoRow('Jasa Kurir', shipping['jasa_kurir'] ?? 'Tidak tersedia'),
+            _buildInfoRow('Nomor Resi', shipping['nomor_resi'] ?? 'Tidak tersedia'),
+            _buildInfoRow('Status', shipping['status_display'] ?? 'Tidak tersedia'),
+            if (shipping['created_at'] != null)
+              _buildInfoRow('Tanggal Pengiriman', _formatDate(shipping['created_at'])),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildPaymentInfoCard() {
     final payment = orderDetail!['payment'];
     return Card(
       elevation: 2,
+      color: const Color.fromARGB(255, 255, 255, 255),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -581,9 +665,6 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
                   'Status Pembayaran',
                   _getPaymentStatusDisplay(
                       payment['status_pembayaran'] ?? '-')),
-              if (payment['waktu_pembayaran'] != null)
-                _buildInfoRow('Waktu Pembayaran',
-                    _formatDate(payment['waktu_pembayaran'])),
             ] else
               const Text('Belum ada informasi pembayaran'),
           ],
@@ -595,6 +676,28 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   Widget _buildActionButtons() {
     return Column(
       children: [
+        // Payment Button (only if order needs payment)
+        if (_needsPayment())
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _navigateToPayment,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0D6EFD),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              label: const Text('Bayar Sekarang',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+          ),
+
+        // Add a space if both buttons are visible
+        if (_needsPayment() && _canMarkAsCompleted())
+          const SizedBox(height: 12),
+
         // Complete Order Button (only if payment is done and status allows)
         if (_canMarkAsCompleted())
           SizedBox(
@@ -608,7 +711,6 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
                     borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              icon: const Icon(Icons.check_circle),
               label: const Text('Pesanan Selesai',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             ),

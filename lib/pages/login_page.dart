@@ -80,29 +80,32 @@ class _LoginState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 80),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Center(
+                    child: Image.asset(
+                      'assets/images/griyabatik_hitam.png',
+                      width: 100,
+                      height: 100,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   Text(
                     "Selamat Datang",
                     style: GoogleFonts.fredokaOne(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w300,
                     ),
-                  ),
-                  Image.asset(
-                    'assets/images/griyabatik_hitam.png',
-                    width: 72,
-                    height: 72,
                   ),
                 ],
               ),
+
               const SizedBox(height: 8),
               Text(
                 "Kami Merindukan Anda",
-                style: GoogleFonts.fredokaOne(
+                style: GoogleFonts.varelaRound(
                   fontSize: 16,
-                  fontWeight: FontWeight.w400,
                 ),
               ),
               const SizedBox(height: 20),
@@ -141,7 +144,7 @@ class _LoginState extends State<LoginPage> {
                     );
                   },
                   child: const Text(
-                    "Lupa Password Kamu?",
+                    "Lupa Password ?",
                     style: TextStyle(color: Colors.blue),
                   ),
                 ),

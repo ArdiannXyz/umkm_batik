@@ -15,14 +15,35 @@ class FavoritPage extends StatefulWidget {
 
 class _FavoritPageState extends State<FavoritPage> {
   List<Product> _favoriteProducts = [];
+  List<Product> _filteredProducts = [];
   Set<int> _favoriteIds = {};
   int? _userId;
   bool _isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadFavorites();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    final keyword = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredProducts = _favoriteProducts
+          .where((product) =>
+              product.nama.toLowerCase().contains(keyword) ||
+              product.deskripsi.toLowerCase().contains(keyword))
+          .toList();
+    });
   }
 
   Future<void> _loadFavorites() async {
@@ -39,6 +60,7 @@ class _FavoritPageState extends State<FavoritPage> {
 
       setState(() {
         _favoriteProducts = favorites;
+        _filteredProducts = favorites; // initialize with all favorites
         _favoriteIds = favoriteIds;
         _isLoading = false;
       });
@@ -48,7 +70,7 @@ class _FavoritPageState extends State<FavoritPage> {
   void _toggleFavorite(int productId) async {
     if (_userId != null) {
       await UserService.toggleFavorite(_userId!, productId);
-      await _loadFavorites(); // refresh
+      await _loadFavorites();
     }
   }
 
@@ -66,17 +88,11 @@ class _FavoritPageState extends State<FavoritPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 10),
-                    Text(
-                      "Favoritku",
-                      style: GoogleFonts.fredokaOne(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                     const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5.0),
                       child: TextField(
+                        controller: _searchController,
                         decoration: InputDecoration(
                           hintText: "Search",
                           prefixIcon: const Icon(Icons.search),
@@ -90,27 +106,40 @@ class _FavoritPageState extends State<FavoritPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                      child: Text(
+                        "Favoritku",
+                        style: GoogleFonts.varelaRound(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
                     _isLoading
                         ? const Center(child: CircularProgressIndicator())
-                        : _favoriteProducts.isEmpty
-                            ? const Text('Belum ada produk favorit.')
+                        : _filteredProducts.isEmpty
+                            ? const Text('Belum ada produk favorit yang sesuai pencarian.')
                             : GridView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
-                                itemCount: _favoriteProducts.length,
-                                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                itemCount: _filteredProducts.length,
+                                gridDelegate:
+                                    const SliverGridDelegateWithMaxCrossAxisExtent(
                                   maxCrossAxisExtent: 250,
                                   mainAxisExtent: 230,
                                   crossAxisSpacing: 0,
                                   mainAxisSpacing: 5,
                                 ),
                                 itemBuilder: (context, index) {
-                                  final product = _favoriteProducts[index];
+                                  final product = _filteredProducts[index];
                                   return ProductCard(
                                     product: product,
                                     isFavorite: _favoriteIds.contains(product.id),
-                                    onFavoriteToggle: () => _toggleFavorite(product.id),
+                                    onFavoriteToggle: () =>
+                                        _toggleFavorite(product.id),
                                   );
                                 },
                               ),

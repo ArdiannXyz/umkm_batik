@@ -165,7 +165,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       child: Text(
                         "Daftarkan akun\nanda",
                         style: GoogleFonts.fredokaOne(
-                          fontSize: 28,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

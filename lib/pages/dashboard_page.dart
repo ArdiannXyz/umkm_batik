@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'favorit_page.dart';
-import 'batik_terbaik_page.dart';
 import 'setting_page.dart';
 import 'search_page.dart';
 import '../widgets/product_card.dart';
@@ -8,6 +7,8 @@ import '../models/product_model.dart';
 import '../services/product_service.dart';
 import '../services/user_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -23,7 +24,6 @@ class _DashboardPageState extends State<DashboardPage> {
   final List<Widget> _pages = const [
     DashboardView(),
     FavoritPage(),
-    BatikTerbaikPage(),
     SettingPage(),
   ];
 
@@ -65,10 +65,7 @@ class _DashboardPageState extends State<DashboardPage> {
             icon: Icon(Icons.bookmark_add_outlined),
             label: "Favoritku",
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.star_border),
-            label: "Batik terbaik",
-          ),
+         
           const BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
             label: "Setting",
@@ -598,58 +595,59 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  Widget _buildWelcomeBanner() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Colors.blue,
-              Colors.white,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+  
+
+Widget _buildWelcomeBanner() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
+    child: Stack(
+      children: [
+        // Background SVG
+        ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blue.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          child: Image.asset(
+            'assets/images/banner.png', // Ganti sesuai nama file PNG kamu
+            width: double.infinity,
+            height: 120,
+            fit: BoxFit.cover,
+          ),
         ),
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            const SizedBox(width: 24),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Hi $userName,",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+        // Text di atasnya
+        Positioned.fill(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 16),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Hi $userName",
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                const Text(
-                  "Selamat datang",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
+                  SizedBox(height: 5,),
+                  const Text(
+                    "Selamat datang",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ],
+          ),
         ),
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
+
 
   Widget _buildProductGrid() {
     return Padding(
@@ -657,9 +655,15 @@ class _DashboardViewState extends State<DashboardView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+          child: Text(
             "Produk batik kami",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: GoogleFonts.varelaRound(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+            ),
+                      ),
           ),
           const SizedBox(height: 10),
           filteredProducts.isEmpty

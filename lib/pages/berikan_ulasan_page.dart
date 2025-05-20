@@ -71,7 +71,7 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
   Future<void> checkExistingReview(int userId) async {
     try {
       final url =
-          Uri.parse("http://localhost/umkm_batik/API/check_reviews.php");
+          Uri.parse("http://192.168.1.3/umkm_batik/API/check_reviews.php");
 
       final response = await http.post(
         url,
@@ -132,7 +132,7 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
 
     setState(() => isSubmitting = true);
 
-    final url = Uri.parse("http://localhost/umkm_batik/API/add_reviews.php");
+    final url = Uri.parse("http://10.10.181.25/umkm_batik/API/add_reviews.php");
 
     try {
       final response = await http.post(
@@ -376,7 +376,7 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
                     },
                     icon: Icon(
                       index < selectedRating ? Icons.star : Icons.star_border,
-                      size: 42,
+                      size: 35,
                       color: Colors.amber,
                     ),
                   ),

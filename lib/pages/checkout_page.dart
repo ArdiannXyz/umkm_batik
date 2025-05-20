@@ -165,7 +165,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       // Make API call
       final response = await http.post(
         Uri.parse(
-            'http://localhost/umkm_batik/API/create_transaction.php'), // Replace with actual endpoint
+            'http://192.168.1.3/umkm_batik/API/create_transaction.php'), // Replace with actual endpoint
         headers: {
           'Content-Type': 'application/json',
         },
@@ -387,7 +387,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           style: TextStyle(
                             color: selectedPaymentMethod != null
                                 ? Colors.black
-                                : Colors.grey,
+                                : Colors.white,
                           ),
                         ),
                         trailing: const Icon(Icons.arrow_drop_down),
@@ -419,7 +419,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     ),
                   ),
                   const SizedBox(
-                      height: 100), // Space so the button doesn't cover content
+                      height: 0), // Space so the button doesn't cover content
                 ],
               ),
             ),

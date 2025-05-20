@@ -84,7 +84,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
 
     setState(() => isSubmitting = true);
 
-    final url = Uri.parse("http://localhost/umkm_batik/API/edit_reviews.php");
+    final url = Uri.parse("http://192.168.1.3/umkm_batik/API/edit_reviews.php");
 
     try {
       final response = await http.post(
@@ -157,7 +157,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
 
     setState(() => isDeleting = true);
 
-    final url = Uri.parse("http://localhost/umkm_batik/API/delete_reviews.php");
+    final url = Uri.parse("http://192.168.1.3/umkm_batik/API/delete_reviews.php");
 
     try {
       final response = await http.post(
@@ -269,7 +269,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
                     },
                     icon: Icon(
                       index < selectedRating ? Icons.star : Icons.star_border,
-                      size: 42,
+                      size: 35,
                       color: Colors.amber,
                     ),
                   ),

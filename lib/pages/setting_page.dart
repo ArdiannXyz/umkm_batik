@@ -11,14 +11,13 @@ class SettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blue[50], // Biru pudar sebagai latar utama
-      body: SafeArea(
-        child: Column(
+        body: Column(
           children: [
             // Header dengan background SVG dan avatar
             Stack(
               children: [
                 SizedBox(
-                  height: 180,
+                  height: 210,
                   width: double.infinity,
                   child: SvgPicture.asset(
                     'assets/images/pattern_s.svg',
@@ -29,7 +28,7 @@ class SettingPage extends StatelessWidget {
                   alignment: Alignment.topCenter,
                   child: Column(
                     children: [
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 60),
                       CircleAvatar(
                         radius: 50,
                         backgroundColor: Colors.white,
@@ -51,6 +50,8 @@ class SettingPage extends StatelessWidget {
 
             // Konten scrollable
             Expanded(
+              child: SafeArea(
+        top: false,
               child: SingleChildScrollView(
                 child: Padding(
                   padding:
@@ -91,7 +92,7 @@ class SettingPage extends StatelessWidget {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 const PesananPage(
-                                                    initialTabIndex: 0)),
+                                                    initialTabIndex: 1)),
                                       );
                                     },
                                   ),
@@ -105,7 +106,7 @@ class SettingPage extends StatelessWidget {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 const PesananPage(
-                                                    initialTabIndex: 1)),
+                                                    initialTabIndex: 2)),
                                       );
                                     },
                                   ),
@@ -119,7 +120,7 @@ class SettingPage extends StatelessWidget {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 const PesananPage(
-                                                    initialTabIndex: 2)),
+                                                    initialTabIndex: 3)),
                                       );
                                     },
                                   ),
@@ -133,7 +134,7 @@ class SettingPage extends StatelessWidget {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 const PesananPage(
-                                                    initialTabIndex: 3)),
+                                                    initialTabIndex: 4)),
                                       );
                                     },
                                   ),
@@ -182,7 +183,7 @@ class SettingPage extends StatelessWidget {
                               leading: const Icon(Icons.lock_outline),
                               title: const Text("Lupa Password"),
                               onTap: () {
-                                Navigator.pushNamed(context, '/lupa_password');
+                                Navigator.pushNamed(context, '/lupa-password');
                               },
                             ),
                           ],
@@ -209,9 +210,9 @@ class SettingPage extends StatelessWidget {
                 ),
               ),
             ),
+            ),
           ],
         ),
-      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:umkm_batik/pages/splashscreen.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/dashboard_page.dart';
@@ -30,9 +31,10 @@ class MyApp extends StatelessWidget {
     ),
       debugShowCheckedModeBanner: false,
       title: "UMKM Batik",
-      initialRoute: isLoggedIn ? '/dashboard' : '/',
+      initialRoute: isLoggedIn ? '/splashscreen' : '/',
       routes: {
-        '/': (context) => LoginPage(),
+        '/': (context) => SplashScreen(),
+        '/login': (context) => LoginPage(),
         '/register': (context) => Register_page(),
         '/lupa-password': (context) => LupaPasswordPage(),
         '/dashboard': (context) => DashboardPage(),

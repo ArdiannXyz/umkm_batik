@@ -129,6 +129,18 @@ class Order {
                 $order['payment'] = $payment;
             }
             
+            // Get shipping info if available
+            $query = "SELECT * FROM pengiriman WHERE order_id = :order_id";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':order_id', $order_id);
+            $stmt->execute();
+            
+            $shipping = $stmt->fetch(PDO::FETCH_ASSOC);
+            if($shipping) {
+                $order['shipping'] = $shipping;
+            }
+            
             return $order;
         } catch (Exception $e) {
             error_log("Error in getOrderDetails: " . $e->getMessage());
@@ -161,9 +173,13 @@ class Order {
             }
             
             // Update order status to completed
-            $query = "UPDATE " . $this->table . " SET status = 'completed' WHERE id = :order_id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':order_id', $order_id, PDO::PARAM_INT);
+        $query = "UPDATE pengiriman 
+                 SET status_pengiriman = 'sampai', 
+                     tanggal_sampai = NOW() 
+                 WHERE order_id = :order_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':order_id', $order_id);
+        $stmt->execute();
             
             if (!$stmt->execute()) {
                 throw new Exception("Failed to update order status");
@@ -179,6 +195,12 @@ class Order {
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':order_id', $order_id, PDO::PARAM_INT);
             $stmt->execute(); // Don't throw error if no payment exists
+            
+            // Update shipping status to sampai (if shipping exists)
+            $query = "UPDATE pengiriman SET status_pengiriman = 'sampai' WHERE order_id = :order_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':order_id', $order_id, PDO::PARAM_INT);
+            $stmt->execute(); // Don't throw error if no shipping exists
             
             $this->conn->commit();
             return true;
@@ -256,6 +278,43 @@ class Order {
         return $stmt->execute();
     }
     
+public function addOrUpdateShipping($order_id, $nomor_resi, $jasa_kurir, $status_pengiriman = 'dikirim', $catatan = null) {
+    // Check if shipping record exists
+    $query = "SELECT id FROM pengiriman WHERE order_id = :order_id";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':order_id', $order_id);
+    $stmt->execute();
+    
+    if($stmt->rowCount() > 0) {
+        // Update existing record - PERUBAHAN DI SINI
+        $query = "UPDATE pengiriman 
+                  SET nomor_resi = :nomor_resi, 
+                      jasa_kurir = :jasa_kurir, 
+                      status_pengiriman = :status_pengiriman,
+                      tanggal_dikirim = CASE WHEN :status_pengiriman = 'dikirim' THEN NOW() ELSE tanggal_dikirim END,
+                      tanggal_sampai = CASE WHEN :status_pengiriman = 'sampai' THEN NOW() ELSE tanggal_sampai END,
+                      catatan = COALESCE(:catatan, catatan)
+                  WHERE order_id = :order_id";
+    } else {
+        // Create new record - PERUBAHAN DI SINI
+        $query = "INSERT INTO pengiriman 
+                 (order_id, nomor_resi, jasa_kurir, status_pengiriman, tanggal_dikirim, catatan, created_at) 
+                 VALUES 
+                 (:order_id, :nomor_resi, :jasa_kurir, :status_pengiriman, 
+                  CASE WHEN :status_pengiriman = 'dikirim' THEN NOW() ELSE NULL END, 
+                  :catatan, NOW())";
+    }
+    
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':order_id', $order_id);
+    $stmt->bindParam(':nomor_resi', $nomor_resi);
+    $stmt->bindParam(':jasa_kurir', $jasa_kurir);
+    $stmt->bindParam(':status_pengiriman', $status_pengiriman);
+    $stmt->bindParam(':catatan', $catatan);
+    
+    return $stmt->execute();
+}
+    
     // Update order status
     public function updateStatus($order_id, $status) {
         $query = "UPDATE " . $this->table . " SET status = :status WHERE id = :order_id";
@@ -270,6 +329,17 @@ class Order {
     // Update payment status
     public function updatePaymentStatus($order_id, $status) {
         $query = "UPDATE payments SET status_pembayaran = :status WHERE order_id = :order_id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':order_id', $order_id);
+        
+        return $stmt->execute();
+    }
+    
+    // Update shipping status
+    public function updateShippingStatus($order_id, $status) {
+        $query = "UPDATE pengiriman SET status_pengiriman = :status WHERE order_id = :order_id";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':status', $status);
@@ -313,6 +383,24 @@ class Order {
                 return 'pending';
         }
     }
+    
+    // Map shipping status values for UI display
+    public static function mapShippingStatusForUI($dbStatus) {
+        switch($dbStatus) {
+            case 'diproses':
+                return 'Diproses';
+            case 'dikirim':
+                return 'Dalam Pengiriman';
+            case 'dalam_perjalanan':
+                return 'Dalam Perjalanan';
+            case 'sampai':
+                return 'Sampai Tujuan';
+            case 'gagal':
+                return 'Gagal';
+            default:
+                return 'Unknown';
+        }
+    }
 }
 
 try {
@@ -343,6 +431,12 @@ try {
                     exit(json_encode(['status'=>'error','message'=>'Order not found']));
                 }
                 $details['status_display'] = Order::mapStatusForUI($details['status']);
+                
+                // Add shipping status display if shipping exists
+                if (isset($details['shipping']) && isset($details['shipping']['status_pengiriman'])) {
+                    $details['shipping']['status_display'] = Order::mapShippingStatusForUI($details['shipping']['status_pengiriman']);
+                }
+                
                 exit(json_encode(['status'=>'success','data'=>$details]));
             }
 
@@ -377,6 +471,17 @@ try {
                 );
                 $itemStmt->execute([':oid'=>$o['id']]);
                 $o['items'] = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                // Add shipping info if available
+                $shippingStmt = $db->prepare(
+                    "SELECT * FROM pengiriman WHERE order_id = :oid"
+                );
+                $shippingStmt->execute([':oid'=>$o['id']]);
+                $shipping = $shippingStmt->fetch(PDO::FETCH_ASSOC);
+                if ($shipping) {
+                    $shipping['status_display'] = Order::mapShippingStatusForUI($shipping['status_pengiriman']);
+                    $o['shipping'] = $shipping;
+                }
             }
 
             exit(json_encode(['status'=>'success','data'=>$orders]));
@@ -440,20 +545,64 @@ try {
                 }
             }
             // Complete order (mark as completed)
-            elseif(isset($data['order_id']) && isset($data['status']) && $data['status'] == 'completed') {
+            // ... kode sebelumnya ...
+
+elseif(isset($data['order_id']) && isset($data['nomor_resi']) && isset($data['jasa_kurir'])) {
+    $order_id = (int) $data['order_id'];
+    $nomor_resi = $data['nomor_resi'];
+    $jasa_kurir = $data['jasa_kurir'];
+    // PERUBAHAN DI SINI - Tambah parameter baru
+    $status_pengiriman = isset($data['status_pengiriman']) ? $data['status_pengiriman'] : 'dikirim';
+    $catatan = isset($data['catatan']) ? $data['catatan'] : null;
+    
+    try {
+        if ($order->addOrUpdateShipping($order_id, $nomor_resi, $jasa_kurir, $status_pengiriman, $catatan)) {
+            // PERUBAHAN DI SINI - Logika update status order
+            $order_status_mapping = [
+                'diproses' => 'paid',
+                'dikirim' => 'shipped',
+                'dalam_perjalanan' => 'shipped',
+                'sampai' => 'completed',
+                'gagal' => 'cancelled'
+            ];
+            
+            $order_status = $order_status_mapping[$status_pengiriman] ?? 'paid';
+            $order->updateStatus($order_id, $order_status);
+            
+            echo json_encode([
+                'status' => 'success', 
+                'message' => 'Informasi pengiriman diperbarui',
+                'data' => [
+                    'order_status' => $order_status,
+                    'shipping_status' => $status_pengiriman
+                ]
+            ]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Gagal memperbarui informasi pengiriman']);
+        }
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+}
+
+// ... kode setelahnya ...
+            // Add or update shipping information
+            elseif(isset($data['order_id']) && isset($data['nomor_resi']) && isset($data['jasa_kurir'])) {
                 $order_id = (int) $data['order_id'];
-                $user_id = isset($data['user_id']) ? (int) $data['user_id'] : null;
-                
-                error_log("Completing order: order_id=$order_id, user_id=$user_id");
+                $nomor_resi = $data['nomor_resi'];
+                $jasa_kurir = $data['jasa_kurir'];
                 
                 try {
-                    if ($order->completeOrder($order_id, $user_id)) {
-                    echo json_encode(['status' => 'success', 'message' => 'Order completed successfully']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['status' => 'error', 'message' => 'Failed to complete the order']);
-                }
-
+                    if ($order->addOrUpdateShipping($order_id, $nomor_resi, $jasa_kurir)) {
+                        // Also update the order status to shipped if needed
+                        $order->updateStatus($order_id, 'shipped');
+                        echo json_encode(['status' => 'success', 'message' => 'Shipping information updated successfully']);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(['status' => 'error', 'message' => 'Failed to update shipping information']);
+                    }
                 } catch (Exception $e) {
                     http_response_code(500);
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -472,7 +621,7 @@ try {
                 }
             }
             // Update payment status
-            elseif(isset($data['order_id']) && isset($data['status'])) {
+            elseif(isset($data['order_id']) && isset($data['payment_status'])) {
                 $order_id = $data['order_id'];
                 $status = $data['payment_status'];
                 
@@ -481,6 +630,18 @@ try {
                 } else {
                     http_response_code(500);
                     echo json_encode(['status' => 'error', 'message' => 'Failed to update payment status']);
+                }
+            }
+            // Update shipping status
+            elseif(isset($data['order_id']) && isset($data['shipping_status'])) {
+                $order_id = $data['order_id'];
+                $status = $data['shipping_status'];
+                
+                if($order->updateShippingStatus($order_id, $status)) {
+                    echo json_encode(['status' => 'success', 'message' => 'Shipping status updated']);
+                } else {
+                    http_response_code(500);
+                    echo json_encode(['status' => 'error', 'message' => 'Failed to update shipping status']);
                 }
             }
             else {
