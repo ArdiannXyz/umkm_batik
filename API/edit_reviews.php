@@ -18,13 +18,6 @@ if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
     $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
 }
 
-// Handle both DELETE or POST with override
-if ($method !== 'DELETE' && !($method === 'POST' && isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']))) {
-    http_response_code(405);
-    echo json_encode(["message" => "Method not allowed", "method" => $method]);
-    exit;
-}
-
 // Get JSON data from request body
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
@@ -55,20 +48,77 @@ try {
     $conn = new PDO("mysql:host=$host;dbname=$database", $user, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-    // Delete the review
-    $stmt = $conn->prepare("
-        DELETE FROM reviews 
-        WHERE user_id = ? AND product_id = ?
-    ");
-    $stmt->execute([$user_id, $product_id]);
-    
-    if ($stmt->rowCount() === 0) {
-        http_response_code(404);
-        echo json_encode(["message" => "Review tidak ditemukan"]);
+    // Handle different methods
+    if ($method === 'DELETE' || ($method === 'POST' && isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']) && $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] === 'DELETE')) {
+        // Delete the review
+        $stmt = $conn->prepare("
+            DELETE FROM reviews 
+            WHERE user_id = ? AND product_id = ?
+        ");
+        $stmt->execute([$user_id, $product_id]);
+        
+        if ($stmt->rowCount() === 0) {
+            http_response_code(404);
+            echo json_encode(["message" => "Review tidak ditemukan"]);
+            exit;
+        }
+        
+        echo json_encode(["message" => "Review berhasil dihapus", "success" => true]);
+    } 
+    else if ($method === 'PUT' || ($method === 'POST' && isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']) && $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] === 'PUT')) {
+        // Check for required update fields
+        if (!isset($data['rating']) && !isset($data['comment'])) {
+            http_response_code(400);
+            echo json_encode([
+                "message" => "Minimal satu field harus diubah: rating atau comment",
+                "received" => $data
+            ]);
+            exit;
+        }
+        
+        // Build the update query dynamically
+        $updateFields = [];
+        $paramValues = [];
+        
+        if (isset($data['rating'])) {
+            $updateFields[] = "rating = ?";
+            $paramValues[] = intval($data['rating']);
+        }
+        
+        if (isset($data['komentar'])) {
+            $updateFields[] = "komentar = ?";
+            $paramValues[] = $data['komentar'];
+        }
+        
+        // Add updated_at timestamp
+        $updateFields[] = "updated_at = NOW()";
+        
+        // Add WHERE clause parameters
+        $paramValues[] = $user_id;
+        $paramValues[] = $product_id;
+        
+        // Execute update
+        $stmt = $conn->prepare("
+            UPDATE reviews 
+            SET " . implode(", ", $updateFields) . " 
+            WHERE user_id = ? AND product_id = ?
+        ");
+        
+        $stmt->execute($paramValues);
+        
+        if ($stmt->rowCount() === 0) {
+            http_response_code(404);
+            echo json_encode(["message" => "Review tidak ditemukan atau tidak ada perubahan"]);
+            exit;
+        }
+        
+        echo json_encode(["message" => "Review berhasil diperbarui", "success" => true]);
+    }
+    else {
+        http_response_code(405);
+        echo json_encode(["message" => "Method not allowed", "method" => $method]);
         exit;
     }
-    
-    echo json_encode(["message" => "Review berhasil dihapus", "success" => true]);
     
 } catch (PDOException $e) {
     http_response_code(500);

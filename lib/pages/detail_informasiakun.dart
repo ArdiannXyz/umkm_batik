@@ -34,35 +34,28 @@ class _DetailInformasiAkunState extends State<DetailInformasiAkun> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFEFF6FF), // Biru muda
-      appBar: AppBar(
-        
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        
-        leading: IconButton(
-          padding: const EdgeInsets.symmetric(vertical: 0),
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        
-        centerTitle: true,
-        
-        title: const Padding(
-          padding: EdgeInsets.only(top: 0),
-        
-        child: Text(
-          
-          'Detail Informasi Akun',
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
-      ),
+          @override
+          Widget build(BuildContext context) {
+            return Scaffold(
+              backgroundColor: const Color(0xFFEFF6FF), // Biru muda
+              appBar: AppBar(
+                    backgroundColor: const Color (0xFF0D6EFD), // Warna biru untuk kotak judul
+                    elevation: 0,
+                    leading: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    centerTitle: true,
+                    title: const Text(
+                      'Detail Informasi Akun',
+                      style: TextStyle(
+                        color: Colors.white, // Teks putih di atas kotak biru
+                      ),
+                    ),
+                  ),
+
       body: user == null
           ? const Center(child: CircularProgressIndicator())
           : Column(

@@ -44,49 +44,10 @@ try {
             }
         }
 
-        // Optimasi ukuran gambar jika parameter width disediakan
-        if (isset($_GET['width']) && function_exists('imagecreatefromstring')) {
-            $maxWidth = intval($_GET['width']);
-            if ($maxWidth > 0 && $maxWidth <= 1200) { // Batasi max width
-                $sourceImage = imagecreatefromstring($imageData);
-                if ($sourceImage !== false) {
-                    $origWidth = imagesx($sourceImage);
-                    $origHeight = imagesy($sourceImage);
-                    
-                    if ($origWidth > $maxWidth) {
-                        $ratio = $maxWidth / $origWidth;
-                        $newHeight = $origHeight * $ratio;
-                        
-                        $resizedImage = imagecreatetruecolor($maxWidth, $newHeight);
-                        imagecopyresampled(
-                            $resizedImage, $sourceImage, 
-                            0, 0, 0, 0, 
-                            $maxWidth, $newHeight, $origWidth, $origHeight
-                        );
-                        
-                        // Output gambar yang dioptimalkan
-                        header("Content-Type: " . $mimeType);
-                        if ($mimeType == 'image/jpeg') {
-                            imagejpeg($resizedImage, null, 85); // kualitas 85%
-                        } elseif ($mimeType == 'image/png') {
-                            imagepng($resizedImage, null, 6); // kompresi level 6
-                        }
-                        
-                        imagedestroy($sourceImage);
-                        imagedestroy($resizedImage);
-                        exit;
-                    }
-                    imagedestroy($sourceImage);
-                }
-            }
-        }
-
-        // Tambahkan Cache-Control header
-        $maxAge = 86400; // 24 jam dalam detik
+        // Tampilkan gambar
         header("Content-Type: " . $mimeType);
         header("Content-Length: " . strlen($imageData));
-        header("Cache-Control: public, max-age=" . $maxAge);
-        header("Expires: " . gmdate("D, d M Y H:i:s", time() + $maxAge) . " GMT");
+        header("Cache-Control: public, max-age=3600");
         header("Pragma: public");
         echo $imageData;
 

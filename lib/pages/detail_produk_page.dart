@@ -11,11 +11,14 @@ import 'package:umkm_batik/services/user_service.dart';
 class DetailProdukPage extends StatefulWidget {
   final int productId;
   final bool isFavorite;
-final Function()? onFavoriteToggle;
+  final Function()? onFavoriteToggle;
 
-
-  const DetailProdukPage({super.key, required this.productId, this.isFavorite = false,
-    this.onFavoriteToggle,});
+  const DetailProdukPage({
+    super.key,
+    required this.productId,
+    this.isFavorite = false,
+    this.onFavoriteToggle,
+  });
 
   @override
   State<DetailProdukPage> createState() => _DetailProdukPageState();
@@ -26,7 +29,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
   List<dynamic> ulasanList = [];
   bool isLoading = true;
   int currentImageIndex = 0;
-  Set<int> favoriteProductIds = {}; 
+  Set<int> favoriteProductIds = {};
   int? userId;
   final PageController _pageController = PageController();
 
@@ -68,7 +71,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
     try {
       final response = await http.get(
         Uri.parse(
-            "http://192.168.231.254/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
+            "http://192.168.1.3/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
       );
 
       if (response.statusCode == 200) {
@@ -101,7 +104,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
 
   Future<void> fetchUlasan() async {
     final response = await http.get(Uri.parse(
-        'http://192.168.231.254/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
+        'http://192.168.1.3/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -124,6 +127,28 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
       debugPrint('Decode error: $e');
       return Uint8List(0);
     }
+  }
+
+  // Create ProductItem from product data
+  ProductItem _createProductItem(int quantity) {
+    String imageBase64 = '';
+    Uint8List? imageBytes;
+
+    if (product?['images'] != null &&
+        product!['images'].isNotEmpty &&
+        product!['images'][0]['image_base64'] != null) {
+      imageBase64 = product!['images'][0]['image_base64'];
+      imageBytes = _base64ToImage(imageBase64);
+    }
+
+    return ProductItem(
+      id: int.parse(product?['id'].toString() ?? '0'),
+      name: product?['nama'] ?? 'Batik',
+      price: double.parse(product?['harga']?.toString() ?? '0'),
+      quantity: quantity,
+      image: imageBytes,
+      imageBase64: imageBase64,
+    );
   }
 
   Widget _buildProductImageGallery() {
@@ -379,6 +404,10 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Get stock value as integer
+    int stockQuantity = int.tryParse(product?['quantity']?.toString() ?? '0') ?? 0;
+    bool isOutOfStock = stockQuantity <= 0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFDEF1FF),
       appBar: AppBar(
@@ -393,14 +422,17 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
         centerTitle: true,
         actions: [
           IconButton(
-           icon: Icon(
-              favoriteProductIds.contains(widget.productId)
-                  ? Icons.bookmark
-                  : Icons.bookmark_border,
-              color: Colors.red,
-            ),
-            onPressed: () => handleFavoriteToggle(widget.productId),
-          ),
+                icon: Icon(
+                  favoriteProductIds.contains(widget.productId)
+                      ? Icons.bookmark
+                      : Icons.bookmark_border,
+                  color: favoriteProductIds.contains(widget.productId)
+                      ? Colors.red
+                      : Colors.grey,
+                ),
+                onPressed: () => handleFavoriteToggle(widget.productId),
+              ),
+
         ],
       ),
       body: isLoading
@@ -421,44 +453,74 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.withOpacity(0.2),
-                            spreadRadius: 0,
+                            
                             blurRadius: 0,
                             offset: const Offset(0, 2),
                           ),
                         ]),
                     margin: const EdgeInsets.symmetric(horizontal: 0),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                product?['nama'] ?? 'Batik',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Rp.${double.parse(product?['harga'] ?? '0').toStringAsFixed(0)}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ],
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          product?['nama'] ?? 'Batik',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          product?['deskripsi'] ?? 'Deskripsi tidak tersedia.',
-                          style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Rp.${double.parse(product?['harga'] ?? '0').toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Moved stock status here
+                  Row(
+                    children: [
+                      const Text(
+                        "Stok: ",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "$stockQuantity",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: isOutOfStock ? Colors.red : Colors.blue,
+                        ),
+                      ),
+                      if (isOutOfStock)
+                        const Text(
+                          " (Habis)",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    product?['deskripsi'] ?? 'Deskripsi tidak tersedia.',
+                    style: const TextStyle(fontSize: 14),
                         ),
                       ],
                     ),
@@ -495,7 +557,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 14),
                                 child: Icon(Icons.star_border,
-                                    color: Colors.amber, size: 40),
+                                    color: Colors.amber, size: 35),
                               ),
                             );
                           }),
@@ -627,9 +689,11 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                     width: double.infinity,
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: const BoxDecoration(color: Colors.blue),
+                      decoration: BoxDecoration(
+                        color: isOutOfStock ? Colors.grey : const Color(0xFF0D6EFD),
+                      ),
                       child: InkWell(
-                        onTap: () {
+                        onTap: isOutOfStock ? null : () {
                           showModalBottomSheet(
                             context: context,
                             shape: const RoundedRectangleBorder(
@@ -674,7 +738,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                                                 ),
                                                 const SizedBox(height: 4),
                                                 Text(
-                                                    "Stok : ${product?['stok_id'] ?? 0}",
+                                                    "Stok : ${product?['quantity'] ?? 0}",
                                                     style: const TextStyle(
                                                         color: Colors.grey)),
                                               ],
@@ -712,7 +776,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                                               IconButton(
                                                 onPressed: () {
                                                   int stok = int.tryParse(
-                                                          product?['stok_id']
+                                                          product?['quantity']
                                                                   .toString() ??
                                                               '0') ??
                                                       0;
@@ -743,13 +807,23 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                                             backgroundColor: Colors.blue,
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 12),
+                                                shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(5),
+                                                ),
                                           ),
                                           onPressed: () {
+                                            // Create ProductItem with selected quantity
+                                            final productItem =
+                                                _createProductItem(jumlah);
+
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const CheckoutPage()),
+                                                builder: (context) =>
+                                                    CheckoutPage(
+                                                  product: productItem,
+                                                ),
+                                              ),
                                             );
                                           },
                                           child: const Text("Bayar Sekarang",
@@ -765,10 +839,11 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                             },
                           );
                         },
-                        child: const Center(
-                          child: Text('Pesan Sekarang',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.white)),
+                        child: Center(
+                          child: Text(
+                            isOutOfStock ? 'Stok Habis' : 'Pesan Sekarang',
+                            style: const TextStyle(fontSize: 16, color: Colors.white),
+                          ),
                         ),
                       ),
                     ),

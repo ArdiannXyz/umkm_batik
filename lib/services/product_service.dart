@@ -5,9 +5,10 @@ import 'package:http/http.dart' as http;
 import '../models/product_model.dart';
 import '../models/product_image.dart';
 
-const String baseUrl = 'http://192.168.231.254/umkm_batik/API/';
+const String baseUrl = 'http://192.168.1.3/umkm_batik/API/';
 
 class ProductService {
+  
   static Future<List<Product>> fetchProducts() async {
     try {
       final response = await http.get(
@@ -54,34 +55,32 @@ class ProductService {
     return null;
   }
 
-static Future<List<ProductImage>> fetchProductImages(int productId) async {
-  try {
-    final response = await http.get(
-      Uri.parse('${baseUrl}get_product_images.php?product_id=$productId'),
-    );
+  static Future<List<ProductImage>> fetchProductImages(int productId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${baseUrl}get_product_images.php?product_id=$productId'),
+      );
 
-    if (response.statusCode == 200) {
-      final List jsonResponse = jsonDecode(response.body);
-      return jsonResponse
-          .map((item) => ProductImage.fromJson(item))
-          .toList();
-    } else {
-      print('HTTP error: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final List jsonResponse = jsonDecode(response.body);
+        return jsonResponse.map((item) => ProductImage.fromJson(item)).toList();
+      } else {
+        print('HTTP error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception saat ambil gambar produk: $e');
     }
-  } catch (e) {
-    print('Exception saat ambil gambar produk: $e');
+    return [];
   }
-  return [];
-}
 
-static Future<Map<String, dynamic>> sendChatMessage(String message) async {
+  static Future<Map<String, dynamic>> sendChatMessage(String message) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/chatbot_api.php'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'question': message}),
       );
-      
+
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
@@ -92,16 +91,17 @@ static Future<Map<String, dynamic>> sendChatMessage(String message) async {
       return getOfflineResponse(message);
     }
   }
-  
+
   // Fungsi respons offline (jika API tidak tersedia)
   static Map<String, dynamic> getOfflineResponse(String message) {
     message = message.toLowerCase();
-    
+
     // Cek stok
     if (message.contains('stok') || message.contains('stock')) {
       return {
         'type': 'stock_steps',
-        'message': 'Untuk memeriksa stok barang, silakan ikuti langkah-langkah berikut:',
+        'message':
+            'Untuk memeriksa stok barang, silakan ikuti langkah-langkah berikut:',
         'steps': [
           "1. Buka halaman utama aplikasi",
           "2. Gunakan fitur pencarian di bagian atas untuk mencari produk",
@@ -126,7 +126,9 @@ static Future<Map<String, dynamic>> sendChatMessage(String message) async {
       };
     }
     // Cara cek resi
-    else if (message.contains('resi') || message.contains('tracking') || message.contains('lacak')) {
+    else if (message.contains('resi') ||
+        message.contains('tracking') ||
+        message.contains('lacak')) {
       return {
         'type': 'tracking_steps',
         'message': 'Berikut cara melakukan cek resi:',
@@ -139,7 +141,10 @@ static Future<Map<String, dynamic>> sendChatMessage(String message) async {
       };
     }
     // Kontak penjual
-    else if (message.contains('kontak') || message.contains('hubungi') || message.contains('penjual') || message.contains('cs')) {
+    else if (message.contains('kontak') ||
+        message.contains('hubungi') ||
+        message.contains('penjual') ||
+        message.contains('cs')) {
       return {
         'type': 'contact_info',
         'message': 'Berikut informasi kontak penjual:',
@@ -163,11 +168,14 @@ static Future<Map<String, dynamic>> sendChatMessage(String message) async {
       return {
         'type': 'about',
         'message': 'Tentang UMKM Batik',
-        'content': 'UMKM Batik adalah platform digital yang membantu para pengrajin batik lokal untuk memasarkan produk mereka secara online. Kami berkomitmen untuk melestarikan warisan budaya Indonesia sekaligus membantu perekonomian UMKM batik dalam era digital.'
+        'content':
+            'UMKM Batik adalah platform digital yang membantu para pengrajin batik lokal untuk memasarkan produk mereka secara online. Kami berkomitmen untuk melestarikan warisan budaya Indonesia sekaligus membantu perekonomian UMKM batik dalam era digital.'
       };
     }
     // Menu bantuan
-    else if (message.contains('bantuan') || message.contains('help') || message.contains('menu')) {
+    else if (message.contains('bantuan') ||
+        message.contains('help') ||
+        message.contains('menu')) {
       return {
         'type': 'help_menu',
         'message': 'Saya dapat membantu Anda dengan beberapa hal berikut:',
@@ -184,7 +192,8 @@ static Future<Map<String, dynamic>> sendChatMessage(String message) async {
     else {
       return {
         'type': 'unknown',
-        'message': 'Maaf, saya belum dapat memahami pertanyaan Anda. Silakan ketik salah satu kata kunci berikut:',
+        'message':
+            'Maaf, saya belum dapat memahami pertanyaan Anda. Silakan ketik salah satu kata kunci berikut:',
         'menu': [
           "stok - Cara cek stok produk",
           "bayar - Cara melakukan pembayaran",
@@ -196,6 +205,55 @@ static Future<Map<String, dynamic>> sendChatMessage(String message) async {
       };
     }
   }
+  static final Map<String, dynamic> _cache = {};
+  static final Duration _cacheDuration = Duration(minutes: 15);
+  static final Map<String, DateTime> _cacheTimestamps = {};
+  
+  // Fungsi untuk mendapatkan URL gambar lengkap
+  static String getFullImageUrl(String? relativeUrl) {
+    if (relativeUrl == null || relativeUrl.isEmpty) return '';
 
+    if (relativeUrl.startsWith('http')) return relativeUrl;
 
+    if (relativeUrl.contains('get_main_product_images.php')) {
+      final uri = Uri.tryParse(relativeUrl);
+      if (uri != null && uri.queryParameters.containsKey('id')) {
+        final productId = uri.queryParameters['id'];
+        return '$baseUrl/get_main_product_images.php?id=$productId';
+      }
+      return '$baseUrl/$relativeUrl';
+    }
+
+    final cleanPath =
+        relativeUrl.startsWith('/') ? relativeUrl.substring(1) : relativeUrl;
+    return '$baseUrl/$cleanPath';
+  }
+
+  // Fungsi khusus untuk mendapatkan URL gambar dengan ID tertentu
+  static String getImageUrl(int imageId) {
+    return '$baseUrl/get_product_images.php?id=$imageId';
+  }
+  
+  // Cek apakah cache valid
+  static bool _isCacheValid(String key) {
+    if (!_cache.containsKey(key) || !_cacheTimestamps.containsKey(key)) {
+      return false;
+    }
+    
+    final timestamp = _cacheTimestamps[key]!;
+    final now = DateTime.now();
+    return now.difference(timestamp) < _cacheDuration;
+  }
+  
+  // Menyimpan data ke cache
+  static void _cacheData(String key, dynamic data) {
+    _cache[key] = data;
+    _cacheTimestamps[key] = DateTime.now();
+  }
+  
+  // Membersihkan cache
+  static void clearCache() {
+    _cache.clear();
+    _cacheTimestamps.clear();
+  }
 }
