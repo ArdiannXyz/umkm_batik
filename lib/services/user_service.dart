@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String baseUrl = 'http://localhost/umkm_batik/API/'; // Base URL di sini
+const String baseUrl = 'http://192.168.231.254/umkm_batik/API/'; // Base URL di sini
 
 class UserService {
   //GET user detailakun
@@ -229,6 +229,21 @@ class UserService {
       print('Exception saat get favorites: $e');
     }
     return {};
+  }
+
+  static Future<List<int>> fetchadd_alamats(int userId) async {
+    final response = await http.get(
+      Uri.parse('${baseUrl}get_user.php?user_id=$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success']) {
+        List favorites = data['favorites'];
+        return favorites.cast<int>().toList();
+      }
+    }
+    return [];
   }
 
   //fetch Favorites

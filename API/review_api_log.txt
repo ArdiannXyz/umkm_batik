@@ -1,0 +1,118 @@
+-------------- 2025-05-08 07:19:56 --------------
+Request method: GET
+ERROR: Method not allowed. Please use POST.
+-------------- END --------------
+
+-------------- 2025-05-08 07:19:57 --------------
+Request method: GET
+ERROR: Method not allowed. Please use POST.
+-------------- END --------------
+
+-------------- 2025-05-08 07:22:37 --------------
+Request method: OPTIONS
+-------------- 2025-05-08 07:22:37 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":13,"rating":5,"komentar":"immortal 155 season ini"}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 13
+    [rating] => 5
+    [komentar] => immortal 155 season ini
+)
+
+Insert successful. New review ID: 24
+-------------- END --------------
+
+-------------- 2025-05-08 13:26:31 --------------
+Request method: OPTIONS
+-------------- 2025-05-08 13:26:31 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":13,"rating":4,"komentar":"immortal 150 season ini"}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 13
+    [rating] => 4
+    [komentar] => immortal 150 season ini
+)
+
+ERROR: Error processing request: Field 'updated_at' doesn't have a default value
+-------------- END --------------
+
+-------------- 2025-05-08 13:26:33 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":13,"rating":4,"komentar":"immortal 150 season ini"}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 13
+    [rating] => 4
+    [komentar] => immortal 150 season ini
+)
+
+ERROR: Error processing request: Field 'updated_at' doesn't have a default value
+-------------- END --------------
+
+-------------- 2025-05-08 13:26:34 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":13,"rating":4,"komentar":"immortal 150 season ini"}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 13
+    [rating] => 4
+    [komentar] => immortal 150 season ini
+)
+
+ERROR: Error processing request: Field 'updated_at' doesn't have a default value
+-------------- END --------------
+
+-------------- 2025-05-08 13:26:48 --------------
+Request method: OPTIONS
+-------------- 2025-05-08 13:26:48 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":13,"rating":4,"komentar":"immortal 150 season ini"}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 13
+    [rating] => 4
+    [komentar] => immortal 150 season ini
+)
+
+Insert successful. New review ID: 25
+-------------- END --------------
+
+-------------- 2025-05-08 13:27:17 --------------
+Request method: OPTIONS
+-------------- 2025-05-08 13:27:17 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":13,"rating":4,"komentar":"immortal 150 season ini"}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 13
+    [rating] => 4
+    [komentar] => immortal 150 season ini
+)
+
+Insert successful. New review ID: 26
+-------------- END --------------
+
+-------------- 2025-05-10 01:38:44 --------------
+Request method: OPTIONS
+-------------- 2025-05-10 01:38:44 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":5,"rating":3,"komentar":"ssw"}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 5
+    [rating] => 3
+    [komentar] => ssw
+)
+
+Insert successful. New review ID: 28
+-------------- END --------------
+

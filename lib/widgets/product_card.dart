@@ -56,7 +56,7 @@ class ProductCard extends StatelessWidget {
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5.0),
+            padding: const EdgeInsets.symmetric(vertical:1),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -88,7 +88,7 @@ class ProductCard extends StatelessWidget {
           // Gambar produk
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: ClipRRect(
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(2)),
