@@ -18,7 +18,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   bool isLoading = true;
   Map<String, dynamic>? orderDetail;
   String? userId;
-  final String baseUrl = 'http://192.168.1.3/umkm_batik/API';
+  final String baseUrl = 'http://localhost/umkm_batik/API';
 
   @override
   void initState() {
@@ -273,7 +273,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   // Function to navigate to payment page
   void _navigateToPayment() {
     if (orderDetail == null || widget.orderId == null) return;
-    
+
     // Get total price from order details
     double totalPrice = 0;
     try {
@@ -281,7 +281,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
     } catch (e) {
       print('Error parsing total_harga: $e');
     }
-    
+
     // Navigate to payment page with default payment method (BCA)
     Navigator.push(
       context,
@@ -295,7 +295,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
     );
   }
 
- bool _canMarkAsCompleted() {
+  bool _canMarkAsCompleted() {
     if (orderDetail == null) return false;
 
     final orderStatus = orderDetail!['status']?.toString().toLowerCase();
@@ -336,20 +336,21 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
     if (orderDetail == null) return false;
 
     final orderStatus = orderDetail!['status']?.toString().toLowerCase();
-    final statusDisplay = orderDetail!['status_display']?.toString().toLowerCase();
-    
+    final statusDisplay =
+        orderDetail!['status_display']?.toString().toLowerCase();
+
     // Check if order is in pending/belum bayar status
-    return orderStatus == 'pending' || 
-           orderStatus == 'belum bayar' || 
-           statusDisplay == 'pending' || 
-           statusDisplay == 'belum bayar';
+    return orderStatus == 'pending' ||
+        orderStatus == 'belum bayar' ||
+        statusDisplay == 'pending' ||
+        statusDisplay == 'belum bayar';
   }
 
   // Check if the order has shipping information
   bool _hasShippingInfo() {
-    return orderDetail != null && 
-           orderDetail!['shipping'] != null && 
-           (orderDetail!['status'] == 'shipped' || 
+    return orderDetail != null &&
+        orderDetail!['shipping'] != null &&
+        (orderDetail!['status'] == 'shipped' ||
             orderDetail!['status_display'] == 'Dikirim');
   }
 
@@ -461,8 +462,8 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
                       const SizedBox(height: 5),
                       _buildShippingInfoCard(),
                       if (_hasShippingInfo()) ...[
-                          const SizedBox(height: 5),
-                          _buildShippingStatusCard(),
+                        const SizedBox(height: 5),
+                        _buildShippingStatusCard(),
                       ],
                       const SizedBox(height: 5),
                       _buildPaymentInfoCard(),
@@ -620,7 +621,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   Widget _buildShippingStatusCard() {
     final shipping = orderDetail!['shipping'];
     if (shipping == null) return const SizedBox.shrink();
-    
+
     return Card(
       elevation: 2,
       color: const Color.fromARGB(255, 255, 255, 255),
@@ -633,11 +634,15 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
             const Text('Status Pengiriman',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const Divider(),
-            _buildInfoRow('Jasa Kurir', shipping['jasa_kurir'] ?? 'Tidak tersedia'),
-            _buildInfoRow('Nomor Resi', shipping['nomor_resi'] ?? 'Tidak tersedia'),
-            _buildInfoRow('Status', shipping['status_display'] ?? 'Tidak tersedia'),
+            _buildInfoRow(
+                'Jasa Kurir', shipping['jasa_kurir'] ?? 'Tidak tersedia'),
+            _buildInfoRow(
+                'Nomor Resi', shipping['nomor_resi'] ?? 'Tidak tersedia'),
+            _buildInfoRow(
+                'Status', shipping['status_display'] ?? 'Tidak tersedia'),
             if (shipping['created_at'] != null)
-              _buildInfoRow('Tanggal Pengiriman', _formatDate(shipping['created_at'])),
+              _buildInfoRow(
+                  'Tanggal Pengiriman', _formatDate(shipping['created_at'])),
           ],
         ),
       ),

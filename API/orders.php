@@ -175,7 +175,6 @@ class Order {
             // Update order status to completed
         $query = "UPDATE pengiriman 
                  SET status_pengiriman = 'sampai', 
-                     tanggal_sampai = NOW() 
                  WHERE order_id = :order_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':order_id', $order_id);
@@ -292,7 +291,6 @@ public function addOrUpdateShipping($order_id, $nomor_resi, $jasa_kurir, $status
                       jasa_kurir = :jasa_kurir, 
                       status_pengiriman = :status_pengiriman,
                       tanggal_dikirim = CASE WHEN :status_pengiriman = 'dikirim' THEN NOW() ELSE tanggal_dikirim END,
-                      tanggal_sampai = CASE WHEN :status_pengiriman = 'sampai' THEN NOW() ELSE tanggal_sampai END,
                       catatan = COALESCE(:catatan, catatan)
                   WHERE order_id = :order_id";
     } else {

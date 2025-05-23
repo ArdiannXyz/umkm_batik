@@ -1458,3 +1458,492 @@ Requested user_id: 13
 Found 4 addresses for user_id: 13
 -------------- END --------------
 
+-------------- 2025-05-22 11:58:03 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 11:58:18 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 11:58:30 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 11:58:36 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 11:58:50 --------------
+Request method: OPTIONS
+-------------- 2025-05-22 11:58:50 --------------
+Request method: POST
+Raw input: {"id":7,"user_id":13,"nama_lengkap":"Fiore","nomor_hp":"62841615121","provinsi":"LAMPUNG","kota":"KABUPATEN LAMPUNG UTARA","kecamatan":"ABUNG  KUNANG","kode_pos":"612412","alamat_lengkap":"Jln tawang mangu no 139"}
+Decoded data: Array
+(
+    [id] => 7
+    [user_id] => 13
+    [nama_lengkap] => Fiore
+    [nomor_hp] => 62841615121
+    [provinsi] => LAMPUNG
+    [kota] => KABUPATEN LAMPUNG UTARA
+    [kecamatan] => ABUNG  KUNANG
+    [kode_pos] => 612412
+    [alamat_lengkap] => Jln tawang mangu no 139
+)
+
+Update successful for address ID: 7
+-------------- END --------------
+
+-------------- 2025-05-22 11:58:50 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 12:00:03 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 12:36:06 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 12:36:21 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 12:37:05 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 12:37:14 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:07:27 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:07:52 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:08:00 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:10:59 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:11:01 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:11:07 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:11:15 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:44:31 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:45:08 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:47:21 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:47:33 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:47:37 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:48:44 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:48:59 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 13:49:10 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:44:07 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:46:08 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:47:42 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:47:52 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:48:16 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:48:17 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:48:20 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:49:13 --------------
+Request method: OPTIONS
+-------------- 2025-05-22 14:49:13 --------------
+Request method: POST
+Raw input: {"id":4,"user_id":13,"nama_lengkap":"Ado","nomor_hp":"+62 877-0572-1463","provinsi":"JAWA TIMUR","kota":"KABUPATEN SITUBONDO","kecamatan":"SITUBONDO","kode_pos":"612412","alamat_lengkap":"jln santana no 271"}
+Decoded data: Array
+(
+    [id] => 4
+    [user_id] => 13
+    [nama_lengkap] => Ado
+    [nomor_hp] => +62 877-0572-1463
+    [provinsi] => JAWA TIMUR
+    [kota] => KABUPATEN SITUBONDO
+    [kecamatan] => SITUBONDO
+    [kode_pos] => 612412
+    [alamat_lengkap] => jln santana no 271
+)
+
+Update successful for address ID: 4
+-------------- END --------------
+
+-------------- 2025-05-22 14:49:13 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:49:21 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:49:25 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:49:35 --------------
+Request method: OPTIONS
+-------------- 2025-05-22 14:49:35 --------------
+Request method: POST
+Raw input: {"id":4,"user_id":13,"nama_lengkap":"Ado","nomor_hp":"+6287705721463","provinsi":"JAWA TIMUR","kota":"KABUPATEN SITUBONDO","kecamatan":"SITUBONDO","kode_pos":"612412","alamat_lengkap":"jln santana no 271"}
+Decoded data: Array
+(
+    [id] => 4
+    [user_id] => 13
+    [nama_lengkap] => Ado
+    [nomor_hp] => +6287705721463
+    [provinsi] => JAWA TIMUR
+    [kota] => KABUPATEN SITUBONDO
+    [kecamatan] => SITUBONDO
+    [kode_pos] => 612412
+    [alamat_lengkap] => jln santana no 271
+)
+
+Update successful for address ID: 4
+-------------- END --------------
+
+-------------- 2025-05-22 14:49:35 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:49:37 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:51:18 --------------
+Request method: OPTIONS
+-------------- 2025-05-22 14:51:18 --------------
+Request method: POST
+Raw input: {"id":2,"user_id":13,"nama_lengkap":"Yoasobi","nomor_hp":"+6283846857391","provinsi":"SUMATERA UTARA","kota":"KOTA MEDAN","kecamatan":"MEDAN KOTA","kode_pos":"641214","alamat_lengkap":"jln batu raden no 19"}
+Decoded data: Array
+(
+    [id] => 2
+    [user_id] => 13
+    [nama_lengkap] => Yoasobi
+    [nomor_hp] => +6283846857391
+    [provinsi] => SUMATERA UTARA
+    [kota] => KOTA MEDAN
+    [kecamatan] => MEDAN KOTA
+    [kode_pos] => 641214
+    [alamat_lengkap] => jln batu raden no 19
+)
+
+Update successful for address ID: 2
+-------------- END --------------
+
+-------------- 2025-05-22 14:51:18 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:51:21 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:51:40 --------------
+Request method: OPTIONS
+-------------- 2025-05-22 14:51:40 --------------
+Request method: POST
+Raw input: {"id":6,"user_id":13,"nama_lengkap":"Fajar","nomor_hp":"8461214141","provinsi":"DKI JAKARTA","kota":"KOTA JAKARTA SELATAN","kecamatan":"PESANGGRAHAN","kode_pos":"6611221","alamat_lengkap":"Jln jln no 969"}
+Decoded data: Array
+(
+    [id] => 6
+    [user_id] => 13
+    [nama_lengkap] => Fajar
+    [nomor_hp] => 8461214141
+    [provinsi] => DKI JAKARTA
+    [kota] => KOTA JAKARTA SELATAN
+    [kecamatan] => PESANGGRAHAN
+    [kode_pos] => 6611221
+    [alamat_lengkap] => Jln jln no 969
+)
+
+Update successful for address ID: 6
+-------------- END --------------
+
+-------------- 2025-05-22 14:51:40 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:52:47 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:52:59 --------------
+Request method: OPTIONS
+-------------- 2025-05-22 14:52:59 --------------
+Request method: POST
+Raw input: {"id":6,"user_id":13,"nama_lengkap":"Fajar","nomor_hp":"8461214141","provinsi":"DKI JAKARTA","kota":"KOTA JAKARTA SELATAN","kecamatan":"PESANGGRAHAN","kode_pos":"+6281282828514","alamat_lengkap":"Jln jln no 969"}
+Decoded data: Array
+(
+    [id] => 6
+    [user_id] => 13
+    [nama_lengkap] => Fajar
+    [nomor_hp] => 8461214141
+    [provinsi] => DKI JAKARTA
+    [kota] => KOTA JAKARTA SELATAN
+    [kecamatan] => PESANGGRAHAN
+    [kode_pos] => +6281282828514
+    [alamat_lengkap] => Jln jln no 969
+)
+
+ERROR: Error processing request: Out of range value for column 'kode_pos' at row 1
+-------------- END --------------
+
+-------------- 2025-05-22 14:53:02 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:53:21 --------------
+Request method: OPTIONS
+-------------- 2025-05-22 14:53:21 --------------
+Request method: POST
+Raw input: {"id":6,"user_id":13,"nama_lengkap":"Fajar","nomor_hp":"8461214141","provinsi":"DKI JAKARTA","kota":"KOTA JAKARTA SELATAN","kecamatan":"PESANGGRAHAN","kode_pos":"6512411111111111111","alamat_lengkap":"Jln jln no 969"}
+Decoded data: Array
+(
+    [id] => 6
+    [user_id] => 13
+    [nama_lengkap] => Fajar
+    [nomor_hp] => 8461214141
+    [provinsi] => DKI JAKARTA
+    [kota] => KOTA JAKARTA SELATAN
+    [kecamatan] => PESANGGRAHAN
+    [kode_pos] => 6512411111111111111
+    [alamat_lengkap] => Jln jln no 969
+)
+
+ERROR: Error processing request: Out of range value for column 'kode_pos' at row 1
+-------------- END --------------
+
+-------------- 2025-05-22 14:53:22 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:54:10 --------------
+Request method: OPTIONS
+-------------- 2025-05-22 14:54:10 --------------
+Request method: POST
+Raw input: {"id":6,"user_id":13,"nama_lengkap":"Yorushika","nomor_hp":"+6281282828514","provinsi":"DKI JAKARTA","kota":"KOTA JAKARTA SELATAN","kecamatan":"PESANGGRAHAN","kode_pos":"612455","alamat_lengkap":"Jln jln no 969"}
+Decoded data: Array
+(
+    [id] => 6
+    [user_id] => 13
+    [nama_lengkap] => Yorushika
+    [nomor_hp] => +6281282828514
+    [provinsi] => DKI JAKARTA
+    [kota] => KOTA JAKARTA SELATAN
+    [kecamatan] => PESANGGRAHAN
+    [kode_pos] => 612455
+    [alamat_lengkap] => Jln jln no 969
+)
+
+Update successful for address ID: 6
+-------------- END --------------
+
+-------------- 2025-05-22 14:54:10 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:54:13 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:55:07 --------------
+Request method: OPTIONS
+-------------- 2025-05-22 14:55:07 --------------
+Request method: POST
+Raw input: {"id":7,"user_id":13,"nama_lengkap":"Fiore","nomor_hp":"+6281558683989","provinsi":"BALI","kota":"KABUPATEN BULELENG","kecamatan":"BANJAR","kode_pos":"612412","alamat_lengkap":"Jln tawang mangu no 139"}
+Decoded data: Array
+(
+    [id] => 7
+    [user_id] => 13
+    [nama_lengkap] => Fiore
+    [nomor_hp] => +6281558683989
+    [provinsi] => BALI
+    [kota] => KABUPATEN BULELENG
+    [kecamatan] => BANJAR
+    [kode_pos] => 612412
+    [alamat_lengkap] => Jln tawang mangu no 139
+)
+
+Update successful for address ID: 7
+-------------- END --------------
+
+-------------- 2025-05-22 14:55:07 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:55:18 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:56:09 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:56:20 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-22 14:56:29 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
