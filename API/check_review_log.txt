@@ -1725,3 +1725,17 @@ Review data: Array
 
 -------------- END --------------
 
+-------------- 2025-05-22 14:42:10 --------------
+Request method: OPTIONS
+-------------- 2025-05-22 14:42:10 --------------
+Request method: POST
+Raw input: {"product_id":4,"user_id":13}
+Decoded data: Array
+(
+    [product_id] => 4
+    [user_id] => 13
+)
+
+Has reviewed: No
+-------------- END --------------
+

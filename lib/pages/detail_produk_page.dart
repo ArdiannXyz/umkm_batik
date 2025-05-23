@@ -71,7 +71,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
     try {
       final response = await http.get(
         Uri.parse(
-            "http://192.168.1.3/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
+            "http://192.168.100.48/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
       );
 
       if (response.statusCode == 200) {
@@ -104,7 +104,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
 
   Future<void> fetchUlasan() async {
     final response = await http.get(Uri.parse(
-        'http://192.168.1.3/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
+        'http://192.168.100.48/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -405,7 +405,8 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
   @override
   Widget build(BuildContext context) {
     // Get stock value as integer
-    int stockQuantity = int.tryParse(product?['quantity']?.toString() ?? '0') ?? 0;
+    int stockQuantity =
+        int.tryParse(product?['quantity']?.toString() ?? '0') ?? 0;
     bool isOutOfStock = stockQuantity <= 0;
 
     return Scaffold(
@@ -422,17 +423,16 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
         centerTitle: true,
         actions: [
           IconButton(
-                icon: Icon(
-                  favoriteProductIds.contains(widget.productId)
-                      ? Icons.bookmark
-                      : Icons.bookmark_border,
-                  color: favoriteProductIds.contains(widget.productId)
-                      ? Colors.red
-                      : Colors.grey,
-                ),
-                onPressed: () => handleFavoriteToggle(widget.productId),
-              ),
-
+            icon: Icon(
+              favoriteProductIds.contains(widget.productId)
+                  ? Icons.bookmark
+                  : Icons.bookmark_border,
+              color: favoriteProductIds.contains(widget.productId)
+                  ? Colors.red
+                  : Colors.grey,
+            ),
+            onPressed: () => handleFavoriteToggle(widget.productId),
+          ),
         ],
       ),
       body: isLoading
@@ -453,74 +453,74 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.withOpacity(0.2),
-                            
                             blurRadius: 0,
                             offset: const Offset(0, 2),
                           ),
                         ]),
                     margin: const EdgeInsets.symmetric(horizontal: 0),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          product?['nama'] ?? 'Batik',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                product?['nama'] ?? 'Batik',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Rp.${double.parse(product?['harga'] ?? '0').toStringAsFixed(0)}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Rp.${double.parse(product?['harga'] ?? '0').toStringAsFixed(0)}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
-                  // Moved stock status here
-                  Row(
-                    children: [
-                      const Text(
-                        "Stok: ",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                        // Moved stock status here
+                        Row(
+                          children: [
+                            const Text(
+                              "Stok: ",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              "$stockQuantity",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: isOutOfStock ? Colors.red : Colors.blue,
+                              ),
+                            ),
+                            if (isOutOfStock)
+                              const Text(
+                                " (Habis)",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                          ],
                         ),
-                      ),
-                      Text(
-                        "$stockQuantity",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: isOutOfStock ? Colors.red : Colors.blue,
-                        ),
-                      ),
-                      if (isOutOfStock)
-                        const Text(
-                          " (Habis)",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    product?['deskripsi'] ?? 'Deskripsi tidak tersedia.',
-                    style: const TextStyle(fontSize: 14),
+                        const SizedBox(height: 12),
+                        Text(
+                          product?['deskripsi'] ?? 'Deskripsi tidak tersedia.',
+                          style: const TextStyle(fontSize: 14),
                         ),
                       ],
                     ),
@@ -690,159 +690,176 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       decoration: BoxDecoration(
-                        color: isOutOfStock ? Colors.grey : const Color(0xFF0D6EFD),
+                        color: isOutOfStock
+                            ? Colors.grey
+                            : const Color(0xFF0D6EFD),
                       ),
                       child: InkWell(
-                        onTap: isOutOfStock ? null : () {
-                          showModalBottomSheet(
-                            context: context,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(24)),
-                            ),
-                            isScrollControlled: true,
-                            builder: (context) {
-                              int jumlah = 1;
-                              return StatefulBuilder(
-                                builder: (context, setModalState) => Padding(
-                                  padding: EdgeInsets.only(
-                                    left: 16,
-                                    right: 16,
-                                    top: 16,
-                                    bottom: MediaQuery.of(context)
-                                            .viewInsets
-                                            .bottom +
-                                        16,
+                        onTap: isOutOfStock
+                            ? null
+                            : () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(24)),
                                   ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          // Use our enhanced thumbnail method
-                                          _buildThumbnailInBottomSheet(),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                  isScrollControlled: true,
+                                  builder: (context) {
+                                    int jumlah = 1;
+                                    return StatefulBuilder(
+                                      builder: (context, setModalState) =>
+                                          Padding(
+                                        padding: EdgeInsets.only(
+                                          left: 16,
+                                          right: 16,
+                                          top: 16,
+                                          bottom: MediaQuery.of(context)
+                                                  .viewInsets
+                                                  .bottom +
+                                              16,
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
-                                                Text(
-                                                  'Rp.${double.parse(product?['harga'] ?? '0').toStringAsFixed(0)}',
-                                                  style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.bold),
+                                                // Use our enhanced thumbnail method
+                                                _buildThumbnailInBottomSheet(),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        'Rp.${double.parse(product?['harga'] ?? '0').toStringAsFixed(0)}',
+                                                        style: const TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                          "Stok : ${product?['quantity'] ?? 0}",
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .grey)),
+                                                    ],
+                                                  ),
                                                 ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                    "Stok : ${product?['quantity'] ?? 0}",
-                                                    style: const TextStyle(
-                                                        color: Colors.grey)),
+                                                IconButton(
+                                                  icon: const Icon(Icons.close),
+                                                  onPressed: () =>
+                                                      Navigator.pop(context),
+                                                ),
                                               ],
                                             ),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.close),
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text("Jumlah",
-                                              style: TextStyle(fontSize: 16)),
-                                          Row(
-                                            children: [
-                                              IconButton(
-                                                onPressed: () {
-                                                  if (jumlah > 1) {
-                                                    setModalState(
-                                                        () => jumlah--);
-                                                  }
-                                                },
-                                                icon: const Icon(
-                                                    Icons.arrow_left),
-                                              ),
-                                              Text(jumlah.toString(),
-                                                  style: const TextStyle(
-                                                      fontSize: 16)),
-                                              IconButton(
-                                                onPressed: () {
-                                                  int stok = int.tryParse(
-                                                          product?['quantity']
-                                                                  .toString() ??
-                                                              '0') ??
-                                                      0;
-                                                  if (jumlah < stok) {
-                                                    setModalState(
-                                                        () => jumlah++);
-                                                  } else {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                          content: Text(
-                                                              "Jumlah melebihi stok tersedia")),
-                                                    );
-                                                  }
-                                                },
-                                                icon: const Icon(
-                                                    Icons.arrow_right),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.blue,
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 12),
-                                                shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(5),
+                                            const SizedBox(height: 12),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                const Text("Jumlah",
+                                                    style: TextStyle(
+                                                        fontSize: 16)),
+                                                Row(
+                                                  children: [
+                                                    IconButton(
+                                                      onPressed: () {
+                                                        if (jumlah > 1) {
+                                                          setModalState(
+                                                              () => jumlah--);
+                                                        }
+                                                      },
+                                                      icon: const Icon(
+                                                          Icons.arrow_left),
+                                                    ),
+                                                    Text(jumlah.toString(),
+                                                        style: const TextStyle(
+                                                            fontSize: 16)),
+                                                    IconButton(
+                                                      onPressed: () {
+                                                        int stok = int.tryParse(
+                                                                product?['quantity']
+                                                                        .toString() ??
+                                                                    '0') ??
+                                                            0;
+                                                        if (jumlah < stok) {
+                                                          setModalState(
+                                                              () => jumlah++);
+                                                        } else {
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .showSnackBar(
+                                                            const SnackBar(
+                                                                content: Text(
+                                                                    "Jumlah melebihi stok tersedia")),
+                                                          );
+                                                        }
+                                                      },
+                                                      icon: const Icon(
+                                                          Icons.arrow_right),
+                                                    ),
+                                                  ],
                                                 ),
-                                          ),
-                                          onPressed: () {
-                                            // Create ProductItem with selected quantity
-                                            final productItem =
-                                                _createProductItem(jumlah);
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              width: double.infinity,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.blue,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 12),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                  ),
+                                                ),
+                                                onPressed: () {
+                                                  // Create ProductItem with selected quantity
+                                                  final productItem =
+                                                      _createProductItem(
+                                                          jumlah);
 
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    CheckoutPage(
-                                                  product: productItem,
-                                                ),
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          CheckoutPage(
+                                                        product: productItem,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: const Text(
+                                                    "Bayar Sekarang",
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Colors.white)),
                                               ),
-                                            );
-                                          },
-                                          child: const Text("Bayar Sekarang",
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.white)),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
+                                    );
+                                  },
+                                );
+                              },
                         child: Center(
                           child: Text(
                             isOutOfStock ? 'Stok Habis' : 'Pesan Sekarang',
-                            style: const TextStyle(fontSize: 16, color: Colors.white),
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.white),
                           ),
                         ),
                       ),

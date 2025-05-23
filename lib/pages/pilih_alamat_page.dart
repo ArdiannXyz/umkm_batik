@@ -96,7 +96,7 @@ class _PilihAlamatPageState extends State<PilihAlamatPage> {
       // Fixed URL - added http:// protocol
       final response = await http.get(
         Uri.parse(
-            'http://192.168.1.3/umkm_batik/API/get_addresses.php?user_id=$userId'),
+            'http://192.168.100.48/umkm_batik/API/get_addresses.php?user_id=$userId'),
       );
 
       if (response.statusCode == 200) {

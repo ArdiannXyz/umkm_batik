@@ -63,7 +63,7 @@ class _PaymentPageState extends State<PaymentPage> {
       }
 
       // Use your actual API endpoint
-      final apiUrl = 'http://192.168.1.3/umkm_batik/API/cancel_order.php';
+      final apiUrl = 'http://192.168.100.48/umkm_batik/API/cancel_order.php';
 
       // Ensure the API is called with proper POST method and headers
       final response = await http.post(

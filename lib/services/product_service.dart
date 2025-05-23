@@ -5,10 +5,9 @@ import 'package:http/http.dart' as http;
 import '../models/product_model.dart';
 import '../models/product_image.dart';
 
-const String baseUrl = 'http://192.168.1.3/umkm_batik/API/';
+const String baseUrl = 'http://192.168.100.48/umkm_batik/API/';
 
 class ProductService {
-  
   static Future<List<Product>> fetchProducts() async {
     try {
       final response = await http.get(
@@ -205,10 +204,11 @@ class ProductService {
       };
     }
   }
+
   static final Map<String, dynamic> _cache = {};
   static final Duration _cacheDuration = Duration(minutes: 15);
   static final Map<String, DateTime> _cacheTimestamps = {};
-  
+
   // Fungsi untuk mendapatkan URL gambar lengkap
   static String getFullImageUrl(String? relativeUrl) {
     if (relativeUrl == null || relativeUrl.isEmpty) return '';
@@ -233,24 +233,24 @@ class ProductService {
   static String getImageUrl(int imageId) {
     return '$baseUrl/get_product_images.php?id=$imageId';
   }
-  
+
   // Cek apakah cache valid
   static bool _isCacheValid(String key) {
     if (!_cache.containsKey(key) || !_cacheTimestamps.containsKey(key)) {
       return false;
     }
-    
+
     final timestamp = _cacheTimestamps[key]!;
     final now = DateTime.now();
     return now.difference(timestamp) < _cacheDuration;
   }
-  
+
   // Menyimpan data ke cache
   static void _cacheData(String key, dynamic data) {
     _cache[key] = data;
     _cacheTimestamps[key] = DateTime.now();
   }
-  
+
   // Membersihkan cache
   static void clearCache() {
     _cache.clear();
