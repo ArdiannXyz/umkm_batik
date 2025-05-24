@@ -346,12 +346,26 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
         statusDisplay == 'belum bayar';
   }
 
-  // Check if the order has shipping information
+  // FIXED: Check if the order has shipping information - now includes completed orders
   bool _hasShippingInfo() {
-    return orderDetail != null &&
-        orderDetail!['shipping'] != null &&
-        (orderDetail!['status'] == 'shipped' ||
-            orderDetail!['status_display'] == 'Dikirim');
+    if (orderDetail == null) return false;
+
+    final orderStatus = orderDetail!['status']?.toString().toLowerCase();
+    final statusDisplay =
+        orderDetail!['status_display']?.toString().toLowerCase();
+    final shipping = orderDetail!['shipping'];
+
+    // Show shipping info if:
+    // 1. Shipping data exists, OR
+    // 2. Order status is shipped/dikirim, OR
+    // 3. Order status is completed/selesai (to show shipping history)
+    return shipping != null ||
+        orderStatus == 'shipped' ||
+        orderStatus == 'dikirim' ||
+        statusDisplay == 'dikirim' ||
+        orderStatus == 'completed' ||
+        orderStatus == 'selesai' ||
+        statusDisplay == 'selesai';
   }
 
   Widget _buildInfoRow(String label, String value) {
@@ -617,10 +631,12 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
     );
   }
 
-  // New method for showing shipping status details
+  // ENHANCED: Better shipping status display with fallback information
   Widget _buildShippingStatusCard() {
     final shipping = orderDetail!['shipping'];
-    if (shipping == null) return const SizedBox.shrink();
+    final orderStatus = orderDetail!['status']?.toString().toLowerCase();
+    final statusDisplay =
+        orderDetail!['status_display']?.toString().toLowerCase();
 
     return Card(
       elevation: 2,
@@ -634,15 +650,48 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
             const Text('Status Pengiriman',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const Divider(),
-            _buildInfoRow(
-                'Jasa Kurir', shipping['jasa_kurir'] ?? 'Tidak tersedia'),
-            _buildInfoRow(
-                'Nomor Resi', shipping['nomor_resi'] ?? 'Tidak tersedia'),
-            _buildInfoRow(
-                'Status', shipping['status_display'] ?? 'Tidak tersedia'),
-            if (shipping['created_at'] != null)
+
+            // If shipping data exists, show detailed info
+            if (shipping != null) ...[
               _buildInfoRow(
-                  'Tanggal Pengiriman', _formatDate(shipping['created_at'])),
+                  'Jasa Kurir', shipping['jasa_kurir'] ?? 'Tidak tersedia'),
+              _buildInfoRow(
+                  'Nomor Resi', shipping['nomor_resi'] ?? 'Tidak tersedia'),
+              _buildInfoRow(
+                  'Status',
+                  shipping['status_display'] ??
+                      shipping['status'] ??
+                      'Tidak tersedia'),
+              if (shipping['created_at'] != null)
+                _buildInfoRow(
+                    'Tanggal Pengiriman', _formatDate(shipping['created_at'])),
+            ]
+            // If no shipping data but order is shipped/completed, show basic status
+            else if (orderStatus == 'shipped' ||
+                orderStatus == 'dikirim' ||
+                statusDisplay == 'dikirim' ||
+                orderStatus == 'completed' ||
+                orderStatus == 'selesai' ||
+                statusDisplay == 'selesai') ...[
+              _buildInfoRow(
+                  'Status',
+                  orderStatus == 'completed' ||
+                          orderStatus == 'selesai' ||
+                          statusDisplay == 'selesai'
+                      ? 'Pengiriman Selesai'
+                      : 'Sedang Dikirim'),
+              _buildInfoRow(
+                  'Keterangan',
+                  orderStatus == 'completed' ||
+                          orderStatus == 'selesai' ||
+                          statusDisplay == 'selesai'
+                      ? 'Paket telah diterima'
+                      : 'Paket sedang dalam perjalanan'),
+            ]
+            // Fallback if no shipping info available
+            else ...[
+              const Text('Informasi pengiriman belum tersedia'),
+            ],
           ],
         ),
       ),
