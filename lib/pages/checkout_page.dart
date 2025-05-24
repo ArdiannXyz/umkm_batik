@@ -27,7 +27,7 @@ class ProductItem {
     required this.quantity,
     this.image,
     required this.imageBase64,
-    this.weight = 1000, // Default 1kg jika tidak disebutkan
+    this.weight = 200,
   });
 }
 
@@ -63,7 +63,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       "Jawa Timur"; // Sesuaikan dengan lokasi toko Anda
   final String originCity = "Bondowoso"; // Sesuaikan dengan kota toko Anda
 
-  final double serviceFee = 4000;
+  final double baseServiceFee = 4000;
 
   // Daftar provinsi di Pulau Jawa
   final Set<String> javaProvinces = {
@@ -80,6 +80,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
   void initState() {
     super.initState();
     _loadUserId();
+  }
+
+  // Fungsi untuk menghitung biaya layanan berdasarkan berat
+  double get serviceFee {
+    int totalWeight = widget.product.weight * widget.product.quantity;
+    return totalWeight > 1000 ? baseServiceFee * 2 : baseServiceFee;
+  }
+
+  // Fungsi untuk mendapatkan keterangan biaya layanan
+  String get serviceFeeDescription {
+    int totalWeight = widget.product.weight * widget.product.quantity;
+    if (totalWeight > 1000) {
+      return "Biaya layanan (berat > 1kg: 2x lipat)";
+    }
+    return "Biaya layanan";
   }
 
   Future<void> _loadUserId() async {
@@ -578,11 +593,45 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 const SizedBox(height: 8),
                 Text(
                   'Berat Total: ${widget.product.weight * widget.product.quantity}g',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey,
+                    color:
+                        widget.product.weight * widget.product.quantity > 1000
+                            ? Colors.orange.shade700
+                            : Colors.grey,
+                    fontWeight:
+                        widget.product.weight * widget.product.quantity > 1000
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                   ),
                 ),
+                if (widget.product.weight * widget.product.quantity > 1000) ...[
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.orange.shade200),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.warning_amber,
+                            size: 14, color: Colors.orange.shade700),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Berat > 1kg: Biaya layanan 2x lipat',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.orange.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
               const SizedBox(height: 16),
               Flexible(
@@ -708,6 +757,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       '• Pengiriman dalam provinsi: opsi regional',
                       style: TextStyle(fontSize: 11),
                     ),
+                    if (widget.product.weight * widget.product.quantity >
+                        1000) ...[
+                      Text(
+                        '• Berat > 1kg: Biaya layanan menjadi 2x lipat',
+                        style: TextStyle(
+                            fontSize: 11, color: Colors.orange.shade700),
+                      ),
+                    ],
                     if (_isInterIslandDelivery(
                         selectedAddress?.provinsi ?? '')) ...[
                       const Text(

@@ -23,9 +23,11 @@ extension PaymentMethodExtension on PaymentMethod {
   String get accountNumber {
     switch (this) {
       case PaymentMethod.shopee:
+        return '085746827426';
       case PaymentMethod.dana:
-        return '089612345678';
+        return '085746928426';
       case PaymentMethod.bca:
+        return '1210896372';
       case PaymentMethod.mandiri:
         return '8962829292101010';
     }
@@ -36,17 +38,18 @@ extension PaymentMethodExtension on PaymentMethod {
       case PaymentMethod.shopee:
         return [
           'Buka aplikasi ShopeePay di ponsel Anda',
-          'Pilih "Scan" di halaman utama',
-          'Scan kode QR yang ditampilkan di layar',
-          'Periksa detail pembayaran dan masukkan PIN',
-          'Konfirmasi pembayaran dan selesai'
+          'Pilih transfter di halaman utama',
+          'Copy nomer Shopeepay diatas',
+          'Pastikan memberikan catatan ID pemesanan!',
+          'Konfirmasi pembayaran dan selesai',
+          'Simpan bukti transaksi'
         ];
       case PaymentMethod.dana:
         return [
           'Buka aplikasi DANA di ponsel Anda',
-          'Pilih opsi "Scan" atau "Pay"',
-          'Scan kode QR yang ditampilkan',
-          'Masukkan nominal yang sesuai dengan total pembayaran',
+          'Pilih transfter di halaman utama"',
+          'Copy nomer Dana diatas',
+          'Pastikan memberikan catatan ID pemesanan!',
           'Konfirmasi pembayaran dengan PIN DANA',
           'Simpan bukti transaksi'
         ];

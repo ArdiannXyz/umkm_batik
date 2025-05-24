@@ -1947,3 +1947,21 @@ Requested user_id: 13
 Found 4 addresses for user_id: 13
 -------------- END --------------
 
+-------------- 2025-05-24 10:46:30 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-24 11:11:56 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-24 11:12:33 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
