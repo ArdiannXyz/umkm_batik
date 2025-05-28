@@ -55,10 +55,10 @@ class _EditProfilPageState extends State<EditProfilPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFEFF6FF), // warna biru muda
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color (0xFF0D6EFD),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -66,7 +66,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
         centerTitle: true,
         title: const Text(
           'Edit profil',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.white),
         ),
       ),
       

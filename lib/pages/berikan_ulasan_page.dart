@@ -71,7 +71,7 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
   Future<void> checkExistingReview(int userId) async {
     try {
       final url =
-          Uri.parse("http://192.168.231.254/umkm_batik/API/check_reviews.php");
+          Uri.parse("http://localhost/umkm_batik/API/check_reviews.php");
 
       final response = await http.post(
         url,
@@ -84,7 +84,6 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
 
       if (response.statusCode == 200) {
         // Print response for debugging
-        print("API Response: ${response.body}");
 
         final result = jsonDecode(response.body);
 
@@ -94,7 +93,6 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
           // Simpan data ulasan jika ada
           if (hasReviewed && result['review_data'] != null) {
             existingReview = Map<String, dynamic>.from(result['review_data']);
-            print("Existing Review Data: $existingReview");
           }
 
           isLoading = false;
@@ -182,7 +180,6 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
   void navigateToEditReview() async {
     if (existingReview == null) {
       // Debug message untuk memeriksa nilai existingReview
-      print("existingReview is null - hasReviewed: $hasReviewed");
 
       // Coba refresh data ulasan
       await loadUserIdAndCheckReview();
@@ -224,14 +221,17 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFDEF1FF),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
-        title: const Text('Berikan Ulasan'),
+        title: const Text(
+          'Berikan Ulasan',
+          style: TextStyle(color: Colors.white), // Perbaikan di sini
+        ),
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.blue,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -350,7 +350,7 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
 
   Widget _buildReviewForm() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       child: Column(
         children: [
           const SizedBox(height: 8),
@@ -376,7 +376,7 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
                     },
                     icon: Icon(
                       index < selectedRating ? Icons.star : Icons.star_border,
-                      size: 42,
+                      size: 35,
                       color: Colors.amber,
                     ),
                   ),

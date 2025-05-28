@@ -10,7 +10,7 @@ import 'pages/search_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Wajib kalau pakai async di main()
+  WidgetsFlutterBinding.ensureInitialized(); 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
@@ -20,25 +20,25 @@ void main() async {
 class MyApp extends StatelessWidget {
   final bool isLoggedIn;
 
-  const MyApp({super.key, required this.isLoggedIn});
+   const MyApp({Key? key, required this.isLoggedIn}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-      textTheme: GoogleFonts.varelaRoundTextTheme(),
-    ),
+        textTheme: GoogleFonts.varelaRoundTextTheme(),
+      ),
       debugShowCheckedModeBanner: false,
       title: "UMKM Batik",
-      initialRoute: isLoggedIn ? '/dashboard' : '/',
+      home: isLoggedIn ? DashboardPage() : LoginPage(),
       routes: {
-        '/': (context) => LoginPage(),
-        '/register': (context) => Register_page(),
-        '/lupa-password': (context) => LupaPasswordPage(),
-        '/dashboard': (context) => DashboardPage(),
-        '/masuk-otp': (context) => MasukOtpPage(),
-        '/ganti-password': (context) => GantiPasswordPage(),
-        '/search': (context) =>  SearchPage(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const Register_page(),
+        '/lupa-password': (context) => const LupaPasswordPage(),
+        '/dashboard': (context) => const DashboardPage(),
+        '/masuk-otp': (context) => const MasukOtpPage(),
+        '/ganti-password': (context) => const GantiPasswordPage(),
+        '/search': (context) => const SearchPage(),
       },
     );
   }

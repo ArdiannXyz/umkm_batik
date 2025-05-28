@@ -84,7 +84,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
 
     setState(() => isSubmitting = true);
 
-    final url = Uri.parse("http://192.168.231.254/umkm_batik/API/edit_reviews.php");
+    final url = Uri.parse("http://localhost/umkm_batik/API/edit_reviews.php");
 
     try {
       final response = await http.post(
@@ -157,7 +157,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
 
     setState(() => isDeleting = true);
 
-    final url = Uri.parse("http://192.168.231.254/umkm_batik/API/delete_reviews.php");
+    final url = Uri.parse("http://localhost/umkm_batik/API/delete_reviews.php");
 
     try {
       final response = await http.post(
@@ -200,14 +200,17 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFDEF1FF),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
-        title: const Text('Edit Ulasan'),
+        title: const Text(
+          'Edit ulasan',
+          style: TextStyle(color: Colors.white), // Perbaikan di sini
+        ),
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.blue,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -266,7 +269,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
                     },
                     icon: Icon(
                       index < selectedRating ? Icons.star : Icons.star_border,
-                      size: 42,
+                      size: 35,
                       color: Colors.amber,
                     ),
                   ),
