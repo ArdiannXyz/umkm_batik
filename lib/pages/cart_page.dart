@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'checkout_page.dart';
+import 'checkout_from_cart.dart';
 import '../models/cartitem.dart';
 
 class CartPage extends StatefulWidget {
@@ -746,6 +746,16 @@ Future<void> _deleteSelectedItems() async {
                     ),
                     const SizedBox(height: 4),
                     Text(
+                    "Total Berat: ${item.totalWeight} gram",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: item.isAvailable ? Colors.grey[700] : Colors.grey,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+
+                    const SizedBox(height: 4),
+                    Text(
                       "Subtotal: Rp ${_formatPrice(item.subtotal)}",
                       style: TextStyle(
                         fontSize: 14,
@@ -1007,9 +1017,7 @@ Widget _buildCheckoutSection() {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: selectedCount > 0 ? () {
-              _showCheckoutDialog();
-            } : null,
+            onPressed: selectedCount > 0 ? _proceedToCheckout : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: selectedCount > 0 ? Colors.blue : Colors.grey,
               foregroundColor: Colors.white,
@@ -1035,7 +1043,25 @@ Widget _buildCheckoutSection() {
   );
 }
 
- 
+ void _proceedToCheckout() async {
+  List<CartItem> selectedItems = _getSelectedItems();
+  if (selectedItems.isEmpty) return;
+
+  final result = await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => CheckoutCart(
+        cartItems: selectedItems,
+        userId: widget.userId,
+      ),
+    ),
+  );
+
+  // Jika checkout berhasil, refresh cart
+  if (result == true) {
+    _loadCartItems();
+  }
+}
 
 void _showCheckoutDialog() {
   List<CartItem> selectedItems = _getSelectedItems();
@@ -1110,4 +1136,3 @@ void _showCheckoutDialog() {
     }
   }
 }
-
