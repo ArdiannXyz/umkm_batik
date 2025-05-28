@@ -1965,3 +1965,34 @@ Requested user_id: 13
 Found 4 addresses for user_id: 13
 -------------- END --------------
 
+-------------- 2025-05-26 06:38:28 --------------
+Request method: GET
+Requested user_id: 11
+-------------- END --------------
+
+-------------- 2025-05-26 06:39:17 --------------
+Request method: OPTIONS
+-------------- 2025-05-26 06:39:17 --------------
+Request method: POST
+Raw input: {"user_id":11,"nama_lengkap":"asepp","nomor_hp":"08123456789","provinsi":"JAWA TIMUR","kota":"KABUPATEN NGANJUK","kecamatan":"LOCERET","kode_pos":"67271","alamat_lengkap":"nganjuk"}
+Decoded data: Array
+(
+    [user_id] => 11
+    [nama_lengkap] => asepp
+    [nomor_hp] => 08123456789
+    [provinsi] => JAWA TIMUR
+    [kota] => KABUPATEN NGANJUK
+    [kecamatan] => LOCERET
+    [kode_pos] => 67271
+    [alamat_lengkap] => nganjuk
+)
+
+Insert successful. New ID: 8
+-------------- END --------------
+
+-------------- 2025-05-26 06:39:25 --------------
+Request method: GET
+Requested user_id: 11
+Found 1 addresses for user_id: 11
+-------------- END --------------
+
