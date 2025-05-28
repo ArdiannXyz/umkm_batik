@@ -110,27 +110,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
     } else if (_isInterIslandDelivery(destinationProvince)) {
       standardOptions.addAll([
         ShippingCost(
-          service: 'LUAR_PULAU_EKONOMI', 
+          service: 'EKONOMI', 
           description: 'Pengiriman Luar Pulau - Ekonomi', 
           cost: 25000, 
           etd: '7-10', 
-          courier: 'LUAR_PULAU', 
+          courier: '', 
           isStandardOption: true
         ),
         ShippingCost(
-          service: 'LUAR_PULAU_REGULER', 
+          service: 'REGULER', 
           description: 'Pengiriman Luar Pulau - Reguler', 
           cost: 35000, 
           etd: '5-7', 
-          courier: 'LUAR_PULAU', 
+          courier: '', 
           isStandardOption: true
         ),
         ShippingCost(
-          service: 'LUAR_PULAU_EXPRESS', 
+          service: 'EXPRESS', 
           description: 'Pengiriman Luar Pulau - Express', 
           cost: 50000, 
           etd: '3-5', 
-          courier: 'LUAR_PULAU', 
+          courier: '', 
           isStandardOption: true
         ),
       ]);
@@ -800,7 +800,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                                             : _isInterIslandDelivery(
                                                                     selectedAddress!
                                                                         .provinsi)
-                                                                ? Icons.flight
+                                                                ? Icons.local_shipping
                                                                 : Icons.public,
                                                     size: 14,
                                                     color: _isWithinSameCity(
@@ -951,7 +951,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             contentPadding: EdgeInsets.zero,
                             title: Text(isLoadingShipping
                                 ? "Menghitung ongkos kirim..."
-                                : "Informasi Pengiriman"),
+                                : "metode Pengiriman"),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -1001,22 +1001,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   if (_isInterIslandDelivery(
                                       selectedAddress?.provinsi ?? '')) ...[
                                     const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.info_outline,
-                                            size: 14,
-                                            color: Colors.orange.shade700),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          'Pengiriman luar pulau membutuhkan waktu lebih lama',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.orange.shade700,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    
                                   ],
                                 ] else if (!isLoadingShipping &&
                                     selectedAddress != null) ...[
@@ -1053,11 +1038,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             leading: Icon(
                               _isInterIslandDelivery(
                                       selectedAddress?.provinsi ?? '')
-                                  ? Icons.flight
+                                  ? Icons.local_shipping
                                   : Icons.local_shipping,
                               color: _isInterIslandDelivery(
                                       selectedAddress?.provinsi ?? '')
-                                  ? Colors.orange
+                                  ? Colors.blue
                                   : Colors.blue,
                             ),
                           ),

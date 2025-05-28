@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:umkm_batik/pages/cart_page.dart';
 import 'semua_ulasan_page.dart';
 import 'berikan_ulasan_page.dart';
-import 'checkout_page.dart';
+import 'checkout_from_product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:umkm_batik/services/user_service.dart';
 import '../models/checkout_model.dart';

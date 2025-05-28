@@ -61,7 +61,7 @@ try {
     $debug['cart_count'] = $check_data['total'];
     $debug['step'] = 'Cart count checked';
     
-    // Query utama untuk mengambil data cart beserta detail produk dan stok
+    // Query utama untuk mengambil data cart beserta detail produk dan stok (termasuk berat)
     $query = "SELECT 
                 c.id as cart_id,
                 c.product_id,
@@ -74,6 +74,7 @@ try {
                 p.stok_id,
                 p.status as product_status,
                 p.rating as product_rating,
+                p.berat as product_weight,
                 p.created_at as product_created_at,
                 s.quantity as stock_quantity,
                 s.updated_at as stock_updated_at
@@ -97,6 +98,7 @@ try {
     
     $cart_items = [];
     $total_amount = 0;
+    $total_weight = 0;
     
     while ($row = $result->fetch_assoc()) {
         // Ambil gambar produk secara terpisah
@@ -119,11 +121,15 @@ try {
             $image_stmt->close();
         }
         
-        // Calculate subtotal for this item
+        // Calculate subtotal and weight for this item
         $cart_quantity = intval($row['cart_quantity']);
         $product_price = floatval($row['product_price']);
+        $product_weight = intval($row['product_weight']);
         $subtotal = $product_price * $cart_quantity;
+        $item_total_weight = $product_weight * $cart_quantity;
+        
         $total_amount += $subtotal;
+        $total_weight += $item_total_weight;
         
         // Check stock availability
         $stock_quantity = intval($row['stock_quantity']);
@@ -134,6 +140,7 @@ try {
             'product_id' => intval($row['product_id']),
             'quantity' => $cart_quantity,
             'subtotal' => $subtotal,
+            'total_weight' => $item_total_weight,
             'added_at' => $row['added_at'],
             'updated_at' => $row['updated_at'],
             'is_available' => $is_available,
@@ -142,6 +149,7 @@ try {
                 'nama' => $row['product_name'],
                 'deskripsi' => $row['product_description'],
                 'harga' => $product_price,
+                'berat' => $product_weight,
                 'stok_id' => intval($row['stok_id']),
                 'status' => $row['product_status'],
                 'rating' => $row['product_rating'] ? floatval($row['product_rating']) : null,
@@ -168,6 +176,10 @@ try {
         return $item['is_available'] ? $item['subtotal'] : 0;
     }, $cart_items));
     
+    $available_weight = array_sum(array_map(function($item) {
+        return $item['is_available'] ? $item['total_weight'] : 0;
+    }, $cart_items));
+    
     // Prepare response
     $response = [
         'success' => true,
@@ -178,8 +190,10 @@ try {
                 'total_items' => count($cart_items),
                 'total_quantity' => array_sum(array_column($cart_items, 'quantity')),
                 'total_amount' => $total_amount,
+                'total_weight' => $total_weight,
                 'available_items' => count($available_items),
                 'available_total_amount' => $available_total,
+                'available_total_weight' => $available_weight,
                 'has_unavailable_items' => count($available_items) < count($cart_items)
             ]
         ],
