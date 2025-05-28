@@ -3,12 +3,12 @@ import 'favorit_page.dart';
 import 'setting_page.dart';
 import 'search_page.dart';
 import '../widgets/product_card.dart';
-import '../models/product_model.dart';
+import '../models/product_model.dart'; // Product utama dari model
 import '../services/product_service.dart';
 import '../services/user_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'cart_page.dart' as cart; // Gunakan alias untuk cart_page
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -86,7 +86,7 @@ class DashboardView extends StatefulWidget {
 class _DashboardViewState extends State<DashboardView> {
   // Data variables
   List<Product> products = [];
-  List<Product> filteredProducts = [];
+  List<Product> filteredProducts = []; 
   Set<int> favoriteProductIds = {};
   List<String> searchHistory = [];
 
@@ -268,20 +268,6 @@ class _DashboardViewState extends State<DashboardView> {
     });
   }
 
-  void _onSearchFocus() {
-    setState(() {
-      showSearchHistory = searchHistory.isNotEmpty;
-      showFilterOptions = false;
-    });
-  }
-
-  void _toggleFilterOptions() {
-    setState(() {
-      showFilterOptions = !showFilterOptions;
-      showSearchHistory = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -317,49 +303,96 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  // UI Builder methods
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const SearchPage(),
-            ),
-          );
-        },
-        child: Container(
-          height: 46,
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 1,
-                blurRadius: 3,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.search, color: Colors.grey),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: Text(
-                  "Cari batik...",
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+// Update the _buildSearchBar method in DashboardView
+Widget _buildSearchBar() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
+    child: Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const SearchPage(),
                 ),
+              );
+            },
+            child: Container(
+              height: 46,
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 1,
+                    blurRadius: 3,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
-            ],
+              child: Row(
+                children: const [
+                  Icon(Icons.search, color: Colors.grey),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      "Cari batik...",
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
-    );
-  }
+        const SizedBox(width: 10),
+        // Tombol keranjang - Updated with userId parameter
+        GestureDetector(
+          onTap: () async {
+            // Get userId from SharedPreferences
+            final prefs = await SharedPreferences.getInstance();
+            final userId = prefs.getInt('user_id');
+            
+            if (userId != null) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => cart.CartPage(userId: userId), // Gunakan alias cart
+                ),
+              );
+            } else {
+              // Handle case when user is not logged in
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Silakan login terlebih dahulu'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: const Icon(Icons.shopping_cart_outlined, color: Colors.grey),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildSearchHistory() {
     return Container(

@@ -3,6 +3,7 @@ import 'package:umkm_batik/pages/panduan.dart';
 import 'detail_informasiakun.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'pesanan_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
@@ -200,9 +201,34 @@ class SettingPage extends StatelessWidget {
                           leading: const Icon(Icons.logout, color: Colors.red),
                           title: const Text("Logout",
                               style: TextStyle(color: Colors.red)),
-                          onTap: () {
-                            Navigator.pushReplacementNamed(context, '/');
-                          },
+                          onTap: () async {
+                              bool? confirmLogout = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text("Konfirmasi Logout"),
+                                  content: Text("Apakah Anda yakin ingin keluar?"),
+                                  actions: [
+                                    TextButton(
+                                      child: Text("Batal"),
+                                      onPressed: () => Navigator.pop(context, false),
+                                    ),
+                                    ElevatedButton(
+                                      child: Text("Logout"),
+                                      onPressed: () => Navigator.pop(context, true),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirmLogout == true) {
+                                SharedPreferences prefs = await SharedPreferences.getInstance();
+                                await prefs.setBool('isLoggedIn', false);
+                                Navigator.pushReplacementNamed(context, '/login');
+                              }
+                            },
+
+
+                          
                         ),
                       ),
                     ],
