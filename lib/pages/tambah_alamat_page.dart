@@ -74,7 +74,7 @@ class _TambahAlamatPageState extends State<TambahAlamatPage> {
     try {
       // URL API - update dengan URL yang benar
       final url =
-          Uri.parse('http://localhost/umkm_batik/API/add_addresses.php');
+          Uri.parse('http://192.168.1.6/umkm_batik/API/add_addresses.php');
 
       // Persiapkan data untuk dikirim termasuk user_id
       final Map<String, dynamic> data = {

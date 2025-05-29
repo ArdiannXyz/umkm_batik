@@ -18,7 +18,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   bool isLoading = true;
   Map<String, dynamic>? orderDetail;
   String? userId;
-  final String baseUrl = 'http://localhost/umkm_batik/API';
+  final String baseUrl = 'http://192.168.1.6/umkm_batik/API';
 
   @override
   void initState() {

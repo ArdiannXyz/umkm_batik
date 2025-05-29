@@ -25,7 +25,7 @@ class _SemuaUlasanPageState extends State<SemuaUlasanPage> {
   Future<void> fetchReviews() async {
     final response = await http.get(
       Uri.parse(
-          "http://localhost/umkm_batik/API/get_reviews.php?product_id=${widget.productId}"),
+          "http://192.168.1.6/umkm_batik/API/get_reviews.php?product_id=${widget.productId}"),
     );
 
     if (response.statusCode == 200) {

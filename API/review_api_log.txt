@@ -162,3 +162,17 @@ Decoded data: Array
 Insert successful. New review ID: 29
 -------------- END --------------
 
+-------------- 2025-05-29 04:13:51 --------------
+Request method: POST
+Raw input: {"product_id":3,"user_id":15,"rating":4,"komentar":"kainnya bagus dll"}
+Decoded data: Array
+(
+    [product_id] => 3
+    [user_id] => 15
+    [rating] => 4
+    [komentar] => kainnya bagus dll
+)
+
+Insert successful. New review ID: 30
+-------------- END --------------
+

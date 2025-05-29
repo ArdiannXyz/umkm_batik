@@ -77,7 +77,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
     try {
       final response = await http.get(
         Uri.parse(
-            "http://localhost/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
+            "http://192.168.1.6/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
       );
 
       if (response.statusCode == 200) {
@@ -115,7 +115,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
 
     try {
       final response = await http.get(Uri.parse(
-          'http://localhost/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
+          'http://192.168.1.6/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -210,7 +210,7 @@ return ProductItem(
 
     try {
       final response = await http.post(
-        Uri.parse("http://localhost/umkm_batik/API/add_to_cart.php"),
+        Uri.parse("http://192.168.1.6/umkm_batik/API/add_to_cart.php"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'user_id': userId,
