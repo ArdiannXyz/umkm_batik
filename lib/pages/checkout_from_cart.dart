@@ -38,12 +38,11 @@ class _CheckoutPageState extends State<CheckoutCart> {
     super.initState();
   }
 
-  // Calculate total weight from all cart items
+
   int get totalWeight {
     return widget.cartItems.fold(0, (sum, item) => sum + (item.weight * item.quantity));
   }
 
-  // Calculate total price from all cart items
   double get totalItemsPrice {
     return widget.cartItems.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
   }
@@ -80,62 +79,63 @@ class _CheckoutPageState extends State<CheckoutCart> {
     
     if (_isWithinSameCity(destinationCity, destinationProvince)) {
       standardOptions.add(ShippingCost(
-        service: 'LOKAL', 
+        service: 'Lokal', 
         description: 'Pengiriman Lokal', 
         cost: 8000, 
         etd: '1', 
-        courier: 'LOKAL', 
+        courier: '', 
         isStandardOption: true
       ));
     } else if (_isWithinSameProvince(destinationProvince)) {
       standardOptions.add(ShippingCost(
-        service: 'PROVINSI', 
+        service: 'Provinsi', 
         description: 'Pengiriman Dalam Provinsi', 
         cost: 12000, 
         etd: '2-3', 
-        courier: 'PROVINSI', 
+        courier: '', 
         isStandardOption: true
       ));
     } else if (_isInterIslandDelivery(destinationProvince)) {
       standardOptions.addAll([
         ShippingCost(
-          service: 'EKONOMI', 
-          description: 'Pengiriman Luar Pulau - Ekonomi', 
+          service: 'Ekonomi', 
+          description: 'Pengiriman Luar Pulau', 
           cost: 25000, 
           etd: '7-10', 
-          courier: 'LUAR PULAU', 
+          courier: '', 
           isStandardOption: true
         ),
         ShippingCost(
-          service: 'REGULER', 
-          description: 'Pengiriman Luar Pulau - Reguler', 
+          service: 'Reguler', 
+          description: 'Pengiriman Luar Pulau', 
           cost: 35000, 
           etd: '5-7', 
-          courier: 'LUAR PULAU', 
+          courier: '', 
           isStandardOption: true
         ),
         ShippingCost(
-          service: 'EXPRESS', 
-          description: 'Pengiriman Luar Pulau - Express', 
+          service: 'Express', 
+          description: 'Pengiriman Luar Pulau', 
           cost: 50000, 
           etd: '3-5', 
-          courier: 'LUAR PULAU', 
+          courier: '', 
           isStandardOption: true
         ),
       ]);
     } else if (_isWithinSameIsland(destinationProvince)) {
       standardOptions.add(ShippingCost(
-        service: 'ANTAR_PROVINSI', 
+        service: 'Provinsi', 
         description: 'Pengiriman Antar Provinsi', 
         cost: 18000, 
         etd: '3-5', 
-        courier: 'ANTAR_PROVINSI', 
+        courier: '', 
         isStandardOption: true
       ));
     }
     
     return standardOptions;
   }
+
 
   List<ShippingCost> _filterShippingOptionsByLocation(
     List<ShippingCost> allOptions, 
@@ -219,11 +219,10 @@ Widget _buildProductImage(CartItem item) {
     );
   }
   
-  // Build complete URL if it's a relative path
   String fullImageUrl = imageUrl;
   if (!imageUrl.startsWith('http')) {
-    // GANTI BARIS INI:
-    fullImageUrl = 'http://localhost/umkm_batik/API/get_main_product_images.php?id=${item.product.images.isNotEmpty ? item.product.images.first.id : 0}';
+
+    fullImageUrl = 'http://192.168.1.6/umkm_batik/API/get_main_product_images.php?id=${item.product.images.isNotEmpty ? item.product.images.first.id : 0}';
   }
   
   return ClipRRect(
@@ -257,7 +256,6 @@ Widget _buildProductImage(CartItem item) {
         print('Error loading image: $fullImageUrl');
         print('Error details: $error');
         
-        // Return a placeholder with better styling
         return Container(
           width: 60,
           height: 60,
@@ -296,7 +294,6 @@ Widget _buildProductImage(CartItem item) {
     });
 
     try {
-      // Use total weight from all cart items
       final shippingResult = await RajaOngkirService.getShippingCostsByAddress(
         cityName: address.kota,
         provinceName: address.provinsi,
@@ -415,7 +412,97 @@ Widget _buildProductImage(CartItem item) {
         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), 
         (Match m) => '${m[1]}.'
       );
-
+void _showOrderSuccessAlert(String orderId) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.check_circle,
+              color: Colors.blue,
+              size: 64,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Pesanan Berhasil Dibuat!',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Order ID: $orderId',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Total: Rp ${formatPrice(totalPayment)}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Silakan lanjutkan ke pembayaran',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Navigate to payment page
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PaymentPage(
+                      paymentMethod: selectedPaymentMethod!,
+                      totalPayment: totalPayment,
+                      orderId: orderId,
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0D6EFD),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Lanjut ke Pembayaran',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
   void _showPaymentMethodSelector() {
     showModalBottomSheet(
       context: context,
@@ -673,9 +760,9 @@ Future<void> _createOrder() async {
       } else if (_isWithinSameProvince(selectedAddress!.provinsi)) {
         shippingCategory = 'provinsi';
       } else if (_isInterIslandDelivery(selectedAddress!.provinsi)) {
-        shippingCategory = 'luar_pulau';
+        shippingCategory = 'luar pulau';
       } else {
-        shippingCategory = 'antar_provinsi';
+        shippingCategory = 'antar provinsi';
       }
 
     final items = widget.cartItems.map((item) => {
@@ -713,11 +800,8 @@ Future<void> _createOrder() async {
         'items': items,
       };
 
-      print('Order data being sent:');
-      print(jsonEncode(orderData));
-
       final response = await http.post(
-        Uri.parse('http://localhost/umkm_batik/API/create_transaction.php'),
+        Uri.parse('http://192.168.1.6/umkm_batik/API/create_transaction.php'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(orderData),
       );
@@ -726,21 +810,14 @@ Future<void> _createOrder() async {
         isLoading = false;
       });
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         if (responseData['success'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Pesanan berhasil dibuat!"),
-              backgroundColor: Colors.green,
-            )
-          );
-          
-          // Navigate to payment page
-          Future.delayed(const Duration(milliseconds: 500), () {
+          final orderId = responseData['data']['order_id']?.toString() ?? "0000000001";
+          _showOrderSuccessAlert(orderId);
+
+  
+          Future.delayed(const Duration(milliseconds: 5000), () {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -1030,7 +1107,7 @@ Future<void> _createOrder() async {
                     ),
                   ),
                   
-                  const SizedBox(height: 100), // Space for bottom checkout button
+                  const SizedBox(height: 0), // Space for bottom checkout button
                 ],
               ),
             ),

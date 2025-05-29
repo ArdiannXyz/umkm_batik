@@ -61,7 +61,7 @@ class _PilihAlamatPageState extends State<PilihAlamatPage> {
   int? selectedAddressId;
 
   // API base URL - ensure correct protocol
-  final String apiBaseUrl = 'http://localhost/umkm_batik/API/get_addresses.php';
+  final String apiBaseUrl = 'http://192.168.1.6/umkm_batik/API/get_addresses.php';
 
   @override
   void initState() {
@@ -96,7 +96,7 @@ class _PilihAlamatPageState extends State<PilihAlamatPage> {
       // Fixed URL - added http:// protocol
       final response = await http.get(
         Uri.parse(
-            'http://localhost/umkm_batik/API/get_addresses.php?user_id=$userId'),
+            'http://192.168.1.6/umkm_batik/API/get_addresses.php?user_id=$userId'),
       );
 
       if (response.statusCode == 200) {

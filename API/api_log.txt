@@ -2463,3 +2463,470 @@ Requested user_id: 13
 Found 4 addresses for user_id: 13
 -------------- END --------------
 
+-------------- 2025-05-29 03:40:54 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:40:57 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:42:38 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:43:48 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:43:52 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:43:55 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:47:50 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:47:56 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:48:58 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:50:27 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:52:42 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:53:48 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:55:44 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:56:41 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:57:43 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:57:47 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:57:51 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:59:00 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 03:59:51 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 04:00:42 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 04:00:50 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 04:04:41 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 04:10:31 --------------
+Request method: GET
+Requested user_id: 15
+-------------- END --------------
+
+-------------- 2025-05-29 04:11:20 --------------
+Request method: POST
+Raw input: {"user_id":15,"nama_lengkap":"putra","nomor_hp":"6285746827426","provinsi":"JAWA TIMUR","kota":"KABUPATEN SITUBONDO","kecamatan":"SITUBONDO","kode_pos":"62123","alamat_lengkap":"Jalan santana no 123"}
+Decoded data: Array
+(
+    [user_id] => 15
+    [nama_lengkap] => putra
+    [nomor_hp] => 6285746827426
+    [provinsi] => JAWA TIMUR
+    [kota] => KABUPATEN SITUBONDO
+    [kecamatan] => SITUBONDO
+    [kode_pos] => 62123
+    [alamat_lengkap] => Jalan santana no 123
+)
+
+Insert successful. New ID: 8
+-------------- END --------------
+
+-------------- 2025-05-29 04:11:22 --------------
+Request method: GET
+Requested user_id: 15
+Found 1 addresses for user_id: 15
+-------------- END --------------
+
+-------------- 2025-05-29 04:11:24 --------------
+Request method: GET
+Requested user_id: 15
+Found 1 addresses for user_id: 15
+-------------- END --------------
+
+-------------- 2025-05-29 04:12:54 --------------
+Request method: GET
+Requested user_id: 15
+Found 1 addresses for user_id: 15
+-------------- END --------------
+
+-------------- 2025-05-29 04:20:55 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 04:24:13 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 04:25:16 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 04:30:02 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 04:31:05 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:28:13 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:29:19 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:31:02 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:32:01 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:32:26 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:32:36 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:36:21 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:40:21 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:42:01 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:46:29 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:48:33 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:54:40 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:56:25 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:56:30 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:58:18 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 09:59:11 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:01:58 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:01:59 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:03:06 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:07:13 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:07:34 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:09:11 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:09:16 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:09:27 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:09:37 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:10:32 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:10:34 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:11:33 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:11:38 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:11:44 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:11:49 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:12:45 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:14:55 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:15:06 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:15:11 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:15:14 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:15:25 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:15:33 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:54:20 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:55:11 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 10:55:16 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 11:18:14 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 11:22:50 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-29 11:30:13 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+

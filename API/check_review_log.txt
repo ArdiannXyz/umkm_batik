@@ -1764,3 +1764,84 @@ Review data: Array
 
 -------------- END --------------
 
+-------------- 2025-05-29 04:13:42 --------------
+Request method: POST
+Raw input: {"product_id":3,"user_id":15}
+Decoded data: Array
+(
+    [product_id] => 3
+    [user_id] => 15
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-29 04:13:56 --------------
+Request method: POST
+Raw input: {"product_id":3,"user_id":15}
+Decoded data: Array
+(
+    [product_id] => 3
+    [user_id] => 15
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 30
+    [product_id] => 3
+    [user_id] => 15
+    [rating] => 4
+    [komentar] => kainnya bagus dll
+    [updated_at] => 
+    [created_at] => 2025-05-29 11:13:51
+)
+
+-------------- END --------------
+
+-------------- 2025-05-29 04:27:11 --------------
+Request method: POST
+Raw input: {"product_id":3,"user_id":13}
+Decoded data: Array
+(
+    [product_id] => 3
+    [user_id] => 13
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 21
+    [product_id] => 3
+    [user_id] => 13
+    [rating] => 3
+    [komentar] => best
+    [updated_at] => 
+    [created_at] => 2025-05-07 15:25:31
+)
+
+-------------- END --------------
+
+-------------- 2025-05-29 04:29:45 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":13}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 13
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 28
+    [product_id] => 1
+    [user_id] => 13
+    [rating] => 4
+    [komentar] => Immortal 155 season ini
+    [updated_at] => 
+    [created_at] => 2025-05-15 07:35:36
+)
+
+-------------- END --------------
+

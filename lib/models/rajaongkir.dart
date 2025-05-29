@@ -74,7 +74,7 @@ class ShippingCost {
     );
   }
 
-  String get displayName => '$courier - $service';
+  String get displayName => '$courier$service';
   String get fullDescription => '$description ($etd hari)';
 }
 

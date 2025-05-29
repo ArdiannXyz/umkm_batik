@@ -26,7 +26,7 @@ class _CartPageState extends State<CartPage> {
   Map<int, bool> selectedItems = {};
 
   // Base URL API - sesuaikan dengan URL server Anda
-  static const String baseUrl = 'http://localhost/umkm_batik/API';
+  static const String baseUrl = 'http://192.168.1.6/umkm_batik/API';
 
   @override
   void initState() {
@@ -652,10 +652,10 @@ Future<void> _deleteSelectedItems() async {
 
  Widget _buildCartItemCard(CartItem item) {
   return Container(
-    margin: const EdgeInsets.only(bottom: 15),
+    margin: const EdgeInsets.only(bottom: 12),
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(18),
       boxShadow: const [
         BoxShadow(
           color: Colors.black12,
@@ -701,7 +701,7 @@ Future<void> _deleteSelectedItems() async {
           children: [
             // Tambahkan Checkbox di sini
             Container(
-              margin: const EdgeInsets.only(right: 5),
+              margin: const EdgeInsets.only(right: 2),
               child: Checkbox(
                 value: selectedItems[item.id] ?? false,
                 onChanged: item.isAvailable ? (value) => _toggleItemSelection(item.id, value) : null,
@@ -717,7 +717,7 @@ Future<void> _deleteSelectedItems() async {
               borderRadius: BorderRadius.circular(8),
               child: _buildProductImage(item),
             ),
-              SizedBox(width: 10,),
+              SizedBox(width: 3,),
               // Product Details
               Expanded(
                 child: Column(
@@ -726,7 +726,7 @@ Future<void> _deleteSelectedItems() async {
                     Text(
                       item.product.nama,
                       style: GoogleFonts.varelaRound(
-                        fontSize: 16,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: item.isAvailable ? Colors.black87 : Colors.grey,
                       ),
@@ -739,7 +739,7 @@ Future<void> _deleteSelectedItems() async {
                     Text(
                       "Rp ${_formatPrice(item.product.harga)}",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 12,
                         color: item.isAvailable ? Colors.blue : Colors.grey,
                         fontWeight: FontWeight.bold,
                       ),
@@ -748,7 +748,7 @@ Future<void> _deleteSelectedItems() async {
                     Text(
                     "Total Berat: ${item.totalWeight} gram",
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: item.isAvailable ? Colors.grey[700] : Colors.grey,
                       fontWeight: FontWeight.w600,
                     ),
@@ -758,7 +758,7 @@ Future<void> _deleteSelectedItems() async {
                     Text(
                       "Subtotal: Rp ${_formatPrice(item.subtotal)}",
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         color: item.isAvailable ? Colors.grey[700] : Colors.grey,
                         fontWeight: FontWeight.w600,
                       ),
@@ -769,7 +769,7 @@ Future<void> _deleteSelectedItems() async {
                         Text(
                           "Stok: ${item.product.stock.quantity}",
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             color: item.isAvailable ? Colors.green[600] : Colors.red[600],
                             fontWeight: FontWeight.w500,
                           ),
@@ -793,17 +793,17 @@ Future<void> _deleteSelectedItems() async {
                         onPressed: item.isAvailable ? () => _updateQuantity(item.id, item.quantity - 1) : null,
                       ),
                       Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey[300]!),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(2),
                           color: item.isAvailable ? Colors.white : Colors.grey[100],
                         ),
                         child: Text(
                           item.quantity.toString(),
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: item.isAvailable ? Colors.black87 : Colors.grey,
                           ),
@@ -823,7 +823,7 @@ Future<void> _deleteSelectedItems() async {
                       icon: const Icon(
                         Icons.delete_outline,
                         color: Colors.red,
-                        size: 20,
+                        size: 15,
                       ),
                       tooltip: 'Hapus item',
                     )

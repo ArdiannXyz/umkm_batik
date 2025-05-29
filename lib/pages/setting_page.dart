@@ -202,33 +202,149 @@ class SettingPage extends StatelessWidget {
                           title: const Text("Logout",
                               style: TextStyle(color: Colors.red)),
                           onTap: () async {
-                              bool? confirmLogout = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: Text("Konfirmasi Logout"),
-                                  content: Text("Apakah Anda yakin ingin keluar?"),
-                                  actions: [
-                                    TextButton(
-                                      child: Text("Batal"),
-                                      onPressed: () => Navigator.pop(context, false),
+                          bool? confirmLogout = await showDialog<bool>(
+                            context: context,
+                            barrierDismissible: false, // Mencegah dismiss dengan tap di luar
+                            builder: (context) => AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              title: Row(
+                                children: [
+                                  Icon(
+                                    Icons.logout,
+                                    color: Colors.red[400],
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Text(
+                                    "Konfirmasi Logout",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
                                     ),
-                                    ElevatedButton(
-                                      child: Text("Logout"),
-                                      onPressed: () => Navigator.pop(context, true),
+                                  ),
+                                ],
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Apakah Anda yakin ingin keluar dari akun?",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black54,
+                                      height: 1.4,
                                     ),
-                                  ],
+                                  ),
+                                ],
+                              ),
+                              actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                              actions: [
+                                // Tombol Batal
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      side: BorderSide(color: Colors.grey[300]!),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Batal",
+                                    style: TextStyle(
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                // Tombol Logout
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red[400],
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    elevation: 2,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.logout, size: 16),
+                                      const SizedBox(width: 8),
+                                      const Text(
+                                        "Logout",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirmLogout == true) {
+                            // Tampilkan loading indicator
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => const Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                                ),
+                              ),
+                            );
+
+                            try {
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                              await prefs.setBool('isLoggedIn', false);
+                              
+                              // Tutup loading dialog
+                              Navigator.pop(context);
+                              
+                              // Navigate ke login
+                              Navigator.pushReplacementNamed(context, '/login');
+                              
+                              // Tampilkan snackbar konfirmasi
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text("Berhasil logout"),
+                                  backgroundColor: Colors.green,
+                                  behavior: SnackBarBehavior.floating,
+                                  margin: const EdgeInsets.all(16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                               );
-
-                              if (confirmLogout == true) {
-                                SharedPreferences prefs = await SharedPreferences.getInstance();
-                                await prefs.setBool('isLoggedIn', false);
-                                Navigator.pushReplacementNamed(context, '/login');
-                              }
-                            },
-
-
-                          
+                            } catch (e) {
+                              // Tutup loading dialog jika ada error
+                              Navigator.pop(context);
+                              
+                              // Tampilkan error snackbar
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text("Terjadi kesalahan saat logout"),
+                                  backgroundColor: Colors.red,
+                                  behavior: SnackBarBehavior.floating,
+                                  margin: const EdgeInsets.all(16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                        },  
                         ),
                       ),
                     ],
