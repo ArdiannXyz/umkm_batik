@@ -1,45 +1,21 @@
+
 import 'package:flutter/material.dart';
 import 'package:umkm_batik/pages/payment_method.dart';
-import 'dart:typed_data';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'payment_page.dart';
 import 'pilih_alamat_page.dart';
-
-// Import RajaOngkirService yang sudah dibuat
+import '../models/rajaongkir.dart';
+import '../models/checkout_model.dart';
 import '../services/rajaongkir_service.dart';
-
-// Model class for product data
-class ProductItem {
-  final int id;
-  final String name;
-  final double price;
-  final int quantity;
-  final Uint8List? image;
-  final String imageBase64;
-  final int weight; // Berat produk dalam gram
-
-  ProductItem({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.quantity,
-    this.image,
-    required this.imageBase64,
-    this.weight = 200,
-  });
-}
 
 class CheckoutPage extends StatefulWidget {
   final ProductItem product;
-
-  const CheckoutPage({
-    super.key,
-    required this.product,
-  });
-
+  
+  const CheckoutPage({super.key, required this.product});
   @override
+  
   _CheckoutPageState createState() => _CheckoutPageState();
 }
 
@@ -48,33 +24,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
   PaymentMethod? selectedPaymentMethod;
   bool isLoading = false;
   int? userId;
-
-  // Shipping variables dengan RajaOngkir
   double shippingCost = 0;
   List<ShippingCost> availableShippingOptions = [];
   ShippingCost? selectedShippingOption;
   bool isLoadingShipping = false;
-  String? destinationCityId;
   RajaOngkirCity? destinationCity;
   String? destinationProvince;
-
-  // Tambahan untuk lokasi toko/asal pengiriman
-  final String originProvince =
-      "Jawa Timur"; // Sesuaikan dengan lokasi toko Anda
-  final String originCity = "Bondowoso"; // Sesuaikan dengan kota toko Anda
-
+  final String originProvince = "Jawa Timur";
+  final String originCity = "Bondowoso";
   final double baseServiceFee = 4000;
-
-  // Daftar provinsi di Pulau Jawa
-  final Set<String> javaProvinces = {
-    'jawa tengah',
-    'jawa timur',
-    'jawa barat',
-    'dki jakarta',
-    'di yogyakarta',
-    'yogyakarta',
-    'banten'
-  };
+  final Set<String> javaProvinces = {'jawa tengah', 'jawa timur', 'jawa barat', 'dki jakarta', 'di yogyakarta', 'yogyakarta', 'banten'};
 
   @override
   void initState() {
@@ -82,19 +41,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _loadUserId();
   }
 
-  // Fungsi untuk menghitung biaya layanan berdasarkan berat
   double get serviceFee {
     int totalWeight = widget.product.weight * widget.product.quantity;
     return totalWeight > 1000 ? baseServiceFee * 2 : baseServiceFee;
   }
 
-  // Fungsi untuk mendapatkan keterangan biaya layanan
   String get serviceFeeDescription {
     int totalWeight = widget.product.weight * widget.product.quantity;
-    if (totalWeight > 1000) {
-      return "Biaya layanan (berat > 1kg: 2x lipat)";
-    }
-    return "Biaya layanan";
+    return totalWeight > 1000 ? "Biaya layanan (berat > 1kg: 2x lipat)" : "Biaya layanan";
   }
 
   Future<void> _loadUserId() async {
@@ -103,12 +57,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       setState(() {
         userId = prefs.getInt('user_id');
       });
-
       if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sesi login tidak ditemukan. Silakan login kembali.'),
-          ),
+          const SnackBar(content: Text('Sesi login tidak ditemukan. Silakan login kembali.'))
         );
       }
     } catch (e) {
@@ -116,184 +67,155 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
   }
 
-  // Fungsi untuk menentukan apakah pengiriman dalam provinsi yang sama
-  bool _isWithinSameProvince(String destinationProvince) {
-    return destinationProvince.toLowerCase().trim() ==
-        originProvince.toLowerCase().trim();
-  }
-
-  // Fungsi untuk menentukan apakah pengiriman dalam kota yang sama
-  bool _isWithinSameCity(String destinationCity, String destinationProvince) {
-    return _isWithinSameProvince(destinationProvince) &&
-        destinationCity.toLowerCase().trim() == originCity.toLowerCase().trim();
-  }
-
-  // Fungsi untuk menentukan apakah pengiriman dalam pulau yang sama (Jawa)
+  bool _isWithinSameProvince(String destinationProvince) => 
+      destinationProvince.toLowerCase().trim() == originProvince.toLowerCase().trim();
+  
+  bool _isWithinSameCity(String destinationCity, String destinationProvince) => 
+      _isWithinSameProvince(destinationProvince) && 
+      destinationCity.toLowerCase().trim() == originCity.toLowerCase().trim();
+  
   bool _isWithinSameIsland(String destinationProvince) {
     final destProvinceLower = destinationProvince.toLowerCase().trim();
     final originProvinceLower = originProvince.toLowerCase().trim();
-
-    return javaProvinces.contains(destProvinceLower) &&
-        javaProvinces.contains(originProvinceLower);
+    return javaProvinces.contains(destProvinceLower) && javaProvinces.contains(originProvinceLower);
   }
-
-  // Fungsi untuk menentukan apakah pengiriman ke luar pulau
+  
   bool _isInterIslandDelivery(String destinationProvince) {
     final destProvinceLower = destinationProvince.toLowerCase().trim();
     final originProvinceLower = originProvince.toLowerCase().trim();
-
-    // Jika asal dari Jawa dan tujuan bukan Jawa, maka luar pulau
-    return javaProvinces.contains(originProvinceLower) &&
-        !javaProvinces.contains(destProvinceLower);
+    return javaProvinces.contains(originProvinceLower) && !javaProvinces.contains(destProvinceLower);
   }
 
-  // Fungsi untuk filter opsi pengiriman berdasarkan lokasi
-  List<ShippingCost> _filterShippingOptionsByLocation(
-      List<ShippingCost> allOptions,
-      String destinationCity,
-      String destinationProvince) {
-    List<ShippingCost> filteredOptions = [];
-
+  List<ShippingCost> _getStandardShippingOptions(String destinationCity, String destinationProvince) {
+    List<ShippingCost> standardOptions = [];
+    
     if (_isWithinSameCity(destinationCity, destinationProvince)) {
-      // Dalam kota yang sama - hanya courier lokal dan same day delivery
-      filteredOptions = allOptions.where((option) {
-        String serviceLower = option.service.toLowerCase();
-        String courierLower = option.courier.toLowerCase();
-
-        return serviceLower.contains('same day') ||
-            serviceLower.contains('instant') ||
-            serviceLower.contains('motor') ||
-            courierLower.contains('gosend') ||
-            courierLower.contains('grab') ||
-            (option.isStandardOption && option.etd.contains('1'));
-      }).toList();
-
-      // Jika tidak ada opsi khusus, tambahkan opsi standar lokal
-      if (filteredOptions.isEmpty) {
-        filteredOptions.add(ShippingCost(
-          service: 'LOKAL',
-          description: 'Pengiriman Lokal',
-          cost: 8000,
-          etd: '1',
-          courier: 'LOKAL',
-          isStandardOption: true,
-        ));
-      }
+      standardOptions.add(ShippingCost(
+        service: 'LOKAL', 
+        description: 'Pengiriman Lokal', 
+        cost: 8000, 
+        etd: '1', 
+        courier: 'LOKAL', 
+        isStandardOption: true
+      ));
     } else if (_isWithinSameProvince(destinationProvince)) {
-      // Dalam provinsi yang sama - exclude pengiriman antar pulau dan internasional
-      filteredOptions = allOptions.where((option) {
-        String serviceLower = option.service.toLowerCase();
-        String courierLower = option.courier.toLowerCase();
-
-        return !serviceLower.contains('oke') &&
-            !serviceLower.contains('yes') &&
-            !courierLower.contains('lion') &&
-            !courierLower.contains('sap') &&
-            !courierLower.contains('cargo') &&
-            !serviceLower.contains('ekonomi super hemat') &&
-            !(option.isStandardOption && option.etd.contains('7-14'));
-      }).toList();
-
-      // Jika tidak ada opsi, tambahkan opsi standar provinsi
-      if (filteredOptions.isEmpty) {
-        filteredOptions.add(ShippingCost(
-          service: 'PROVINSI',
-          description: 'Pengiriman Dalam Provinsi',
-          cost: 12000,
-          etd: '2-3',
-          courier: 'PROVINSI',
-          isStandardOption: true,
-        ));
-      }
+      standardOptions.add(ShippingCost(
+        service: 'PROVINSI', 
+        description: 'Pengiriman Dalam Provinsi', 
+        cost: 12000, 
+        etd: '2-3', 
+        courier: 'PROVINSI', 
+        isStandardOption: true
+      ));
     } else if (_isInterIslandDelivery(destinationProvince)) {
-      // Pengiriman luar pulau - hanya opsi luar pulau
-      filteredOptions = allOptions.where((option) {
-        String serviceLower = option.service.toLowerCase();
-        String courierLower = option.courier.toLowerCase();
-
-        // Filter untuk layanan luar pulau/antar pulau
-        return serviceLower.contains('cargo') ||
-            serviceLower.contains('ekonomi') ||
-            serviceLower.contains('laut') ||
-            serviceLower.contains('darat') ||
-            courierLower.contains('lion') ||
-            courierLower.contains('sap') ||
-            courierLower.contains('wahana') ||
-            courierLower.contains('dakota') ||
-            courierLower.contains('first') ||
-            serviceLower.contains('oke') ||
-            serviceLower.contains('yes') ||
-            (option.isStandardOption && option.etd.contains('7-14')) ||
-            (option.isStandardOption && serviceLower.contains('luar'));
-      }).toList();
-
-      // Jika tidak ada opsi luar pulau dari API, tambahkan opsi standar luar pulau
-      if (filteredOptions.isEmpty) {
-        filteredOptions.addAll([
-          ShippingCost(
-            service: 'LUAR_PULAU_EKONOMI',
-            description: 'Pengiriman Luar Pulau - Ekonomi',
-            cost: 25000,
-            etd: '7-10',
-            courier: 'LUAR_PULAU',
-            isStandardOption: true,
-          ),
-          ShippingCost(
-            service: 'LUAR_PULAU_REGULER',
-            description: 'Pengiriman Luar Pulau - Reguler',
-            cost: 35000,
-            etd: '5-7',
-            courier: 'LUAR_PULAU',
-            isStandardOption: true,
-          ),
-          ShippingCost(
-            service: 'LUAR_PULAU_EXPRESS',
-            description: 'Pengiriman Luar Pulau - Express',
-            cost: 50000,
-            etd: '3-5',
-            courier: 'LUAR_PULAU',
-            isStandardOption: true,
-          ),
-        ]);
-      }
+      standardOptions.addAll([
+        ShippingCost(
+          service: 'EKONOMI', 
+          description: 'Pengiriman Luar Pulau - Ekonomi', 
+          cost: 25000, 
+          etd: '7-10', 
+          courier: '', 
+          isStandardOption: true
+        ),
+        ShippingCost(
+          service: 'REGULER', 
+          description: 'Pengiriman Luar Pulau - Reguler', 
+          cost: 35000, 
+          etd: '5-7', 
+          courier: '', 
+          isStandardOption: true
+        ),
+        ShippingCost(
+          service: 'EXPRESS', 
+          description: 'Pengiriman Luar Pulau - Express', 
+          cost: 50000, 
+          etd: '3-5', 
+          courier: '', 
+          isStandardOption: true
+        ),
+      ]);
     } else if (_isWithinSameIsland(destinationProvince)) {
-      // Dalam pulau yang sama tapi beda provinsi - exclude luar pulau
+      standardOptions.add(ShippingCost(
+        service: 'ANTAR_PROVINSI', 
+        description: 'Pengiriman Antar Provinsi', 
+        cost: 18000, 
+        etd: '3-5', 
+        courier: 'ANTAR_PROVINSI', 
+        isStandardOption: true
+      ));
+    }
+    
+    return standardOptions;
+  }
+
+  List<ShippingCost> _filterShippingOptionsByLocation(
+    List<ShippingCost> allOptions, 
+    String destinationCity, 
+    String destinationProvince
+  ) {
+    List<ShippingCost> filteredOptions = [];
+    
+    if (_isWithinSameCity(destinationCity, destinationProvince)) {
       filteredOptions = allOptions.where((option) {
         String serviceLower = option.service.toLowerCase();
         String courierLower = option.courier.toLowerCase();
-
-        return !serviceLower.contains('cargo') &&
-            !serviceLower.contains('laut') &&
-            !courierLower.contains('lion') &&
-            !courierLower.contains('sap') &&
-            !serviceLower.contains('ekonomi super hemat') &&
-            !(serviceLower.contains('oke') && option.etd.contains('7-14')) &&
-            !(serviceLower.contains('yes') && option.etd.contains('7-14'));
+        return serviceLower.contains('same day') || 
+               serviceLower.contains('instant') || 
+               serviceLower.contains('motor') || 
+               courierLower.contains('gosend') || 
+               courierLower.contains('grab') || 
+               (option.isStandardOption && option.etd.contains('1'));
       }).toList();
-
-      // Jika tidak ada opsi, tambahkan opsi standar antar provinsi dalam pulau
-      if (filteredOptions.isEmpty) {
-        filteredOptions.add(ShippingCost(
-          service: 'ANTAR_PROVINSI',
-          description: 'Pengiriman Antar Provinsi',
-          cost: 18000,
-          etd: '3-5',
-          courier: 'ANTAR_PROVINSI',
-          isStandardOption: true,
-        ));
-      }
+    } else if (_isWithinSameProvince(destinationProvince)) {
+      filteredOptions = allOptions.where((option) {
+        String serviceLower = option.service.toLowerCase();
+        String courierLower = option.courier.toLowerCase();
+        return !serviceLower.contains('oke') && 
+               !serviceLower.contains('yes') && 
+               !courierLower.contains('lion') && 
+               !courierLower.contains('sap') && 
+               !courierLower.contains('cargo') && 
+               !serviceLower.contains('ekonomi super hemat') && 
+               !(option.isStandardOption && option.etd.contains('7-14'));
+      }).toList();
+    } else if (_isInterIslandDelivery(destinationProvince)) {
+      filteredOptions = allOptions.where((option) {
+        String serviceLower = option.service.toLowerCase();
+        String courierLower = option.courier.toLowerCase();
+        return serviceLower.contains('cargo') || 
+               serviceLower.contains('ekonomi') || 
+               serviceLower.contains('laut') || 
+               serviceLower.contains('darat') || 
+               courierLower.contains('lion') || 
+               courierLower.contains('sap') || 
+               courierLower.contains('wahana') || 
+               courierLower.contains('dakota') || 
+               courierLower.contains('first') || 
+               serviceLower.contains('oke') || 
+               serviceLower.contains('yes') || 
+               (option.isStandardOption && option.etd.contains('7-14')) || 
+               (option.isStandardOption && serviceLower.contains('luar'));
+      }).toList();
+    } else if (_isWithinSameIsland(destinationProvince)) {
+      filteredOptions = allOptions.where((option) {
+        String serviceLower = option.service.toLowerCase();
+        String courierLower = option.courier.toLowerCase();
+        return !serviceLower.contains('cargo') && 
+               !serviceLower.contains('laut') && 
+               !courierLower.contains('lion') && 
+               !courierLower.contains('sap') && 
+               !serviceLower.contains('ekonomi super hemat') && 
+               !(serviceLower.contains('oke') && option.etd.contains('7-14')) && 
+               !(serviceLower.contains('yes') && option.etd.contains('7-14'));
+      }).toList();
     } else {
-      // Default - semua opsi tersedia
       filteredOptions = allOptions;
     }
-
-    // Urutkan berdasarkan harga (termurah dulu)
+    
     filteredOptions.sort((a, b) => a.cost.compareTo(b.cost));
-
     return filteredOptions;
   }
 
-  // Fungsi untuk menghitung ongkos kirim dengan filter lokasi
   Future<void> _calculateShippingCosts(Address address) async {
     setState(() {
       isLoadingShipping = true;
@@ -301,38 +223,56 @@ class _CheckoutPageState extends State<CheckoutPage> {
       selectedShippingOption = null;
       shippingCost = 0;
       destinationProvince = address.provinsi;
+      destinationCity = null;
     });
 
     try {
-      // Hitung total berat
       final totalWeight = widget.product.weight * widget.product.quantity;
-
-      // Gunakan metode baru dengan fallback lengkap
-      final allShippingOptions =
-          await RajaOngkirService.getShippingOptionsWithFallback(
-        destinationCityName: address.kota,
-        destinationProvince: address.provinsi,
+      
+      // Gunakan RajaOngkirService yang sudah ada
+      final shippingResult = await RajaOngkirService.getShippingCostsByAddress(
+        cityName: address.kota,
+        provinceName: address.provinsi,
         weight: totalWeight,
+        preferredCouriers: ['jne', 'pos', 'tiki', 'jnt', 'sicepat', 'anteraja'],
       );
 
-      // Filter opsi berdasarkan lokasi
-      final filteredOptions = _filterShippingOptionsByLocation(
-        allShippingOptions,
-        address.kota,
-        address.provinsi,
-      );
+      List<ShippingCost> allOptions = [];
+      
+      if (shippingResult['success'] == true) {
+        // Jika berhasil mendapat data dari API
+        destinationCity = shippingResult['selectedCity'];
+        final apiOptions = List<ShippingCost>.from(shippingResult['shippingOptions']);
+        allOptions.addAll(apiOptions);
+        
+        print('Got ${apiOptions.length} options from RajaOngkir API');
+      } else {
+        print('Failed to get API data: ${shippingResult['message']}');
+      }
 
+      // Tambahkan opsi standar
+      final standardOptions = _getStandardShippingOptions(address.kota, address.provinsi);
+      allOptions.addAll(standardOptions);
+
+      // Filter berdasarkan lokasi
+      final filteredOptions = _filterShippingOptionsByLocation(allOptions, address.kota, address.provinsi);
+      
+      // Jika tidak ada opsi setelah filter, gunakan opsi standar
+      if (filteredOptions.isEmpty) {
+        final fallbackOptions = _getStandardShippingOptions(address.kota, address.provinsi);
+        filteredOptions.addAll(fallbackOptions);
+      }
+      
       setState(() {
         availableShippingOptions = filteredOptions;
         if (filteredOptions.isNotEmpty) {
-          // Pilih opsi termurah sebagai default
           selectedShippingOption = filteredOptions.first;
           shippingCost = selectedShippingOption!.cost.toDouble();
         }
         isLoadingShipping = false;
       });
 
-      // Tentukan pesan berdasarkan lokasi
+      // Tampilkan pesan informatif
       String locationMessage;
       if (_isWithinSameCity(address.kota, address.provinsi)) {
         locationMessage = 'Pengiriman dalam kota ${address.kota}';
@@ -341,130 +281,83 @@ class _CheckoutPageState extends State<CheckoutPage> {
       } else if (_isInterIslandDelivery(address.provinsi)) {
         locationMessage = 'Pengiriman luar pulau ke ${address.provinsi}';
       } else if (_isWithinSameIsland(address.provinsi)) {
-        locationMessage =
-            'Pengiriman antar provinsi dalam pulau ke ${address.provinsi}';
+        locationMessage = 'Pengiriman antar provinsi dalam pulau ke ${address.provinsi}';
       } else {
         locationMessage = 'Pengiriman ke ${address.provinsi}';
       }
 
-      // Cek apakah menggunakan RajaOngkir API atau opsi standar
-      bool hasApiResults =
-          filteredOptions.any((option) => !option.isStandardOption);
-      bool hasStandardOptions =
-          filteredOptions.any((option) => option.isStandardOption);
-
+      bool hasApiResults = filteredOptions.any((option) => !option.isStandardOption);
+      bool hasStandardOptions = filteredOptions.any((option) => option.isStandardOption);
+      
       String message;
-      if (hasApiResults && hasStandardOptions) {
-        message =
-            '$locationMessage: ${filteredOptions.length} pilihan (API + Standar)';
-      } else if (hasApiResults) {
-        message =
-            '$locationMessage: ${filteredOptions.length} pilihan dari RajaOngkir';
+      Color messageColor;
+      
+      if (shippingResult['success'] == true && hasApiResults) {
+        if (hasStandardOptions) {
+          message = '$locationMessage: ${filteredOptions.length} pilihan (API + Standar)';
+          messageColor = Colors.green;
+        } else {
+          message = '$locationMessage: ${filteredOptions.length} pilihan dari RajaOngkir';
+          messageColor = Colors.green;
+        }
       } else {
         message = '$locationMessage: Menggunakan tarif standar';
+        messageColor = Colors.blue;
+      }
+
+      if (_isInterIslandDelivery(address.provinsi)) {
+        messageColor = Colors.orange;
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: _isInterIslandDelivery(address.provinsi)
-                ? Colors.orange
-                : hasApiResults
-                    ? Colors.green
-                    : Colors.blue,
-            duration: const Duration(seconds: 3),
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(message),
+          backgroundColor: messageColor,
+          duration: const Duration(seconds: 3),
+        ));
       }
+
     } catch (e) {
       setState(() {
         isLoadingShipping = false;
-        // Fallback ke opsi standar berdasarkan lokasi
-        List<ShippingCost> fallbackOptions = [];
-
-        if (_isWithinSameCity(address.kota, address.provinsi)) {
-          fallbackOptions.add(ShippingCost(
-            service: 'LOKAL',
-            description: 'Pengiriman Lokal',
-            cost: 8000,
-            etd: '1',
-            courier: 'LOKAL',
-            isStandardOption: true,
-          ));
-        } else if (_isWithinSameProvince(address.provinsi)) {
-          fallbackOptions.add(ShippingCost(
-            service: 'PROVINSI',
-            description: 'Pengiriman Dalam Provinsi',
-            cost: 12000,
-            etd: '2-3',
-            courier: 'PROVINSI',
-            isStandardOption: true,
-          ));
-        } else if (_isInterIslandDelivery(address.provinsi)) {
-          fallbackOptions.addAll([
-            ShippingCost(
-              service: 'LUAR_PULAU_EKONOMI',
-              description: 'Pengiriman Luar Pulau - Ekonomi',
-              cost: 25000,
-              etd: '7-10',
-              courier: 'LUAR_PULAU',
-              isStandardOption: true,
-            ),
-            ShippingCost(
-              service: 'LUAR_PULAU_REGULER',
-              description: 'Pengiriman Luar Pulau - Reguler',
-              cost: 35000,
-              etd: '5-7',
-              courier: 'LUAR_PULAU',
-              isStandardOption: true,
-            ),
-          ]);
-        } else {
-          fallbackOptions = RajaOngkirService.getStandardShippingOptions(
-            destinationProvince: address.provinsi,
-            weight: widget.product.weight * widget.product.quantity,
-          );
-        }
-
+        
+        // Gunakan fallback options saat error
+        final fallbackOptions = _getStandardShippingOptions(address.kota, address.provinsi);
+        
         availableShippingOptions = fallbackOptions;
         if (availableShippingOptions.isNotEmpty) {
           selectedShippingOption = availableShippingOptions.first;
           shippingCost = selectedShippingOption!.cost.toDouble();
         } else {
-          shippingCost = 15000; // Fallback terakhir
+          shippingCost = 15000; // Fallback cost
         }
       });
 
       print('Error calculating shipping: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                'Error menghitung ongkos kirim, menggunakan tarif standar'),
-            backgroundColor: Colors.red,
-          ),
+          const SnackBar(
+            content: Text('Error menghitung ongkos kirim, menggunakan tarif standar'), 
+            backgroundColor: Colors.red
+          )
         );
       }
     }
   }
 
-  double get totalPayment {
-    return (widget.product.price * widget.product.quantity) +
-        shippingCost +
-        serviceFee;
-  }
-
-  String formatPrice(double price) {
-    return price.toStringAsFixed(0).replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.');
-  }
+  double get totalPayment => (widget.product.price * widget.product.quantity) + shippingCost + serviceFee;
+  
+  String formatPrice(double price) => 
+      price.toStringAsFixed(0).replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), 
+        (Match m) => '${m[1]}.'
+      );
 
   void _showPaymentMethodSelector() {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16))
       ),
       builder: (BuildContext context) {
         return Column(
@@ -489,10 +382,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   void _showShippingSelector() {
     if (availableShippingOptions.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              'Pilih alamat terlebih dahulu untuk melihat opsi pengiriman.'),
-        ),
+        const SnackBar(content: Text('Pilih alamat terlebih dahulu untuk melihat opsi pengiriman.'))
       );
       return;
     }
@@ -500,7 +390,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16))
       ),
       builder: (BuildContext context) {
         return Container(
@@ -509,80 +399,64 @@ class _CheckoutPageState extends State<CheckoutPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Pilih Metode Pengiriman',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                'Pilih Metode Pengiriman', 
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
               ),
               if (selectedAddress != null) ...[
                 const SizedBox(height: 8),
                 Text(
-                  'Tujuan: ${selectedAddress!.kota}, ${selectedAddress!.provinsi}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  'Tujuan: ${selectedAddress!.kota}, ${selectedAddress!.provinsi}', 
+                  style: const TextStyle(fontSize: 14, color: Colors.grey)
                 ),
                 const SizedBox(height: 4),
-                // Tampilkan info lokasi pengiriman dengan kategori yang lebih detail
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: _isWithinSameCity(
-                            selectedAddress!.kota, selectedAddress!.provinsi)
-                        ? Colors.green.shade50
-                        : _isWithinSameProvince(selectedAddress!.provinsi)
+                    color: _isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi) 
+                        ? Colors.green.shade50 
+                        : _isWithinSameProvince(selectedAddress!.provinsi) 
                             ? Colors.blue.shade50
-                            : _isInterIslandDelivery(selectedAddress!.provinsi)
-                                ? Colors.orange.shade50
+                            : _isInterIslandDelivery(selectedAddress!.provinsi) 
+                                ? Colors.orange.shade50 
                                 : Colors.purple.shade50,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
                     children: [
                       Icon(
-                        _isWithinSameCity(selectedAddress!.kota,
-                                selectedAddress!.provinsi)
+                        _isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi) 
                             ? Icons.location_city
-                            : _isWithinSameProvince(selectedAddress!.provinsi)
+                            : _isWithinSameProvince(selectedAddress!.provinsi) 
                                 ? Icons.map
-                                : _isInterIslandDelivery(
-                                        selectedAddress!.provinsi)
-                                    ? Icons.flight
+                                : _isInterIslandDelivery(selectedAddress!.provinsi) 
+                                    ? Icons.flight 
                                     : Icons.public,
                         size: 16,
-                        color: _isWithinSameCity(selectedAddress!.kota,
-                                selectedAddress!.provinsi)
+                        color: _isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi) 
                             ? Colors.green
-                            : _isWithinSameProvince(selectedAddress!.provinsi)
+                            : _isWithinSameProvince(selectedAddress!.provinsi) 
                                 ? Colors.blue
-                                : _isInterIslandDelivery(
-                                        selectedAddress!.provinsi)
-                                    ? Colors.orange
+                                : _isInterIslandDelivery(selectedAddress!.provinsi) 
+                                    ? Colors.orange 
                                     : Colors.purple,
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        _isWithinSameCity(selectedAddress!.kota,
-                                selectedAddress!.provinsi)
+                        _isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi) 
                             ? 'Pengiriman dalam kota'
-                            : _isWithinSameProvince(selectedAddress!.provinsi)
+                            : _isWithinSameProvince(selectedAddress!.provinsi) 
                                 ? 'Pengiriman dalam provinsi'
-                                : _isInterIslandDelivery(
-                                        selectedAddress!.provinsi)
-                                    ? 'Pengiriman luar pulau'
+                                : _isInterIslandDelivery(selectedAddress!.provinsi) 
+                                    ? 'Pengiriman luar pulau' 
                                     : 'Pengiriman antar provinsi',
                         style: TextStyle(
                           fontSize: 12,
-                          color: _isWithinSameCity(selectedAddress!.kota,
-                                  selectedAddress!.provinsi)
+                          color: _isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi) 
                               ? Colors.green.shade700
-                              : _isWithinSameProvince(selectedAddress!.provinsi)
+                              : _isWithinSameProvince(selectedAddress!.provinsi) 
                                   ? Colors.blue.shade700
-                                  : _isInterIslandDelivery(
-                                          selectedAddress!.provinsi)
-                                      ? Colors.orange.shade700
+                                  : _isInterIslandDelivery(selectedAddress!.provinsi) 
+                                      ? Colors.orange.shade700 
                                       : Colors.purple.shade700,
                           fontWeight: FontWeight.w500,
                         ),
@@ -594,39 +468,36 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 Text(
                   'Berat Total: ${widget.product.weight * widget.product.quantity}g',
                   style: TextStyle(
-                    fontSize: 12,
-                    color:
-                        widget.product.weight * widget.product.quantity > 1000
-                            ? Colors.orange.shade700
-                            : Colors.grey,
-                    fontWeight:
-                        widget.product.weight * widget.product.quantity > 1000
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                  ),
+                    fontSize: 12, 
+                    color: widget.product.weight * widget.product.quantity > 1000 
+                        ? Colors.orange.shade700 
+                        : Colors.grey,
+                    fontWeight: widget.product.weight * widget.product.quantity > 1000 
+                        ? FontWeight.bold 
+                        : FontWeight.normal
+                  )
                 ),
                 if (widget.product.weight * widget.product.quantity > 1000) ...[
                   const SizedBox(height: 4),
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.orange.shade200),
+                      color: Colors.orange.shade50, 
+                      borderRadius: BorderRadius.circular(4), 
+                      border: Border.all(color: Colors.orange.shade200)
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.warning_amber,
-                            size: 14, color: Colors.orange.shade700),
+                        Icon(Icons.warning_amber, size: 14, color: Colors.orange.shade700),
                         const SizedBox(width: 4),
                         Text(
-                          'Berat > 1kg: Biaya layanan 2x lipat',
+                          'Berat > 1kg: Biaya layanan 2x lipat', 
                           style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.orange.shade700,
-                            fontWeight: FontWeight.w500,
-                          ),
+                            fontSize: 10, 
+                            color: Colors.orange.shade700, 
+                            fontWeight: FontWeight.w500
+                          )
                         ),
                       ],
                     ),
@@ -641,61 +512,50 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   itemBuilder: (context, index) {
                     final option = availableShippingOptions[index];
                     final isSelected = selectedShippingOption == option;
-
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color:
-                              isSelected ? Colors.blue : Colors.grey.shade300,
-                          width: isSelected ? 2 : 1,
+                          color: isSelected ? Colors.blue : Colors.grey.shade300, 
+                          width: isSelected ? 2 : 1
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: ListTile(
                         leading: Icon(
-                          option.isStandardOption
-                              ? Icons.local_shipping_outlined
-                              : _isInterIslandDelivery(
-                                      selectedAddress?.provinsi ?? '')
-                                  ? Icons.flight_outlined
+                          option.isStandardOption 
+                              ? Icons.local_shipping_outlined 
+                              : _isInterIslandDelivery(selectedAddress?.provinsi ?? '') 
+                                  ? Icons.flight_outlined 
                                   : Icons.local_shipping,
                           color: isSelected ? Colors.blue : Colors.grey,
                         ),
                         title: Row(
                           children: [
                             Text(
-                              option.displayName,
+                              option.displayName, 
                               style: TextStyle(
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal
+                              )
                             ),
                             if (option.isStandardOption) ...[
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: _isInterIslandDelivery(
-                                          selectedAddress?.provinsi ?? '')
-                                      ? Colors.orange.shade100
+                                  color: _isInterIslandDelivery(selectedAddress?.provinsi ?? '') 
+                                      ? Colors.orange.shade100 
                                       : Colors.blue.shade100,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  _isInterIslandDelivery(
-                                          selectedAddress?.provinsi ?? '')
-                                      ? 'LUAR PULAU'
+                                  _isInterIslandDelivery(selectedAddress?.provinsi ?? '') 
+                                      ? 'LUAR PULAU' 
                                       : 'STANDAR',
                                   style: TextStyle(
                                     fontSize: 10,
-                                    color: _isInterIslandDelivery(
-                                            selectedAddress?.provinsi ?? '')
-                                        ? Colors.orange.shade700
+                                    color: _isInterIslandDelivery(selectedAddress?.provinsi ?? '') 
+                                        ? Colors.orange.shade700 
                                         : Colors.blue.shade700,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -706,11 +566,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                         subtitle: Text(option.fullDescription),
                         trailing: Text(
-                          'Rp ${formatPrice(option.cost.toDouble())}',
+                          'Rp ${formatPrice(option.cost.toDouble())}', 
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: isSelected ? Colors.blue : Colors.black,
-                          ),
+                            fontWeight: FontWeight.bold, 
+                            color: isSelected ? Colors.blue : Colors.black
+                          )
                         ),
                         onTap: () {
                           setState(() {
@@ -724,66 +584,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   },
                 ),
               ),
-              const SizedBox(height: 16),
-              // Info section dengan informasi luar pulau
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: _isInterIslandDelivery(selectedAddress?.provinsi ?? '')
-                      ? Colors.orange.shade50
-                      : Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Keterangan:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      '• Opsi pengiriman disesuaikan dengan lokasi tujuan',
-                      style: TextStyle(fontSize: 11),
-                    ),
-                    const Text(
-                      '• Pengiriman dalam kota: lebih cepat dan murah',
-                      style: TextStyle(fontSize: 11),
-                    ),
-                    const Text(
-                      '• Pengiriman dalam provinsi: opsi regional',
-                      style: TextStyle(fontSize: 11),
-                    ),
-                    if (widget.product.weight * widget.product.quantity >
-                        1000) ...[
-                      Text(
-                        '• Berat > 1kg: Biaya layanan menjadi 2x lipat',
-                        style: TextStyle(
-                            fontSize: 11, color: Colors.orange.shade700),
-                      ),
-                    ],
-                    if (_isInterIslandDelivery(
-                        selectedAddress?.provinsi ?? '')) ...[
-                      const Text(
-                        '• Pengiriman luar pulau: estimasi lebih lama',
-                        style: TextStyle(fontSize: 11, color: Colors.orange),
-                      ),
-                      const Text(
-                        '• Tarif luar pulau berlaku untuk pengiriman antar pulau',
-                        style: TextStyle(fontSize: 11, color: Colors.orange),
-                      ),
-                    ] else ...[
-                      const Text(
-                        '• Pengiriman antar provinsi: semua opsi tersedia',
-                        style: TextStyle(fontSize: 11),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
             ],
           ),
         );
@@ -794,19 +594,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Future<void> _createOrder() async {
     if (selectedAddress == null || selectedPaymentMethod == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              'Silakan pilih alamat dan metode pembayaran terlebih dahulu.'),
-        ),
+        const SnackBar(content: Text('Silakan pilih alamat dan metode pembayaran terlebih dahulu.'))
       );
       return;
     }
-
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sesi login tidak ditemukan. Silakan login kembali.'),
-        ),
+        const SnackBar(content: Text('Sesi login tidak ditemukan. Silakan login kembali.'))
       );
       return;
     }
@@ -816,7 +610,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     });
 
     try {
-      // Tentukan kategori pengiriman dengan kategori luar pulau
       String shippingCategory;
       if (_isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi)) {
         shippingCategory = 'lokal';
@@ -828,33 +621,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
         shippingCategory = 'antar_provinsi';
       }
 
-      // Buat data order dengan informasi pengiriman yang sudah diperbarui
       final orderData = {
         'user_id': userId,
         'total_harga': totalPayment,
-        'alamat_pemesanan':
-            '${selectedAddress!.alamatLengkap}, ${selectedAddress!.kecamatan}, '
-                '${selectedAddress!.kota}, ${selectedAddress!.provinsi}, ${selectedAddress!.kodePos}',
+        'alamat_pemesanan': '${selectedAddress!.alamatLengkap}, ${selectedAddress!.kecamatan}, ${selectedAddress!.kota}, ${selectedAddress!.provinsi}, ${selectedAddress!.kodePos}',
         'metode_pengiriman': selectedShippingOption?.displayName ?? 'Standar',
         'metode_pembayaran': selectedPaymentMethod!.name.toLowerCase(),
         'ongkos_kirim': shippingCost,
         'kota_tujuan': selectedAddress!.kota,
         'provinsi_tujuan': selectedAddress!.provinsi,
-        'kota_tujuan_id':
-            destinationCityId, // Bisa null jika menggunakan opsi standar
+        'kota_tujuan_id': destinationCity?.cityId,
         'estimasi_pengiriman': selectedShippingOption?.etd ?? '3-7',
         'berat_total': widget.product.weight * widget.product.quantity,
-        'is_standard_shipping':
-            selectedShippingOption?.isStandardOption ?? true,
+        'is_standard_shipping': selectedShippingOption?.isStandardOption ?? true,
         'courier_name': selectedShippingOption?.courier ?? 'STANDAR',
         'service_name': selectedShippingOption?.service ?? 'REGULER',
-        'shipping_category':
-            shippingCategory, // Tambahan info kategori pengiriman
-        'is_same_city':
-            _isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi),
+        'shipping_category': shippingCategory,
+        'is_same_city': _isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi),
         'is_same_province': _isWithinSameProvince(selectedAddress!.provinsi),
         'is_inter_island': _isInterIslandDelivery(selectedAddress!.provinsi),
         'is_same_island': _isWithinSameIsland(selectedAddress!.provinsi),
+        'biaya_layanan': serviceFee,
         'items': [
           {
             'product_id': widget.product.id,
@@ -866,9 +653,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
       final response = await http.post(
         Uri.parse('http://localhost/umkm_batik/API/create_transaction.php'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(orderData),
       );
 
@@ -878,12 +663,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-
         if (responseData['success'] == true) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Pesanan berhasil dibuat!")),
+            const SnackBar(content: Text("Pesanan berhasil dibuat!"))
           );
-
           Future.delayed(const Duration(milliseconds: 500), () {
             Navigator.push(
               context,
@@ -898,43 +681,34 @@ class _CheckoutPageState extends State<CheckoutPage> {
           });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error: ${responseData['message']}")),
+            SnackBar(content: Text("Error: ${responseData['message']}"))
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: HTTP ${response.statusCode}")),
+          SnackBar(content: Text("Error: HTTP ${response.statusCode}"))
         );
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+        SnackBar(content: Text("Error: $e"))
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFDEF1FF),
       appBar: AppBar(
-        title: const Text(
-          'Checkout',
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
+        title: const Text('Checkout', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF0D6EFD),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Stack(
@@ -944,20 +718,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // Alamat Section
                   _buildSection(
                     child: InkWell(
                       onTap: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const PilihAlamatPage()),
-                        );
+                        final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const PilihAlamatPage()));
                         if (result != null && result is Address) {
                           setState(() {
                             selectedAddress = result;
                           });
-                          // Hitung ongkos kirim berdasarkan alamat lengkap
                           await _calculateShippingCosts(result);
                         }
                       },
@@ -971,14 +739,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    selectedAddress?.namaLengkap ??
-                                        "Pilih Alamat",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
+                                  Text(selectedAddress?.namaLengkap ?? "Pilih Alamat", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                   const SizedBox(height: 4),
                                   selectedAddress != null
                                       ? Column(
@@ -1039,7 +800,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                                             : _isInterIslandDelivery(
                                                                     selectedAddress!
                                                                         .provinsi)
-                                                                ? Icons.flight
+                                                                ? Icons.local_shipping
                                                                 : Icons.public,
                                                     size: 14,
                                                     color: _isWithinSameCity(
@@ -1190,7 +951,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             contentPadding: EdgeInsets.zero,
                             title: Text(isLoadingShipping
                                 ? "Menghitung ongkos kirim..."
-                                : "Informasi Pengiriman"),
+                                : "metode Pengiriman"),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -1240,22 +1001,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   if (_isInterIslandDelivery(
                                       selectedAddress?.provinsi ?? '')) ...[
                                     const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.info_outline,
-                                            size: 14,
-                                            color: Colors.orange.shade700),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          'Pengiriman luar pulau membutuhkan waktu lebih lama',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.orange.shade700,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    
                                   ],
                                 ] else if (!isLoadingShipping &&
                                     selectedAddress != null) ...[
@@ -1292,11 +1038,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             leading: Icon(
                               _isInterIslandDelivery(
                                       selectedAddress?.provinsi ?? '')
-                                  ? Icons.flight
+                                  ? Icons.local_shipping
                                   : Icons.local_shipping,
                               color: _isInterIslandDelivery(
                                       selectedAddress?.provinsi ?? '')
-                                  ? Colors.orange
+                                  ? Colors.blue
                                   : Colors.blue,
                             ),
                           ),
@@ -1415,7 +1161,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 80),
+                  const SizedBox(height: 0),
                 ],
               ),
             ),

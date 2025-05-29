@@ -19,7 +19,7 @@ class _PesananPageState extends State<PesananPage>
   bool isLoading = true;
   List<Map<String, dynamic>> orders = [];
   String? userId;
-  final String baseUrl = 'http://192.168.100.48/umkm_batik/API';
+  final String baseUrl = 'http://localhost/umkm_batik/API';
 
   @override
   void initState() {

@@ -18,7 +18,7 @@ try {
     $conn = new PDO("mysql:host=$host;dbname=$database", $user, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-    // Get product details
+    // Get product details including weight
     $stmt = $conn->prepare("
         SELECT 
             p.id, 
@@ -28,6 +28,7 @@ try {
             p.stok_id,
             p.status,
             p.rating,
+            p.berat,
             p.created_at,
             s.quantity
         FROM products p
@@ -44,8 +45,9 @@ try {
         exit;
     }
     
-    // Convert rating to float
+    // Convert rating to float and weight to int
     $product['rating'] = floatval($product['rating']);
+    $product['berat'] = intval($product['berat']);
     
     // Get all images with proper encoding
     $stmtImg = $conn->prepare("
