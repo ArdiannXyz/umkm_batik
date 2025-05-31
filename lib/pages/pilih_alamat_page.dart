@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'tambah_alamat_page.dart';
 import 'edit_alamat_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
 // Model class for Address
 class Address {
@@ -59,16 +60,29 @@ class _PilihAlamatPageState extends State<PilihAlamatPage> {
   bool isLoading = true;
   String errorMessage = '';
   int? selectedAddressId;
+  Timer? _refreshTimer;
 
   // API base URL - ensure correct protocol
-  final String apiBaseUrl = 'http://192.168.1.6/umkm_batik/API/get_addresses.php';
+  final String apiBaseUrl = 'http://192.168.1.5/umkm_batik/API/get_addresses.php';
 
   @override
   void initState() {
     super.initState();
     _fetchAddresses();
+    _startAutoRefresh();
   }
-
+    @override
+  void dispose() {
+    _refreshTimer?.cancel(); // Cancel timer saat dispose
+    super.dispose();
+  }
+  void _startAutoRefresh() {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (mounted) {
+        _fetchAddresses();
+      }
+    });
+  }
   // Get user ID from SharedPreferences
   Future<int?> _getUserId() async {
     final prefs = await SharedPreferences.getInstance();
@@ -96,7 +110,7 @@ class _PilihAlamatPageState extends State<PilihAlamatPage> {
       // Fixed URL - added http:// protocol
       final response = await http.get(
         Uri.parse(
-            'http://192.168.1.6/umkm_batik/API/get_addresses.php?user_id=$userId'),
+            'http://192.168.1.5/umkm_batik/API/get_addresses.php?user_id=$userId'),
       );
 
       if (response.statusCode == 200) {

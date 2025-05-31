@@ -85,6 +85,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
             // Form Email
             TextField(
               controller: emailController,
+              enabled: false, 
               decoration: inputDecoration(hintText: ''),
             ),
             const SizedBox(height: 40),

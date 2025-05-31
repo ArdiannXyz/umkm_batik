@@ -222,7 +222,7 @@ Widget _buildProductImage(CartItem item) {
   String fullImageUrl = imageUrl;
   if (!imageUrl.startsWith('http')) {
 
-    fullImageUrl = 'http://192.168.1.6/umkm_batik/API/get_main_product_images.php?id=${item.product.images.isNotEmpty ? item.product.images.first.id : 0}';
+    fullImageUrl = 'http://192.168.1.5/umkm_batik/API/get_main_product_images.php?id=${item.product.images.isNotEmpty ? item.product.images.first.id : 0}';
   }
   
   return ClipRRect(
@@ -801,7 +801,7 @@ Future<void> _createOrder() async {
       };
 
       final response = await http.post(
-        Uri.parse('http://192.168.1.6/umkm_batik/API/create_transaction.php'),
+        Uri.parse('http://192.168.1.5/umkm_batik/API/create_transaction.php'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(orderData),
       );

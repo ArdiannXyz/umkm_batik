@@ -736,7 +736,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       };
 
       final response = await http.post(
-        Uri.parse('http://192.168.1.6/umkm_batik/API/create_transaction.php'),
+        Uri.parse('http://192.168.1.5/umkm_batik/API/create_transaction.php'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(orderData),
       );

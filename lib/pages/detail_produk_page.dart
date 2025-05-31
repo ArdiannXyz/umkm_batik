@@ -9,6 +9,7 @@ import 'checkout_from_product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:umkm_batik/services/user_service.dart';
 import '../models/checkout_model.dart';
+import 'dart:async';
 
 class DetailProdukPage extends StatefulWidget {
   final int productId;
@@ -37,7 +38,8 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
   int? userId;
   final PageController _pageController = PageController();
   bool showAllReviews = false;
-  final int maxDisplayedReviews = 3; // Maximum reviews to show initially
+  final int maxDisplayedReviews = 3;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -45,8 +47,20 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
     fetchProduct();
     fetchUlasan();
     loadUserAndFavorites();
+    _startAutoRefresh();
   }
-
+void _startAutoRefresh() {
+  _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    if (mounted) {
+      fetchProduct();
+    }
+  });
+}
+@override
+void dispose() {
+  _refreshTimer?.cancel();
+  super.dispose();
+}
   Future<void> loadUserAndFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('user_id');
@@ -77,7 +91,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
     try {
       final response = await http.get(
         Uri.parse(
-            "http://192.168.1.6/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
+            "http://192.168.1.5/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
       );
 
       if (response.statusCode == 200) {
@@ -115,7 +129,7 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
 
     try {
       final response = await http.get(Uri.parse(
-          'http://192.168.1.6/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
+          'http://192.168.1.5/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -210,7 +224,7 @@ return ProductItem(
 
     try {
       final response = await http.post(
-        Uri.parse("http://192.168.1.6/umkm_batik/API/add_to_cart.php"),
+        Uri.parse("http://192.168.1.5/umkm_batik/API/add_to_cart.php"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'user_id': userId,

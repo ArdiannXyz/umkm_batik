@@ -8,6 +8,7 @@ import 'pages/masuk_otp.dart';
 import 'pages/ganti_password.dart';
 import 'pages/search_page.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'pages/welcome_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); 
@@ -30,8 +31,9 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       title: "UMKM Batik",
-      home: isLoggedIn ? DashboardPage() : LoginPage(),
+      home: isLoggedIn ? DashboardPage() : WelcomeScreen(),
       routes: {
+        '/welcome': (context) => const WelcomeScreen(),
         '/login': (context) => const LoginPage(),
         '/register': (context) => const Register_page(),
         '/lupa-password': (context) => const LupaPasswordPage(),
