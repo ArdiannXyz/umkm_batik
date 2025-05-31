@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String baseUrl = 'http://192.168.1.5/umkm_batik/API/'; // Base URL di sini
+const String baseUrl = 'http://localhost/umkm_batik/API/'; // Base URL di sini
 
 class UserService {
   //GET user detailakun

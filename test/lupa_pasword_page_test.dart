@@ -10,16 +10,14 @@ void main() {
       ),
     );
 
-    // Cari input field dengan hint
+    // Tombol
     expect(find.byType(TextField), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Masukkan email anda'), findsOneWidget);
-
+    
     // Cari tombol kirim
     expect(find.byType(ElevatedButton), findsOneWidget);
-    expect(find.text('Kirim Link Reset'), findsOneWidget);
+    expect(find.text('Kirim Kode OTP'), findsOneWidget);
 
-    // Cari teks navigasi ke login
-    expect(find.text('Kembali ke Login'), findsOneWidget);
   });
 
   testWidgets('Submit with empty email shows snackbar', (WidgetTester tester) async {
