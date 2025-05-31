@@ -266,6 +266,7 @@ class SettingPage extends StatelessWidget {
                                 ElevatedButton(
                                   onPressed: () => Navigator.pop(context, true),
                                   style: ElevatedButton.styleFrom(
+                                    iconColor: Colors.white,
                                     backgroundColor: Colors.red[400],
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),

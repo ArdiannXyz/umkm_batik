@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import '../models/product_model.dart';
 import '../models/product_image.dart';
 
-const String baseUrl = 'http://192.168.1.6/umkm_batik/API/';
+const String baseUrl = 'http://192.168.1.5/umkm_batik/API/';
 
 class ProductService {
   static Future<List<Product>> fetchProducts() async {

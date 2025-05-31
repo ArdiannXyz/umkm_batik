@@ -45,6 +45,7 @@ flutter:
     - assets/images/banner.png
     - assets/images/splashscreen.png
     - assets/images/iconbatik.png
+    - assets/images/robot.svg
 
 flutter_native_splash:
   color: "#2596be"

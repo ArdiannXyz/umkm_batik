@@ -1,0 +1,101 @@
+-------------- 2025-05-31 03:26:20 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-31 04:08:46 --------------
+Request method: GET
+Requested user_id: 12
+-------------- END --------------
+
+-------------- 2025-05-31 04:09:16 --------------
+Request method: GET
+Requested user_id: 12
+-------------- END --------------
+
+-------------- 2025-05-31 04:09:44 --------------
+Request method: POST
+Raw input: {"user_id":12,"nama_lengkap":"Farhan","nomor_hp":"62857465784","provinsi":"JAWA TIMUR","kota":"KABUPATEN BLITAR","kecamatan":"WLINGI","kode_pos":"67152","alamat_lengkap":"Jln batu no18\n"}
+Decoded data: Array
+(
+    [user_id] => 12
+    [nama_lengkap] => Farhan
+    [nomor_hp] => 62857465784
+    [provinsi] => JAWA TIMUR
+    [kota] => KABUPATEN BLITAR
+    [kecamatan] => WLINGI
+    [kode_pos] => 67152
+    [alamat_lengkap] => Jln batu no18
+
+)
+
+Insert successful. New ID: 9
+-------------- END --------------
+
+-------------- 2025-05-31 04:09:46 --------------
+Request method: GET
+Requested user_id: 12
+Found 1 addresses for user_id: 12
+-------------- END --------------
+
+-------------- 2025-05-31 04:10:17 --------------
+Request method: GET
+Requested user_id: 12
+Found 1 addresses for user_id: 12
+-------------- END --------------
+
+-------------- 2025-05-31 04:10:46 --------------
+Request method: GET
+Requested user_id: 12
+Found 1 addresses for user_id: 12
+-------------- END --------------
+
+-------------- 2025-05-31 04:11:16 --------------
+Request method: GET
+Requested user_id: 12
+Found 1 addresses for user_id: 12
+-------------- END --------------
+
+-------------- 2025-05-31 04:11:47 --------------
+Request method: GET
+Requested user_id: 12
+Found 1 addresses for user_id: 12
+-------------- END --------------
+
+-------------- 2025-05-31 04:11:51 --------------
+Request method: GET
+Requested user_id: 12
+Found 1 addresses for user_id: 12
+-------------- END --------------
+
+-------------- 2025-05-31 04:12:24 --------------
+Request method: GET
+Requested user_id: 12
+Found 1 addresses for user_id: 12
+-------------- END --------------
+
+-------------- 2025-05-31 04:12:51 --------------
+Request method: GET
+Requested user_id: 12
+Found 1 addresses for user_id: 12
+-------------- END --------------
+
+-------------- 2025-05-31 04:47:59 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-31 05:21:20 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+
+-------------- 2025-05-31 12:31:10 --------------
+Request method: GET
+Requested user_id: 13
+Found 4 addresses for user_id: 13
+-------------- END --------------
+

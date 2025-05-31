@@ -84,7 +84,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
 
     setState(() => isSubmitting = true);
 
-    final url = Uri.parse("http://192.168.1.6/umkm_batik/API/edit_reviews.php");
+    final url = Uri.parse("http://192.168.1.5/umkm_batik/API/edit_reviews.php");
 
     try {
       final response = await http.post(
@@ -157,7 +157,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
 
     setState(() => isDeleting = true);
 
-    final url = Uri.parse("http://192.168.1.6/umkm_batik/API/delete_reviews.php");
+    final url = Uri.parse("http://192.168.1.5/umkm_batik/API/delete_reviews.php");
 
     try {
       final response = await http.post(
@@ -241,14 +241,13 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
     );
   }
 
-  Widget _buildEditForm() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
+Widget _buildEditForm() {
+  return Padding(
+    padding: const EdgeInsets.all(16),
+    child: SingleChildScrollView(  // Tambahkan ini
       child: Column(
         children: [
           const SizedBox(height: 8),
-
-          // Rating bintang
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -294,7 +293,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
           ),
           const SizedBox(height: 16),
 
-          const Spacer(),
+          const SizedBox(height: 256),
 
           // Tombol Update
           SizedBox(
@@ -340,6 +339,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
           ),
           const SizedBox(height: 16),
         ],
+      ),
       ),
     );
   }

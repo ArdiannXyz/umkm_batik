@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:umkm_batik/services/user_service.dart';
 import 'package:umkm_batik/models/user_model.dart';
-import 'editprofil.dart'; // Pastikan import ini sesuai file kamu
+import 'editprofil.dart';
+import 'dart:async';
 
 class DetailInformasiAkun extends StatefulWidget {
   const DetailInformasiAkun({super.key});
@@ -13,13 +14,25 @@ class DetailInformasiAkun extends StatefulWidget {
 
 class _DetailInformasiAkunState extends State<DetailInformasiAkun> {
   User? user;
+  Timer? _refreshTimer;
 
-  @override
-  void initState() {
-    super.initState();
+@override
+void initState() {
+  super.initState();
+  loadUserData();
+  startAutoRefresh();
+}
+void startAutoRefresh() {
+  _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
     loadUserData();
-  }
+  });
+}
 
+@override
+void dispose() {
+  _refreshTimer?.cancel();
+  super.dispose();
+}
   Future<void> loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     final id = prefs.getInt('user_id');

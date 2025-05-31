@@ -85,7 +85,7 @@ class _PanduanChatbotState extends State<PanduanChatbot> {
     try {
       // Kirim pesan menggunakan HTTP request langsung
       final response = await http.post(
-        Uri.parse('http://192.168.1.6/umkm_batik/API/chatbot_api.php'),
+        Uri.parse('http://192.168.1.213/umkm_batik/API/chatbot_api.php'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'question': message}),
       );

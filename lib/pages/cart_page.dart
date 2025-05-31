@@ -26,7 +26,7 @@ class _CartPageState extends State<CartPage> {
   Map<int, bool> selectedItems = {};
 
   // Base URL API - sesuaikan dengan URL server Anda
-  static const String baseUrl = 'http://192.168.1.6/umkm_batik/API';
+  static const String baseUrl = 'http://192.168.1.5/umkm_batik/API';
 
   @override
   void initState() {
