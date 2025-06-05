@@ -3,14 +3,14 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String baseUrl = 'http://192.168.1.5/umkm_batik/API/'; // Base URL di sini
+const String baseUrl = 'http://192.168.180.254:8000/api/'; // Base URL di sini
 
 class UserService {
   //GET user detailakun
   static Future<User?> fetchUser(int id) async {
     try {
       final response = await http.get(
-        Uri.parse('${baseUrl}get_user.php?id=$id'),
+        Uri.parse('${baseUrl}user/$id'),
       );
 
       if (response.statusCode == 200) {
@@ -33,15 +33,16 @@ class UserService {
   static Future<bool> updateUser(
       int id, String nama, String email, String noHp) async {
     try {
-      final response = await http.post(
-        Uri.parse('${baseUrl}update_user.php'),
-        body: {
-          'id': id.toString(),
+            final response = await http.put(
+        Uri.parse('${baseUrl}user/$id'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
           'nama': nama,
           'email': email,
           'no_hp': noHp,
-        },
+        }),
       );
+
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
@@ -70,7 +71,7 @@ class UserService {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('${baseUrl}register.php'),
+      Uri.parse('${baseUrl}register'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           'nama': nama,
@@ -92,10 +93,11 @@ class UserService {
     }
   }
 
+
   //login
   static Future<Map<String, dynamic>> login(
       String email, String password) async {
-    String url = "${baseUrl}login.php";
+  String url = "${baseUrl}login";
 
     try {
       var response = await http.post(
@@ -113,15 +115,16 @@ class UserService {
         final userId = data['user']['id'];
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('role', 'user');
+      await prefs.setString('role', data['user']['role']);
         await prefs.setInt('user_id', userId);
       }
 
-      return data; // kembalikan responsenya
+    return data;
     } catch (e) {
       throw Exception('Gagal login: $e');
     }
   }
+
 
   // lupa_password
   static Future<Map<String, dynamic>> lupaPassword(String email) async {
@@ -184,12 +187,14 @@ class UserService {
     }
   }
 
-  static Future<void> toggleFavorite(int userId, int productId) async {
+  // TOGGLE FAVORITE - Updated untuk Laravel endpoint
+  static Future<bool> toggleFavorite(int userId, int productId) async {
     try {
       final response = await http.post(
-        Uri.parse('${baseUrl}toggle_favorite.php'),
+        Uri.parse('${baseUrl}favorites/toggle'),
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: jsonEncode({
           'user_id': userId,
@@ -200,35 +205,48 @@ class UserService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success']) {
-          print("Toggle favorite success. Favorited: ${data['favorited']}");
-        } else {
-          print("Gagal toggle favorite: ${data['message']}");
+          return data['favorited'] ?? false;
         }
+      } else if (response.statusCode == 422) {
+        // Validation error
+        final data = jsonDecode(response.body);
+        print('Validation Error: ${data['errors']}');
       } else {
-        print('HTTP error: ${response.statusCode}');
+        print('HTTP Error: ${response.statusCode}');
+        print('Response body: ${response.body}');
       }
     } catch (e) {
       print('Exception saat toggle favorite: $e');
     }
+    return false;
   }
 
   // GET FAVORITES
   static Future<Set<int>> getFavorites(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('${baseUrl}get_favorite.php?user_id=$userId'),
+        Uri.parse('${baseUrl}favorites/$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success']) {
-          return Set<int>.from(data['favorites']);
+          // Convert List<dynamic> to Set<int>
+          List<dynamic> favoritesList = data['favorites'];
+          return favoritesList.map<int>((e) => int.parse(e.toString())).toSet();
         }
+      } else {
+        print('HTTP Error: ${response.statusCode}');
+        print('Response body: ${response.body}');
       }
     } catch (e) {
       print('Exception saat get favorites: $e');
     }
-    return {};
+    return <int>{};
   }
 
   static Future<List<int>> fetchadd_alamats(int userId) async {
@@ -248,17 +266,28 @@ class UserService {
 
   //fetch Favorites
   static Future<List<int>> fetchFavorites(int userId) async {
+    try {
     final response = await http.get(
-      Uri.parse('${baseUrl}get_favorite.php?user_id=$userId'),
+        Uri.parse('${baseUrl}favorites/$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
     );
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data['success']) {
-        List favorites = data['favorites'];
-        return favorites.cast<int>().toList();
+          List<dynamic> favorites = data['favorites'];
+          return favorites.map<int>((e) => int.parse(e.toString())).toList();
       }
+      } else {
+        print('HTTP Error: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Exception saat fetch favorites: $e');
     }
-    return [];
+    return <int>[];
   }
 }
