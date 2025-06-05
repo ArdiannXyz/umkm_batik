@@ -9,7 +9,7 @@ class UserService {
   //GET user detailakun
   static Future<User?> fetchUser(int id) async {
     try {
-      final response = await http.get(
+            final response = await http.get(
         Uri.parse('${baseUrl}user/$id'),
       );
 
@@ -63,67 +63,67 @@ class UserService {
   }
 
   // register
-  static Future<Map<String, dynamic>> registerUser({
-    required String nama,
-    required String email,
-    required String noHp,
-    required String password,
-  }) async {
-    try {
-      final response = await http.post(
+ static Future<Map<String, dynamic>> registerUser({
+  required String nama,
+  required String email,
+  required String noHp,
+  required String password,
+}) async {
+  try {
+    final response = await http.post(
       Uri.parse('${baseUrl}register'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          'nama': nama,
-          'email': email,
-          'no_hp': noHp,
-          'password': password,
-          'role': 'user',
-        }),
-      );
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        'nama': nama,
+        'email': email,
+        'no_hp': noHp,
+        'password': password,
+        'role': 'user',
+      }),
+    );
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        return {'error': true, 'message': 'Server error'};
-      }
-    } catch (e) {
-      print('Exception saat register: $e');
-      return {'error': true, 'message': 'Terjadi kesalahan.'};
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return {'error': true, 'message': 'Server error'};
     }
+  } catch (e) {
+    print('Exception saat register: $e');
+    return {'error': true, 'message': 'Terjadi kesalahan.'};
   }
+}
 
 
   //login
   static Future<Map<String, dynamic>> login(
-      String email, String password) async {
+    String email, String password) async {
   String url = "${baseUrl}login";
 
-    try {
-      var response = await http.post(
-        Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "email": email,
-          "password": password,
-        }),
-      );
+  try {
+    var response = await http.post(
+      Uri.parse(url),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": email,
+        "password": password,
+      }),
+    );
 
-      var data = jsonDecode(response.body);
+    var data = jsonDecode(response.body);
 
-      if (response.statusCode == 200 && data['error'] == false) {
-        final userId = data['user']['id'];
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
+    if (response.statusCode == 200 && data['error'] == false) {
+      final userId = data['user']['id'];
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
       await prefs.setString('role', data['user']['role']);
-        await prefs.setInt('user_id', userId);
-      }
+      await prefs.setInt('user_id', userId);
+    }
 
     return data;
-    } catch (e) {
-      throw Exception('Gagal login: $e');
-    }
+  } catch (e) {
+    throw Exception('Gagal login: $e');
   }
+}
 
 
   // lupa_password
@@ -222,7 +222,7 @@ class UserService {
   }
 
   // GET FAVORITES
-  static Future<Set<int>> getFavorites(int userId) async {
+   static Future<Set<int>> getFavorites(int userId) async {
     try {
       final response = await http.get(
         Uri.parse('${baseUrl}favorites/$userId'),
@@ -267,20 +267,20 @@ class UserService {
   //fetch Favorites
   static Future<List<int>> fetchFavorites(int userId) async {
     try {
-    final response = await http.get(
+      final response = await http.get(
         Uri.parse('${baseUrl}favorites/$userId'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-    );
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['success']) {
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
           List<dynamic> favorites = data['favorites'];
           return favorites.map<int>((e) => int.parse(e.toString())).toList();
-      }
+        }
       } else {
         print('HTTP Error: ${response.statusCode}');
         print('Response body: ${response.body}');
