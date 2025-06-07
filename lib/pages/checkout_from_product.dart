@@ -9,6 +9,9 @@ import 'pilih_alamat_page.dart';
 import '../models/rajaongkir.dart';
 import '../models/checkout_model.dart';
 import '../services/rajaongkir_service.dart';
+import '../models/Address.dart';
+import '../models/ShippinCost.dart';
+import '../services/payment_service.dart';
 
 class CheckoutPage extends StatefulWidget {
   final ProductItem product;
@@ -676,112 +679,65 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Future<void> _createOrder() async {
-    if (selectedAddress == null || selectedPaymentMethod == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Silakan pilih alamat dan metode pembayaran terlebih dahulu.'))
-      );
-      return;
-    }
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sesi login tidak ditemukan. Silakan login kembali.'))
-      );
-      return;
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      String shippingCategory;
-      if (_isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi)) {
-        shippingCategory = 'lokal';
-      } else if (_isWithinSameProvince(selectedAddress!.provinsi)) {
-        shippingCategory = 'provinsi';
-      } else if (_isInterIslandDelivery(selectedAddress!.provinsi)) {
-        shippingCategory = 'luar pulau';
-      } else {
-        shippingCategory = 'antar provinsi';
-      }
-
-      final orderData = {
-        'user_id': userId,
-        'total_harga': totalPayment,
-        'alamat_pemesanan': '${selectedAddress!.alamatLengkap}, ${selectedAddress!.kecamatan}, ${selectedAddress!.kota}, ${selectedAddress!.provinsi}, ${selectedAddress!.kodePos}',
-        'metode_pengiriman': selectedShippingOption?.displayName ?? 'Standar',
-        'metode_pembayaran': selectedPaymentMethod!.name.toLowerCase(),
-        'ongkos_kirim': shippingCost,
-        'kota_tujuan': selectedAddress!.kota,
-        'provinsi_tujuan': selectedAddress!.provinsi,
-        'kota_tujuan_id': destinationCity?.cityId,
-        'estimasi_pengiriman': selectedShippingOption?.etd ?? '3-7',
-        'berat_total': widget.product.weight * widget.product.quantity,
-        'is_standard_shipping': selectedShippingOption?.isStandardOption ?? true,
-        'courier_name': selectedShippingOption?.courier ?? 'STANDAR',
-        'service_name': selectedShippingOption?.service ?? 'REGULER',
-        'shipping_category': shippingCategory,
-        'is_same_city': _isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi),
-        'is_same_province': _isWithinSameProvince(selectedAddress!.provinsi),
-        'is_inter_island': _isInterIslandDelivery(selectedAddress!.provinsi),
-        'is_same_island': _isWithinSameIsland(selectedAddress!.provinsi),
-        'biaya_layanan': serviceFee,
-        'items': [
-          {
-            'product_id': widget.product.id,
-            'kuantitas': widget.product.quantity,
-            'harga': widget.product.price,
-          }
-        ],
-      };
-
-      final response = await http.post(
-        Uri.parse('http://192.168.1.5/umkm_batik/API/create_transaction.php'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(orderData),
-      );
-
-      setState(() {
-        isLoading = false;
-      });
-
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        if (responseData['success'] == true) {
-          final orderId = responseData['data']['order_id']?.toString() ?? "0000000001";
-          _showOrderSuccessAlert(orderId);
-
-        Future.delayed(const Duration(milliseconds: 5000), () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PaymentPage(
-                  paymentMethod: selectedPaymentMethod!,
-                  totalPayment: totalPayment,
-                  orderId: responseData['data']['order_id']?.toString() ?? "0000000001",
-                ),
-              ),
-            );
-          });
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error: ${responseData['message']}"))
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: HTTP ${response.statusCode}"))
-        );
-      }
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"))
-      );
-    }
+  if (selectedAddress == null || selectedPaymentMethod == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Silakan pilih alamat dan metode pembayaran terlebih dahulu.')),
+    );
+    return;
   }
+
+  if (userId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Sesi login tidak ditemukan. Silakan login kembali.')),
+    );
+    return;
+  }
+
+  setState(() {
+    isLoading = true;
+  });
+
+  final result = await PaymentService.createOrder(
+    context: context,
+    userId: userId.toString(),
+    totalPayment: totalPayment.toInt(),
+    selectedAddress: selectedAddress!,
+    selectedPaymentMethod: selectedPaymentMethod!,
+    selectedShippingOption: selectedShippingOption,
+    shippingCost: shippingCost.toInt(),
+    destinationCity: destinationCity,
+    serviceFee: serviceFee.toInt(),
+    product: widget.product,
+    isWithinSameCity: _isWithinSameCity,
+    isWithinSameProvince: _isWithinSameProvince,
+    isInterIslandDelivery: _isInterIslandDelivery,
+    isWithinSameIsland: _isWithinSameIsland,
+  );
+
+  setState(() {
+    isLoading = false;
+  });
+
+  if (result['statusCode'] == 200 && result['body']?['success'] == true) {
+    final orderId = result['body']['data']['order_id']?.toString() ?? "0000000001";
+    _showOrderSuccessAlert(orderId);
+    Future.delayed(const Duration(milliseconds: 5000), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentPage(
+            paymentMethod: selectedPaymentMethod!,
+            totalPayment: totalPayment,
+            orderId: orderId,
+          ),
+        ),
+      );
+    });
+  } else {
+    final errorMessage = result['body']?['message'] ?? result['error'] ?? "Terjadi kesalahan.";
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $errorMessage")));
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(

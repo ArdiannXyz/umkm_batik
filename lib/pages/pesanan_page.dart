@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/payment_service.dart';
 import 'detail_pesanan_page.dart';
 
 class PesananPage extends StatefulWidget {
@@ -87,39 +88,30 @@ class _PesananPageState extends State<PesananPage>
   }
 
   Future<void> _fetchOrders(String status) async {
-    if (userId == null) return;
+  if (userId == null) return;
 
-    try {
-      final url = '$baseUrl/orders.php?user_id=$userId&status=$status';
-      final response = await http.get(Uri.parse(url));
+  setState(() {
+    isLoading = true;
+  });
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+  try {
+    final result = await PaymentService.fetchOrders(
+      userId: userId!,
+      status: status,
+    );
 
-        if (data['status'] == 'success' && data['data'] != null) {
-          setState(() {
-            orders = List<Map<String, dynamic>>.from(data['data']);
-            isLoading = false;
-          });
-        } else {
-          setState(() {
-            orders = [];
-            isLoading = false;
-          });
-        }
-      } else {
-        setState(() {
-          orders = [];
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        orders = [];
-        isLoading = false;
-      });
-    }
+    setState(() {
+      orders = result;
+      isLoading = false;
+    });
+  } catch (e) {
+    print('Error: $e');
+    setState(() {
+      orders = [];
+      isLoading = false;
+    });
   }
+}
 
   String _formatPrice(dynamic price) {
     if (price == null) return 'Rp 0';
@@ -135,23 +127,8 @@ class _PesananPageState extends State<PesananPage>
   }
 
   String _getFullImageUrl(String? relativeUrl) {
-    if (relativeUrl == null || relativeUrl.isEmpty) return '';
-
-    if (relativeUrl.startsWith('http')) return relativeUrl;
-
-    if (relativeUrl.contains('get_main_product_images.php')) {
-      final uri = Uri.tryParse(relativeUrl);
-      if (uri != null && uri.queryParameters.containsKey('id')) {
-        final productId = uri.queryParameters['id'];
-        return '$baseUrl/get_main_product_images.php?id=$productId';
-      }
-      return '$baseUrl/$relativeUrl';
-    }
-
-    final cleanPath =
-        relativeUrl.startsWith('/') ? relativeUrl.substring(1) : relativeUrl;
-    return '$baseUrl/$cleanPath';
-  }
+  return PaymentService.getFullImageUrl(relativeUrl);
+}
 
   Widget _buildProductImage(String imageUrl, String? productName) {
     if (imageUrl.isEmpty) {

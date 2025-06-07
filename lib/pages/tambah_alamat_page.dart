@@ -3,6 +3,7 @@ import 'AlamatDropdown.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/alamat_service.dart';
 
 class TambahAlamatPage extends StatefulWidget {
   final int? userId; // Parameter opsional user ID
@@ -56,90 +57,52 @@ class _TambahAlamatPageState extends State<TambahAlamatPage> {
     }
   }
 
-  Future<void> submitAlamat() async {
-    // Periksa jika user_id tidak tersedia
-    if (_userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text('ID pengguna tidak tersedia. Silahkan login kembali.')),
-      );
-      return;
+Future<void> submitAlamat() async {
+  if (_userId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('ID pengguna tidak tersedia. Silahkan login kembali.')),
+    );
+    return;
+  }
+
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    final Map<String, dynamic> data = {
+      'user_id': _userId,
+      'nama_lengkap': _namaController.text,
+      'nomor_hp': _hpController.text,
+      'provinsi': _provinsiController.text,
+      'kota': _kotaController.text,
+      'kecamatan': _kecamatanController.text,
+      'kode_pos': _kodePosController.text,
+      'alamat_lengkap': _alamatLengkapController.text,
+    };
+
+    final result = await AlamatService.submitAlamat(data);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result['message'] ?? 'Alamat berhasil disimpan')),
+    );
+
+    if (result['success'] == true) {
+      Navigator.pop(context);
     }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // URL API - update dengan URL yang benar
-      final url =
-          Uri.parse('http://192.168.1.5/umkm_batik/API/add_addresses.php');
-
-      // Persiapkan data untuk dikirim termasuk user_id
-      final Map<String, dynamic> data = {
-        'user_id': _userId, // Tambahkan user_id ke data
-        'nama_lengkap': _namaController.text,
-        'nomor_hp': _hpController.text,
-        'provinsi': _provinsiController.text,
-        'kota': _kotaController.text,
-        'kecamatan': _kecamatanController.text,
-        'kode_pos': _kodePosController.text,
-        'alamat_lengkap': _alamatLengkapController.text,
-      };
-
-      // Log data yang akan dikirim untuk debugging
-      debugPrint('Mengirim data: ${jsonEncode(data)}');
-
-      // Kirim request ke server sebagai POST (bukan GET)
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode(data),
-      );
-
-      // Log response yang diterima untuk debugging
-      debugPrint('Status code: ${response.statusCode}');
-      debugPrint('Response body: ${response.body}');
-
-      // Periksa status code
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        // Coba decode response JSON
-        final result = jsonDecode(response.body);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(result['message'] ?? 'Alamat berhasil disimpan')),
-        );
-
-        if (result['success'] == true) {
-          Navigator.pop(context); // Kembali setelah berhasil
-        }
-      } else {
-        // Error jika status code tidak OK
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Error: ${response.statusCode} - ${response.reasonPhrase}')),
-        );
-      }
-    } catch (e) {
-      // Tangkap semua error yang terjadi
-      debugPrint('Error during submission: ${e.toString()}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: ${e.toString()}')),
+    );
+  } finally {
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+}
+
 
   // Validasi form sebelum submit
   bool _validateForm() {

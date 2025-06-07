@@ -89,7 +89,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _loadProducts() async {
-    final fetchedProducts = await ProductService.fetchProducts();
+    final fetchedProducts = await ProductService.GetProducts();
     setState(() {
       allProducts = fetchedProducts;
 

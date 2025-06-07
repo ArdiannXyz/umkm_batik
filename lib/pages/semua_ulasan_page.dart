@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../services/review_service.dart';
 
 class SemuaUlasanPage extends StatefulWidget {
   final int productId;
@@ -23,27 +24,22 @@ class _SemuaUlasanPageState extends State<SemuaUlasanPage> {
   }
 
   Future<void> fetchReviews() async {
-    final response = await http.get(
-      Uri.parse(
-          "http://192.168.1.5/umkm_batik/API/get_reviews.php?product_id=${widget.productId}"),
-    );
+  final result = await ReviewService.fetchReviews(widget.productId);
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data is List) {
-        setState(() {
-          allReviews = data;
-          filteredReviews = data;
-          isLoading = false;
-        });
-      }
-    } else {
-      setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Gagal memuat ulasan")),
-      );
-    }
+  if (result['success']) {
+    setState(() {
+      allReviews = result['data'];
+      filteredReviews = result['data'];
+      isLoading = false;
+    });
+  } else {
+    setState(() => isLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result['message'] ?? 'Gagal memuat ulasan')),
+    );
   }
+}
+
 
   void filterReviews(int? rating) {
     setState(() {

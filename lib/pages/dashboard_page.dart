@@ -142,7 +142,7 @@ class _DashboardViewState extends State<DashboardView> {
       }
 
       // Load products
-      final fetchedProducts = await ProductService.fetchProducts();
+      final fetchedProducts = await ProductService.GetProducts();
       setState(() {
         products = fetchedProducts;
         filteredProducts = fetchedProducts;

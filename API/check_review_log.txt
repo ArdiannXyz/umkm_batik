@@ -2154,3 +2154,54 @@ Review data: Array
 
 -------------- END --------------
 
+-------------- 2025-06-06 10:46:21 --------------
+Request method: OPTIONS
+-------------- 2025-06-06 10:46:21 --------------
+Request method: POST
+Raw input: {"product_id":22,"user_id":13}
+Decoded data: Array
+(
+    [product_id] => 22
+    [user_id] => 13
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-06-06 10:46:27 --------------
+Request method: OPTIONS
+-------------- 2025-06-06 10:46:27 --------------
+Request method: POST
+Raw input: {"product_id":22,"user_id":13}
+Decoded data: Array
+(
+    [product_id] => 22
+    [user_id] => 13
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 34
+    [product_id] => 22
+    [user_id] => 13
+    [rating] => 3
+    [komentar] => l
+    [updated_at] => 
+    [created_at] => 2025-06-06 17:46:25
+)
+
+-------------- END --------------
+
+-------------- 2025-06-06 10:46:32 --------------
+Request method: POST
+Raw input: {"product_id":22,"user_id":13}
+Decoded data: Array
+(
+    [product_id] => 22
+    [user_id] => 13
+)
+
+Has reviewed: No
+-------------- END --------------
+
