@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/rajaongkir.dart';
+import '../models/ShippinCost.dart';
 
 class RajaOngkirService {
   static const String _apiKey = '07fZMEpQac09f0c021badd62rM1OXCwt';

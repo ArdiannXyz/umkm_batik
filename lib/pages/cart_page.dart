@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
+import 'package:umkm_batik/services/cart_service.dart';
+import 'package:umkm_batik/services/product_service.dart';
 import 'dart:convert';
 import 'checkout_from_cart.dart';
 import '../models/cartitem.dart';
+import '../services/cart_service.dart';
 
 class CartPage extends StatefulWidget {
   final int userId;
@@ -25,9 +28,6 @@ class _CartPageState extends State<CartPage> {
   String? errorMessage;
   Map<int, bool> selectedItems = {};
 
-  // Base URL API - sesuaikan dengan URL server Anda
-  static const String baseUrl = 'http://192.168.1.5/umkm_batik/API';
-
   @override
   void initState() {
     super.initState();
@@ -39,71 +39,41 @@ class _CartPageState extends State<CartPage> {
   setState(() {
     isLoading = true;
     errorMessage = null;
-    
   });
 
   try {
-    final response = await http.get(
-      Uri.parse('$baseUrl/get_cart.php?user_id=${widget.userId}'),
-      headers: {'Content-Type': 'application/json'},
-    );
+    final result = await CartService.fetchCart(widget.userId.toString());
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    if (result['success'] == true) {
+      final responseData = result['data'];
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      print('Parsed data: $data');
-      
-      if (data['success'] == true) {
-        final responseData = data['data'];
-        
-        if (responseData != null) {
-          setState(() {
-            // Parse cart items dengan struktur baru
-            if (responseData['cart_items'] != null) {
-              cartItems = (responseData['cart_items'] as List)
-                  .map((item) => CartItem.fromJson(item))
-                  .toList();
-            } else {
-              cartItems = [];
-            }
-            selectedItems.clear();
-            for (var item in cartItems) {
-              selectedItems[item.id] = true; // Default semua item selected
-            }
-            
-            // Parse summary dengan struktur baru
-            if (responseData['summary'] != null) {
-              cartSummary = CartSummary.fromJson(responseData['summary']);
-            } else {
-              cartSummary = null;
-            }
-            
-            isLoading = false;
-          });
-          
-          print('Loaded ${cartItems.length} cart items');
-          if (cartItems.isNotEmpty) {
-            print('First item: ${cartItems.first.productName}');
-            print('First item image: ${cartItems.first.productImage}');
+      if (responseData != null) {
+        setState(() {
+          cartItems = (responseData['cart_items'] as List)
+              .map((item) => CartItem.fromJson(item))
+              .toList();
+
+          selectedItems.clear();
+          for (var item in cartItems) {
+            selectedItems[item.id] = true;
           }
-        } else {
-          setState(() {
-            cartItems = [];
-            cartSummary = null;
-            isLoading = false;
-          });
-        }
+
+          cartSummary = responseData['summary'] != null
+              ? CartSummary.fromJson(responseData['summary'])
+              : null;
+
+          isLoading = false;
+        });
       } else {
         setState(() {
-          errorMessage = data['message'] ?? 'Failed to load cart';
+          cartItems = [];
+          cartSummary = null;
           isLoading = false;
         });
       }
     } else {
       setState(() {
-        errorMessage = 'Server error: ${response.statusCode}';
+        errorMessage = result['message'] ?? 'Failed to load cart';
         isLoading = false;
       });
     }
@@ -115,6 +85,7 @@ class _CartPageState extends State<CartPage> {
     });
   }
 }
+
 
 void _toggleItemSelection(int cartId, bool? value) {
   setState(() {
@@ -155,27 +126,16 @@ int _getSelectedItemsQuantity() {
   return _getSelectedItems().fold(0, (sum, item) => sum + item.quantity);
 }
 
-String _buildImageUrl(String? imageUrl) {
-  if (imageUrl == null || imageUrl.isEmpty) return '';
-  
-  // Jika URL sudah lengkap (dimulai dengan http/https), gunakan langsung
-  if (imageUrl.startsWith('http')) {
-    return imageUrl;
-  }
-  
-  // Jika URL relatif, gabungkan dengan base URL
-  return '$baseUrl/$imageUrl';
-}
+
 
   // Fungsi untuk update quantity item - disesuaikan dengan backend
   // Perbaikan untuk _updateQuantity method
 Future<void> _updateQuantity(int cartId, int newQuantity) async {
   if (newQuantity <= 0) {
-    _removeItem(cartId);
+    await _removeItem(cartId);
     return;
   }
 
-  // Tampilkan loading state
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -183,46 +143,25 @@ Future<void> _updateQuantity(int cartId, int newQuantity) async {
   );
 
   try {
-    final response = await http.put(  // Ubah dari POST ke PUT
-      Uri.parse('$baseUrl/update_cart.php'),  // Sesuaikan nama file
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'cart_id': cartId,
-        'quantity': newQuantity,
-        'user_id': widget.userId,
-      }),
+    final result = await CartService.updateQuantity(
+      cartId: cartId,
+      newQuantity: newQuantity,
+      userId: widget.userId.toString(),
     );
 
-    // Tutup loading dialog
     Navigator.of(context).pop();
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['success'] == true) {
-        // Reload cart untuk mendapatkan data terbaru
-        await _loadCartItems();
-        
-        
-          
-        
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data['message'] ?? 'Failed to update quantity'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    if (result['success'] == true) {
+      await _loadCartItems();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Server error: ${response.statusCode}'),
+          content: Text(result['message'] ?? 'Failed to update quantity'),
           backgroundColor: Colors.red,
         ),
       );
     }
   } catch (e) {
-    // Tutup loading dialog jika error
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -237,52 +176,29 @@ Future<void> _updateQuantity(int cartId, int newQuantity) async {
  // Perbaikan untuk _removeItem function
 Future<void> _removeItem(int cartId) async {
   try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/delete_cart.php'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'cart_id': cartId,
-        'quantity': 0, // Quantity 0 untuk menghapus item
-        'user_id': widget.userId,
-      }),
+    final result = await CartService.removeItem(
+      cartId: cartId,
+      userId: widget.userId.toString(),
     );
 
-    print('Delete response status: ${response.statusCode}');
-    print('Delete response body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['success'] == true) {
-        // Reload cart untuk mendapatkan data terbaru
-        await _loadCartItems();
-        
-        // Tampilkan pesan success yang lebih spesifik
-        String productName = data['data']?['product_name'] ?? 'Item';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$productName berhasil dihapus dari keranjang'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(data['message'] ?? 'Gagal menghapus item'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    if (result['success'] == true) {
+      await _loadCartItems();
+      String productName = result['data']?['product_name'] ?? 'Item';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$productName berhasil dihapus dari keranjang'),
+          backgroundColor: Colors.green,
+        ),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Server error: ${response.statusCode}'),
+          content: Text(result['message'] ?? 'Gagal menghapus item'),
           backgroundColor: Colors.red,
         ),
       );
     }
   } catch (e) {
-    print('Error removing item: $e');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error: ${e.toString()}'),
@@ -291,6 +207,7 @@ Future<void> _removeItem(int cartId) async {
     );
   }
 }
+
 
   void _showDeleteSelectedDialog() {
   List<CartItem> selectedItems = _getSelectedItems();
@@ -384,43 +301,16 @@ void _showDeleteSingleItemDialog(int cartId, String productName) {
 
 Future<void> _deleteSelectedItems() async {
   List<CartItem> itemsToDelete = _getSelectedItems();
-  
   if (itemsToDelete.isEmpty) return;
 
   try {
-    int successCount = 0;
-    List<String> deletedItems = [];
-    
-    // Hapus item satu per satu dengan error handling yang lebih baik
-    for (var item in itemsToDelete) {
-      try {
-        final response = await http.post(
-          Uri.parse('$baseUrl/delete_cart.php'),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'cart_id': item.id,
-            'quantity': 0,
-            'user_id': widget.userId,
-          }),
-        );
-        
-        if (response.statusCode == 200) {
-          final data = json.decode(response.body);
-          if (data['success'] == true) {
-            successCount++;
-            deletedItems.add(item.product.nama);
-          }
-        }
-      } catch (e) {
-        print('Error deleting item ${item.id}: $e');
-        // Continue dengan item lainnya
-      }
-    }
-    
-    // Reload cart setelah semua operasi selesai
+    int successCount = await CartService.deleteMultipleItems(
+      items: itemsToDelete,
+      userId: widget.userId.toString(),
+    );
+
     await _loadCartItems();
-    
-    // Tampilkan hasil
+
     if (successCount > 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -447,6 +337,7 @@ Future<void> _deleteSelectedItems() async {
     );
   }
 }
+
   
 
   @override
@@ -641,7 +532,10 @@ Future<void> _deleteSelectedItems() async {
             itemCount: cartItems.length,
             itemBuilder: (context, index) {
               final item = cartItems[index];
-              return _buildCartItemCard(item);
+                final imageUrl = ProductService.getFullImageUrl(item.productImage);
+
+              return _buildCartItemCard(item, imageUrl);
+
             },
           ),
         ),
@@ -650,7 +544,7 @@ Future<void> _deleteSelectedItems() async {
     );
   }
 
- Widget _buildCartItemCard(CartItem item) {
+ Widget _buildCartItemCard(CartItem item,String imageUrl) {
   return Container(
     margin: const EdgeInsets.only(bottom: 12),
     decoration: BoxDecoration(
@@ -715,7 +609,7 @@ Future<void> _deleteSelectedItems() async {
             // Product Image (existing code)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: _buildProductImage(item),
+              child: _buildProductImage(item, imageUrl),
             ),
               SizedBox(width: 3,),
               // Product Details
@@ -838,8 +732,7 @@ Future<void> _deleteSelectedItems() async {
   );
 }
 
-Widget _buildProductImage(CartItem item) {
-  String? imageUrl = item.productImage;
+Widget _buildProductImage(CartItem item, String imageUrl) {
   
   if (imageUrl == null || imageUrl.isEmpty) {
     return Container(
@@ -854,10 +747,9 @@ Widget _buildProductImage(CartItem item) {
     );
   }
 
-  String fullImageUrl = _buildImageUrl(imageUrl);
   
   return CachedNetworkImage(
-    imageUrl: fullImageUrl,
+    imageUrl: imageUrl,
     width: 80,
     height: 80,
     fit: BoxFit.cover,

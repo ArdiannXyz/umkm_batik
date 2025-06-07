@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
-// Import EditUlasanPage
+import '../services/review_service.dart';
 import 'edit_ulasan_page.dart'; // Pastikan jalur import ini sesuai dengan struktur proyek Anda
 
 class TulisUlasanPage extends StatefulWidget {
@@ -69,49 +68,25 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
   }
 
   Future<void> checkExistingReview(int userId) async {
-    try {
-      final url =
-          Uri.parse("http://192.168.1.5/umkm_batik/API/check_reviews.php");
+  final result = await ReviewService.checkExistingReview(
+    productId: widget.productId,
+    userId: userId,
+  );
 
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          'product_id': widget.productId,
-          'user_id': userId,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        // Print response for debugging
-
-        final result = jsonDecode(response.body);
-
-        setState(() {
-          hasReviewed = result['has_reviewed'] ?? false;
-
-          // Simpan data ulasan jika ada
-          if (hasReviewed && result['review_data'] != null) {
-            existingReview = Map<String, dynamic>.from(result['review_data']);
-          }
-
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          errorMessage =
-              'Gagal memeriksa status ulasan: ${response.statusCode}';
-          isLoading = false;
-        });
+  setState(() {
+    isLoading = false;
+    if (result['success']) {
+      final data = result['data'];
+      hasReviewed = data['has_reviewed'] ?? false;
+      if (hasReviewed && data['review_data'] != null) {
+        existingReview = Map<String, dynamic>.from(data['review_data']);
       }
-    } catch (e) {
-      setState(() {
-        errorMessage =
-            'Terjadi kesalahan saat memeriksa status ulasan: ${e.toString()}';
-        isLoading = false;
-      });
+    } else {
+      errorMessage = result['message'];
     }
-  }
+  });
+}
+
 
   @override
   void dispose() {
@@ -120,61 +95,36 @@ class _TulisUlasanPageState extends State<TulisUlasanPage> {
   }
 
   Future<void> submitReview() async {
-    if (selectedRating == 0 ||
-        _reviewController.text.isEmpty ||
-        userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Harap isi semua bidang dan pilih rating')),
-      );
-      return;
-    }
-
-    setState(() => isSubmitting = true);
-
-    final url = Uri.parse("http://192.168.1.5/umkm_batik/API/add_reviews.php");
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          'product_id': widget.productId,
-          'user_id': userId,
-          'rating': selectedRating,
-          'komentar': _reviewController.text,
-        }),
-      );
-
-      setState(() => isSubmitting = false);
-
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        if (result['success'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Ulasan berhasil dikirim')),
-          );
-          Navigator.pop(
-              context, true); // Return true to indicate successful review
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(result['message'] ?? 'Gagal mengirim ulasan')),
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Terjadi kesalahan saat mengirim ulasan')),
-        );
-      }
-    } catch (e) {
-      setState(() => isSubmitting = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
-    }
+  if (selectedRating == 0 ||
+      _reviewController.text.isEmpty ||
+      userId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          content: Text('Harap isi semua bidang dan pilih rating')),
+    );
+    return;
   }
+
+  setState(() => isSubmitting = true);
+
+  final result = await ReviewService.submitReview(
+    productId: widget.productId,
+    userId: userId!,
+    rating: selectedRating,
+    komentar: _reviewController.text,
+  );
+
+  setState(() => isSubmitting = false);
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(result['message'])),
+  );
+
+  if (result['success']) {
+    Navigator.pop(context, true);
+  }
+}
+
 
   // Fungsi untuk navigasi ke halaman edit ulasan
   void navigateToEditReview() async {

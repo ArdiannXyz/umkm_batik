@@ -5,48 +5,10 @@ import 'tambah_alamat_page.dart';
 import 'edit_alamat_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
+import '../models/Address.dart';
+import '../services/alamat_service.dart';
 
 // Model class for Address
-class Address {
-  final int id;
-  final int userId;
-  final String namaLengkap;
-  final String nomorHp;
-  final String provinsi;
-  final String kota;
-  final String kecamatan;
-  final int kodePos;
-  final String alamatLengkap;
-  final String createdAt;
-
-  Address({
-    required this.id,
-    required this.userId,
-    required this.namaLengkap,
-    required this.nomorHp,
-    required this.provinsi,
-    required this.kota,
-    required this.kecamatan,
-    required this.kodePos,
-    required this.alamatLengkap,
-    required this.createdAt,
-  });
-
-  factory Address.fromJson(Map<String, dynamic> json) {
-    return Address(
-      id: json['id'],
-      userId: json['user_id'],
-      namaLengkap: json['nama_lengkap'],
-      nomorHp: json['nomor_hp'],
-      provinsi: json['provinsi'],
-      kota: json['kota'],
-      kecamatan: json['kecamatan'],
-      kodePos: json['kode_pos'],
-      alamatLengkap: json['alamat_lengkap'],
-      createdAt: json['created_at'],
-    );
-  }
-}
 
 class PilihAlamatPage extends StatefulWidget {
   const PilihAlamatPage({super.key});
@@ -63,7 +25,6 @@ class _PilihAlamatPageState extends State<PilihAlamatPage> {
   Timer? _refreshTimer;
 
   // API base URL - ensure correct protocol
-  final String apiBaseUrl = 'http://192.168.1.5/umkm_batik/API/get_addresses.php';
 
   @override
   void initState() {
@@ -89,74 +50,45 @@ class _PilihAlamatPageState extends State<PilihAlamatPage> {
     return prefs.getInt('user_id');
   }
 
-  // Fetch addresses from API
-  Future<void> _fetchAddresses() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = '';
-    });
+  // Fetch addresses from API// sesuaikan path jika perlu
 
-    try {
-      final userId = await _getUserId();
+Future<void> _fetchAddresses() async {
+  setState(() {
+    isLoading = true;
+    errorMessage = '';
+  });
 
-      if (userId == null) {
-        setState(() {
-          isLoading = false;
-          errorMessage = 'User ID tidak ditemukan. Silakan login kembali.';
-        });
-        return;
-      }
+  try {
+    final rawUserId = await _getUserId(); // <- Ambil userId dari SharedPreferences
 
-      // Fixed URL - added http:// protocol
-      final response = await http.get(
-        Uri.parse(
-            'http://192.168.1.5/umkm_batik/API/get_addresses.php?user_id=$userId'),
-      );
-
-      if (response.statusCode == 200) {
-        try {
-          final Map<String, dynamic> responseData = json.decode(response.body);
-
-          if (responseData['success'] == true) {
-            setState(() {
-              addresses = (responseData['data'] as List)
-                  .map((item) => Address.fromJson(item))
-                  .toList();
-
-              // Select the first address by default if available
-              if (addresses.isNotEmpty && selectedAddressId == null) {
-                selectedAddressId = addresses.first.id;
-              }
-
-              isLoading = false;
-            });
-          } else {
-            setState(() {
-              isLoading = false;
-              errorMessage = responseData['message'] ?? 'Gagal memuat alamat';
-            });
-          }
-        } catch (e) {
-          setState(() {
-            isLoading = false;
-            errorMessage = 'Gagal memproses data: Format JSON tidak valid';
-          });
-          print('JSON parse error: $e');
-          print('Response body: ${response.body}');
-        }
-      } else {
-        setState(() {
-          isLoading = false;
-          errorMessage = 'Terjadi kesalahan. Kode: ${response.statusCode}';
-        });
-      }
-    } catch (e) {
+    if (rawUserId == null) {
       setState(() {
         isLoading = false;
-        errorMessage = 'Terjadi kesalahan: $e';
+        errorMessage = 'User ID tidak ditemukan. Silakan login kembali.';
       });
+      return;
     }
+
+    final userId = rawUserId.toString(); // <- Konversi ke String
+
+    final fetchedAddresses = await AlamatService.fetchAddresses(userId);
+
+    setState(() {
+      addresses = fetchedAddresses;
+      if (addresses.isNotEmpty && selectedAddressId == null) {
+        selectedAddressId = addresses.first.id;
+      }
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+      errorMessage = 'Terjadi kesalahan: $e';
+    });
   }
+}
+
+
 
   @override
   Widget build(BuildContext context) {

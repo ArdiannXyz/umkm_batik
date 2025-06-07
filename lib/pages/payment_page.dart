@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:umkm_batik/pages/pesanan_page.dart';
+import 'package:umkm_batik/services/payment_service.dart';
 import 'payment_method.dart';
 import 'panduan.dart';
 
@@ -40,7 +41,7 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   // Function to cancel order via API
-  Future<void> _cancelOrder(String reason) async {
+   Future<void> _cancelOrder(String reason) async {
     if (_isLoading) return;
 
     setState(() {
@@ -48,50 +49,14 @@ class _PaymentPageState extends State<PaymentPage> {
     });
 
     try {
-      // Extract order ID (handle format like "UMKM-20250516-0024")
-      String orderIdStr = widget.orderId;
-      if (orderIdStr.contains('-')) {
-        // If the order ID is something like "UMKM-20250516-0024", just pass it as is
-        // The backend will need to handle this format
-      } else {
-        // If it's a numeric ID, ensure it's properly formatted
-        try {
-          int.parse(orderIdStr); // Just to validate it's a number
-        } catch (e) {
-          throw FormatException('Invalid order ID format: $orderIdStr');
-        }
-      }
-
-      // Use your actual API endpoint
-      final apiUrl = 'http://192.168.1.5/umkm_batik/API/cancel_order.php';
-
-      // Ensure the API is called with proper POST method and headers
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          // Add any authorization headers if needed
-        },
-        body: jsonEncode({
-          'order_id': orderIdStr,
-          'reason': reason,
-        }),
+      final result = await PaymentService.cancelOrder(
+        orderId: widget.orderId,
+        reason: reason,
       );
 
-      // Parse response based on its format
-      Map<String, dynamic> result;
-      try {
-        result = jsonDecode(response.body);
-      } catch (e) {
-        throw Exception('Invalid response format: ${response.body}');
-      }
-
-      if (result['success'] == true) {
-        // Order canceled successfully
+        if (result['success'] == true) {
         _showSuccessDialog('Pesanan dibatalkan', result['message']);
-      } else {
-        // Error in cancelling order
+       } else {
         _showErrorDialog(
             'Gagal membatalkan pesanan', result['message'] ?? 'Unknown error');
       }

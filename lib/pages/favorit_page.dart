@@ -51,7 +51,7 @@ class _FavoritPageState extends State<FavoritPage> {
     _userId = prefs.getInt('user_id');
 
     if (_userId != null) {
-      final allProducts = await ProductService.fetchProducts();
+      final allProducts = await ProductService.GetProducts();
       final favoriteIds = await UserService.getFavorites(_userId!);
 
       final favorites = allProducts
