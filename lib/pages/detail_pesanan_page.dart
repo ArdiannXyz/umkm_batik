@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'payment_page.dart'; // Import the payment page
-import 'payment_method.dart'; // Import the payment method enum
+import 'payment_method.dart';
+import '../services/payment_service.dart'; // Import the payment method enum
 
 class DetailPesananPage extends StatefulWidget {
   final String? orderId;
@@ -18,7 +19,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   bool isLoading = true;
   Map<String, dynamic>? orderDetail;
   String? userId;
-  final String baseUrl = 'http://localhost/umkm_batik/API';
+  final String baseUrl = 'http://192.168.1.5/umkm_batik/API';
 
   @override
   void initState() {
@@ -71,68 +72,31 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   }
 
   String _getFullImageUrl(String? relativeUrl) {
-    if (relativeUrl == null || relativeUrl.isEmpty) return '';
-
-    if (relativeUrl.startsWith('http')) return relativeUrl;
-
-    // Handle both get_product_images.php and get_main_product_images.php
-    if (relativeUrl.contains('get_product_images.php') ||
-        relativeUrl.contains('get_main_product_images.php')) {
-      final uri = Uri.tryParse(relativeUrl);
-      if (uri != null && uri.queryParameters.containsKey('id')) {
-        final productId = uri.queryParameters['id'];
-        // Always use get_main_product_images.php since that's our working endpoint
-        return '$baseUrl/get_main_product_images.php?id=$productId';
-      }
-      // Extract ID from URL pattern like /get_product_images.php?id=4
-      final match = RegExp(r'id=(\d+)').firstMatch(relativeUrl);
-      if (match != null) {
-        final productId = match.group(1);
-        return '$baseUrl/get_main_product_images.php?id=$productId';
-      }
-      return '$baseUrl/get_main_product_images.php?id=$relativeUrl';
-    }
-
-    final cleanPath =
-        relativeUrl.startsWith('/') ? relativeUrl.substring(1) : relativeUrl;
-    return '$baseUrl/$cleanPath';
-  }
+  return PaymentService.getFullImageUrl(relativeUrl);
+}
 
   Future<void> _fetchOrderDetail() async {
-    try {
-      final response = await http.get(
-        Uri.parse(
-            '$baseUrl/orders.php?order_id=${widget.orderId}&user_id=$userId'),
-      );
+  try {
+    final detail = await PaymentService.fetchOrderDetail(
+      orderId: widget.orderId!,
+      userId: userId!,
+    );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['status'] == 'success') {
-          setState(() {
-            orderDetail = data['data'];
-            isLoading = false;
-          });
-          print('Order detail fetched: $orderDetail');
-        } else {
-          setState(() {
-            orderDetail = null;
-            isLoading = false;
-          });
-        }
-      } else {
-        setState(() {
-          orderDetail = null;
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        orderDetail = null;
-        isLoading = false;
-      });
-      print('Error fetching order detail: $e');
-    }
+    setState(() {
+      orderDetail = detail;
+      isLoading = false;
+    });
+
+    print('Order detail fetched: $orderDetail');
+  } catch (e) {
+    print('Error fetching order detail: $e');
+    setState(() {
+      orderDetail = null;
+      isLoading = false;
+    });
   }
+}
+
 
   String _formatPrice(dynamic price) {
     if (price == null) return 'Rp 0';
@@ -155,120 +119,72 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   }
 
   Future<void> _confirmOrderCompleted() async {
-    if (widget.orderId == null || userId == null) return;
+  if (widget.orderId == null || userId == null) return;
 
-    // Show confirmation dialog
-    bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Konfirmasi Pesanan'),
-          content: const Text(
-              'Apakah Anda yakin ingin menandai pesanan ini sebagai selesai?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0D6EFD),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Ya, Selesai'),
-            ),
-          ],
-        );
-      },
+  bool? confirmed = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Konfirmasi Pesanan'),
+        content: const Text('Apakah Anda yakin ingin menandai pesanan ini sebagai selesai?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Ya, Selesai'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmed != true) return;
+
+  try {
+    final result = await PaymentService.confirmOrderCompleted(
+      orderId: widget.orderId!,
+      userId: userId!,
     );
 
-    if (confirmed != true) return;
+    final statusCode = result['statusCode'];
+    final data = result['data'];
 
-    try {
-      // Prepare request body
-      final requestBody = {
-        'order_id': int.parse(widget.orderId!),
-        'status': 'completed',
-        'user_id': int.parse(userId!),
-      };
-
-      print('Sending request to: $baseUrl/orders.php');
-      print('Request body: ${jsonEncode(requestBody)}');
-
-      final response = await http
-          .post(
-        Uri.parse('$baseUrl/orders.php'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode(requestBody),
-      )
-          .timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          throw Exception('Request timeout');
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['status'] == 'success') {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Pesanan telah dikonfirmasi sebagai selesai'),
-                backgroundColor: Colors.green,
-              ),
-            );
-            _fetchOrderDetail(); // Refresh the order details
-          }
-        } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content:
-                    Text(data['message'] ?? 'Gagal mengupdate status pesanan'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  'Gagal terhubung ke server. Status: ${response.statusCode}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      print('Error in _confirmOrderCompleted: $e');
+    if (statusCode == 200 && data['status'] == 'success') {
       if (mounted) {
-        String errorMessage = 'Terjadi kesalahan';
-        if (e.toString().contains('timeout')) {
-          errorMessage = 'Koneksi timeout, coba lagi';
-        } else if (e.toString().contains('Failed to fetch') ||
-            e.toString().contains('SocketException') ||
-            e.toString().contains('Connection refused')) {
-          errorMessage = 'Tidak ada koneksi internet';
-        } else if (e.toString().contains('Connection failed')) {
-          errorMessage = 'Server tidak dapat dijangkau';
-        }
-
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Pesanan telah dikonfirmasi sebagai selesai'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _fetchOrderDetail();
+      }
+    } else {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(errorMessage),
+            content: Text(data['message'] ?? 'Gagal mengupdate status pesanan'),
             backgroundColor: Colors.red,
           ),
         );
       }
     }
+  } catch (e) {
+    print('Error in _confirmOrderCompleted: $e');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
+}
+
 
   // Function to navigate to payment page
   void _navigateToPayment() {

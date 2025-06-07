@@ -5,10 +5,10 @@ import 'package:http/http.dart' as http;
 import '../models/product_model.dart';
 import '../models/product_image.dart';
 
-const String baseUrl = 'http://localhost/umkm_batik/API/';
+const String baseUrl = 'http://192.168.180.254/umkm_batik/API/';
 
 class ProductService {
-  static Future<List<Product>> fetchProducts() async {
+  static Future<List<Product>> GetProducts() async {
     try {
       final response = await http.get(
         Uri.parse('${baseUrl}get_products.php'),
@@ -53,6 +53,24 @@ class ProductService {
     }
     return null;
   }
+
+  static Future<Map<String, dynamic>?> fetchProduct(dynamic productId) async {
+    try {
+      final response = await http.get(Uri.parse("$baseUrl/get_detail_produk.php?id=$productId"));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data != null && data['id'] != null) {
+          return data;
+        }
+      }
+      return null;
+    } catch (e) {
+      print("Error fetching product: $e");
+      return null;
+    }
+  }
+
 
   static Future<List<ProductImage>> fetchProductImages(int productId) async {
     try {
@@ -256,4 +274,28 @@ class ProductService {
     _cache.clear();
     _cacheTimestamps.clear();
   }
+
+  static Future<Map<String, dynamic>> sendMessage(String message) async {
+    final url = Uri.parse('${baseUrl}/chatbot_api.php');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'question': message}),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Gagal menghubungi server');
+      }
+    } catch (e) {
+      print('Error ChatbotService: $e');
+      throw Exception('Terjadi kesalahan jaringan atau server');
+    }
+  }
+
+  
+
 }

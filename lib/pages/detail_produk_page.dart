@@ -9,6 +9,10 @@ import 'checkout_from_product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:umkm_batik/services/user_service.dart';
 import '../models/checkout_model.dart';
+import 'dart:async';
+import '../services/product_service.dart';
+import '../services/review_service.dart';
+
 
 class DetailProdukPage extends StatefulWidget {
   final int productId;
@@ -37,7 +41,8 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
   int? userId;
   final PageController _pageController = PageController();
   bool showAllReviews = false;
-  final int maxDisplayedReviews = 3; // Maximum reviews to show initially
+  final int maxDisplayedReviews = 3;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -45,8 +50,20 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
     fetchProduct();
     fetchUlasan();
     loadUserAndFavorites();
+    _startAutoRefresh();
   }
-
+void _startAutoRefresh() {
+  _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    if (mounted) {
+      fetchProduct();
+    }
+  });
+}
+@override
+void dispose() {
+  _refreshTimer?.cancel();
+  super.dispose();
+}
   Future<void> loadUserAndFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('user_id');
@@ -74,81 +91,35 @@ class _DetailProdukPageState extends State<DetailProdukPage> {
   }
 
   Future<void> fetchProduct() async {
-    try {
-      final response = await http.get(
-        Uri.parse(
-            "http://localhost/umkm_batik/API/get_detail_produk.php?id=${widget.productId}"),
-      );
+  final data = await ProductService.fetchProduct(widget.productId);
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data != null && data['id'] != null) {
-          setState(() {
-            product = data;
-            isLoading = false;
-          });
-        } else {
-          setState(() => isLoading = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Produk tidak ditemukan.")),
-          );
-        }
-      } else {
-        setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Gagal memuat data produk.")),
-        );
-      }
-    } catch (e) {
-      setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Terjadi kesalahan: $e")),
-      );
-    }
-  }
-
-  Future<void> fetchUlasan() async {
+  if (data != null) {
     setState(() {
-      isLoadingReviews = true;
+      product = data;
+      isLoading = false;
     });
-
-    try {
-      final response = await http.get(Uri.parse(
-          'http://localhost/umkm_batik/API/get_reviews.php?product_id=${widget.productId}'));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data is List) {
-          setState(() {
-            ulasanList = data;
-            // Show only first few reviews initially
-            displayedUlasan = ulasanList.take(maxDisplayedReviews).toList();
-            isLoadingReviews = false;
-          });
-        } else {
-          setState(() {
-            ulasanList = [];
-            displayedUlasan = [];
-            isLoadingReviews = false;
-          });
-        }
-      } else {
-        setState(() {
-          ulasanList = [];
-          displayedUlasan = [];
-          isLoadingReviews = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        ulasanList = [];
-        displayedUlasan = [];
-        isLoadingReviews = false;
-      });
-      print('Error fetching reviews: $e');
-    }
+  } else {
+    setState(() => isLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Produk tidak ditemukan.")),
+    );
   }
+}
+
+Future<void> fetchUlasan() async {
+  setState(() {
+    isLoadingReviews = true;
+  });
+
+  final data = await ReviewService.fetchUlasan(widget.productId.toString());
+
+
+  setState(() {
+    ulasanList = data;
+    displayedUlasan = data.take(maxDisplayedReviews).toList();
+    isLoadingReviews = false;
+  });
+}
 
   void toggleShowAllReviews() {
     setState(() {
@@ -210,7 +181,7 @@ return ProductItem(
 
     try {
       final response = await http.post(
-        Uri.parse("http://localhost/umkm_batik/API/add_to_cart.php"),
+        Uri.parse("http://192.168.1.5/umkm_batik/API/add_to_cart.php"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'user_id': userId,

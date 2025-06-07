@@ -123,20 +123,9 @@ class _LupaPasswordPageState extends State<LupaPasswordPage> {
                   child: isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
-                          "Kirim Link Reset",
+                          "Kirim Kode OTP",
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Center(
-                child: TextButton(
-                  onPressed: () =>
-                      Navigator.pushReplacementNamed(context, '/'),
-                  child: const Text(
-                    "Kembali ke Login",
-                    style: TextStyle(color: Colors.blue),
-                  ),
                 ),
               ),
             ],

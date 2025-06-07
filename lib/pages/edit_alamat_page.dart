@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:umkm_batik/pages/AlamatDropdown.dart';
+import 'package:umkm_batik/services/alamat_service.dart';
+import '../models/Address.dart';
+
 
 class EditAddressPage extends StatefulWidget {
   final int addressId;
@@ -17,6 +20,7 @@ class EditAddressPage extends StatefulWidget {
 }
 
 class _EditAddressPageState extends State<EditAddressPage> {
+  final alamatService = AlamatService();
   // Form controllers
   final TextEditingController _namaLengkapController = TextEditingController();
   final TextEditingController _nomorHpController = TextEditingController();
@@ -35,7 +39,6 @@ class _EditAddressPageState extends State<EditAddressPage> {
   String _errorMessage = '';
 
   // API base URL
-  final String apiBaseUrl = 'http://localhost/umkm_batik/API';
 
   @override
   void initState() {
@@ -63,238 +66,151 @@ class _EditAddressPageState extends State<EditAddressPage> {
 
   // Fetch address details
   Future<void> _fetchAddressDetails() async {
+  setState(() {
+    _isLoading = true;
+    _errorMessage = '';
+  });
+
+  final userId = await _getUserId();
+  if (userId == null) {
     setState(() {
-      _isLoading = true;
-      _errorMessage = '';
+      _isLoading = false;
+      _errorMessage = 'User ID tidak ditemukan. Silakan login kembali.';
     });
-
-    try {
-      final userId = await _getUserId();
-
-      if (userId == null) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = 'User ID tidak ditemukan. Silakan login kembali.';
-        });
-        return;
-      }
-
-      // Fetch all addresses for the user
-      final response = await http.get(
-        Uri.parse('$apiBaseUrl/get_addresses.php?user_id=$userId'),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-
-        if (responseData['success'] == true) {
-          final addresses = (responseData['data'] as List);
-
-          // Find the address with matching ID
-          final addressData = addresses.firstWhere(
-            (address) => address['id'] == widget.addressId,
-            orElse: () => null,
-          );
-
-          if (addressData != null) {
-            // Populate form controllers
-            _namaLengkapController.text = addressData['nama_lengkap'];
-            _nomorHpController.text = addressData['nomor_hp'];
-            _alamatLengkapController.text = addressData['alamat_lengkap'];
-
-            // Set individual location fields (for AlamatDropdown)
-            _provinsiController.text = addressData['provinsi'];
-            _kotaController.text = addressData['kota'];
-            _kecamatanController.text = addressData['kecamatan'];
-            _kodePosController.text = addressData['kode_pos'].toString();
-
-            setState(() {
-              _isLoading = false;
-            });
-          } else {
-            setState(() {
-              _isLoading = false;
-              _errorMessage = 'Alamat tidak ditemukan';
-            });
-          }
-        } else {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = responseData['message'] ?? 'Gagal memuat alamat';
-          });
-        }
-      } else {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = 'Terjadi kesalahan. Kode: ${response.statusCode}';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Terjadi kesalahan: $e';
-      });
-    }
+    return;
   }
+
+  final id = widget.addressId.toString();
+    final uid = userId.toString();
+  final result = await alamatService.fetchAddressDetails(uid, id);
+
+  if (result['success']) {
+    final addressData = result['data'];
+    _namaLengkapController.text = addressData['nama_lengkap'];
+    _nomorHpController.text = addressData['nomor_hp'];
+    _alamatLengkapController.text = addressData['alamat_lengkap'];
+    _provinsiController.text = addressData['provinsi'];
+    _kotaController.text = addressData['kota'];
+    _kecamatanController.text = addressData['kecamatan'];
+    _kodePosController.text = addressData['kode_pos'].toString();
+
+    setState(() {
+      _isLoading = false;
+    });
+  } else {
+    setState(() {
+      _isLoading = false;
+      _errorMessage = result['message'];
+    });
+  }
+}
+
 
   // Update address
   Future<void> _updateAddress() async {
+  setState(() {
+    _isSaving = true;
+    _errorMessage = '';
+  });
+
+  final userId = await _getUserId();
+  if (userId == null) {
     setState(() {
-      _isSaving = true;
-      _errorMessage = '';
+      _isSaving = false;
+      _errorMessage = 'User ID tidak ditemukan. Silakan login kembali.';
     });
-
-    try {
-      final userId = await _getUserId();
-
-      if (userId == null) {
-        setState(() {
-          _isSaving = false;
-          _errorMessage = 'User ID tidak ditemukan. Silakan login kembali.';
-        });
-        return;
-      }
-
-      // Prepare data to send
-      final Map<String, dynamic> data = {
-        'id': widget.addressId,
-        'user_id': userId,
-        'nama_lengkap': _namaLengkapController.text,
-        'nomor_hp': _nomorHpController.text,
-        'provinsi': _provinsiController.text,
-        'kota': _kotaController.text,
-        'kecamatan': _kecamatanController.text,
-        'kode_pos': _kodePosController.text,
-        'alamat_lengkap': _alamatLengkapController.text,
-      };
-
-      // Make API request
-      final response = await http.post(
-        Uri.parse('$apiBaseUrl/edit_addresses.php'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(data),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-
-        if (responseData['success'] == true) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text(responseData['message'] ?? 'Alamat disimpan')),
-            );
-            Navigator.pop(
-                context, true); // Return true to indicate refresh needed
-          }
-        } else {
-          setState(() {
-            _isSaving = false;
-            _errorMessage =
-                responseData['message'] ?? 'Gagal mengupdate alamat';
-          });
-        }
-      } else {
-        setState(() {
-          _isSaving = false;
-          _errorMessage = 'Terjadi kesalahan. Kode: ${response.statusCode}';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isSaving = false;
-        _errorMessage = 'Terjadi kesalahan: $e';
-      });
-    }
+    return;
   }
+
+  final data = {
+    'id': widget.addressId,
+    'user_id': userId,
+    'nama_lengkap': _namaLengkapController.text,
+    'nomor_hp': _nomorHpController.text,
+    'provinsi': _provinsiController.text,
+    'kota': _kotaController.text,
+    'kecamatan': _kecamatanController.text,
+    'kode_pos': _kodePosController.text,
+    'alamat_lengkap': _alamatLengkapController.text,
+  };
+
+  final result = await alamatService.updateAddress(data);
+
+  if (result['success']) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? 'Alamat disimpan')),
+      );
+      Navigator.pop(context, true);
+    }
+  } else {
+    setState(() {
+      _isSaving = false;
+      _errorMessage = result['message'];
+    });
+  }
+}
 
   // Delete address
   Future<void> _deleteAddress() async {
-    // Show confirmation dialog
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Hapus Alamat'),
-          content: const Text('Anda yakin ingin menghapus alamat ini?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Hapus'),
-            ),
-          ],
-        );
-      },
-    );
+  final bool? confirm = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Hapus Alamat'),
+        content: const Text('Anda yakin ingin menghapus alamat ini?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Hapus'),
+          ),
+        ],
+      );
+    },
+  );
 
-    if (confirm != true) {
+  if (confirm != true) return;
+
+  setState(() {
+    _isDeleting = true;
+    _errorMessage = '';
+  });
+
+  try {
+    final userId = await _getUserId();
+
+    if (userId == null) {
+      setState(() {
+        _isDeleting = false;
+        _errorMessage = 'User ID tidak ditemukan. Silakan login kembali.';
+      });
       return;
     }
 
-    setState(() {
-      _isDeleting = true;
-      _errorMessage = '';
-    });
+    final id = widget.addressId.toString();
+    final uid = userId.toString();
+    await AlamatService.deleteAddress(uid, id);
 
-    try {
-      final userId = await _getUserId();
 
-      if (userId == null) {
-        setState(() {
-          _isDeleting = false;
-          _errorMessage = 'User ID tidak ditemukan. Silakan login kembali.';
-        });
-        return;
-      }
 
-      // Prepare data to send
-      final Map<String, dynamic> data = {
-        'id': widget.addressId,
-        'user_id': userId,
-      };
-
-      // Make API request
-      final response = await http.post(
-        Uri.parse('$apiBaseUrl/delete_addresses.php'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(data),
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Alamat berhasil dihapus')),
       );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-
-        if (responseData['success'] == true) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text(responseData['message'] ?? 'Alamat dihapus')),
-            );
-            Navigator.pop(
-                context, true); // Return true to indicate refresh needed
-          }
-        } else {
-          setState(() {
-            _isDeleting = false;
-            _errorMessage = responseData['message'] ?? 'Gagal menghapus alamat';
-          });
-        }
-      } else {
-        setState(() {
-          _isDeleting = false;
-          _errorMessage = 'Terjadi kesalahan. Kode: ${response.statusCode}';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isDeleting = false;
-        _errorMessage = 'Terjadi kesalahan: $e';
-      });
+      Navigator.pop(context, true);
     }
+  } catch (e) {
+    setState(() {
+      _isDeleting = false;
+      _errorMessage = 'Terjadi kesalahan: $e';
+    });
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

@@ -1764,3 +1764,444 @@ Review data: Array
 
 -------------- END --------------
 
+-------------- 2025-05-29 04:13:42 --------------
+Request method: POST
+Raw input: {"product_id":3,"user_id":15}
+Decoded data: Array
+(
+    [product_id] => 3
+    [user_id] => 15
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-29 04:13:56 --------------
+Request method: POST
+Raw input: {"product_id":3,"user_id":15}
+Decoded data: Array
+(
+    [product_id] => 3
+    [user_id] => 15
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 30
+    [product_id] => 3
+    [user_id] => 15
+    [rating] => 4
+    [komentar] => kainnya bagus dll
+    [updated_at] => 
+    [created_at] => 2025-05-29 11:13:51
+)
+
+-------------- END --------------
+
+-------------- 2025-05-29 04:27:11 --------------
+Request method: POST
+Raw input: {"product_id":3,"user_id":13}
+Decoded data: Array
+(
+    [product_id] => 3
+    [user_id] => 13
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 21
+    [product_id] => 3
+    [user_id] => 13
+    [rating] => 3
+    [komentar] => best
+    [updated_at] => 
+    [created_at] => 2025-05-07 15:25:31
+)
+
+-------------- END --------------
+
+-------------- 2025-05-29 04:29:45 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":13}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 13
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 28
+    [product_id] => 1
+    [user_id] => 13
+    [rating] => 4
+    [komentar] => Immortal 155 season ini
+    [updated_at] => 
+    [created_at] => 2025-05-15 07:35:36
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 03:49:05 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-31 03:49:10 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-05-31 03:49:36 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 4
+    [komentar] => Geekfam otw bandara
+    [updated_at] => 
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 03:58:04 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 4
+    [komentar] => Geekfam otw bandara
+    [updated_at] => 
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 03:58:34 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 4
+    [komentar] => Geekfam otw bandara
+    [updated_at] => 
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 03:58:53 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 4
+    [komentar] => Geekfam badut
+
+    [updated_at] => 2025-05-31 10:58:53
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 04:02:56 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 4
+    [komentar] => Geekfam badut
+
+    [updated_at] => 2025-05-31 10:58:53
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 04:03:08 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 4
+    [komentar] => Geekfam badut
+
+    [updated_at] => 2025-05-31 10:58:53
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 04:03:13 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 2
+    [komentar] => Geekfam badut
+
+    [updated_at] => 2025-05-31 11:03:13
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 04:03:35 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 2
+    [komentar] => Geekfam badut
+
+    [updated_at] => 2025-05-31 11:03:13
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 04:03:38 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 5
+    [komentar] => Geekfam badut
+
+    [updated_at] => 2025-05-31 11:03:38
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 04:04:19 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 5
+    [komentar] => Geekfam badut
+
+    [updated_at] => 2025-05-31 11:03:38
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 04:05:10 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 5
+    [komentar] => Geekfam badut
+
+    [updated_at] => 2025-05-31 11:03:38
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-05-31 04:05:16 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 31
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 3
+    [komentar] => Geekfam badut
+
+    [updated_at] => 2025-05-31 11:05:16
+    [created_at] => 2025-05-31 10:49:35
+)
+
+-------------- END --------------
+
+-------------- 2025-06-06 10:46:21 --------------
+Request method: OPTIONS
+-------------- 2025-06-06 10:46:21 --------------
+Request method: POST
+Raw input: {"product_id":22,"user_id":13}
+Decoded data: Array
+(
+    [product_id] => 22
+    [user_id] => 13
+)
+
+Has reviewed: No
+-------------- END --------------
+
+-------------- 2025-06-06 10:46:27 --------------
+Request method: OPTIONS
+-------------- 2025-06-06 10:46:27 --------------
+Request method: POST
+Raw input: {"product_id":22,"user_id":13}
+Decoded data: Array
+(
+    [product_id] => 22
+    [user_id] => 13
+)
+
+Has reviewed: Yes
+Review data: Array
+(
+    [id] => 34
+    [product_id] => 22
+    [user_id] => 13
+    [rating] => 3
+    [komentar] => l
+    [updated_at] => 
+    [created_at] => 2025-06-06 17:46:25
+)
+
+-------------- END --------------
+
+-------------- 2025-06-06 10:46:32 --------------
+Request method: POST
+Raw input: {"product_id":22,"user_id":13}
+Decoded data: Array
+(
+    [product_id] => 22
+    [user_id] => 13
+)
+
+Has reviewed: No
+-------------- END --------------
+

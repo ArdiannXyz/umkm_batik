@@ -162,3 +162,47 @@ Decoded data: Array
 Insert successful. New review ID: 29
 -------------- END --------------
 
+-------------- 2025-05-29 04:13:51 --------------
+Request method: POST
+Raw input: {"product_id":3,"user_id":15,"rating":4,"komentar":"kainnya bagus dll"}
+Decoded data: Array
+(
+    [product_id] => 3
+    [user_id] => 15
+    [rating] => 4
+    [komentar] => kainnya bagus dll
+)
+
+Insert successful. New review ID: 30
+-------------- END --------------
+
+-------------- 2025-05-31 03:49:35 --------------
+Request method: POST
+Raw input: {"product_id":1,"user_id":12,"rating":4,"komentar":"Geekfam otw bandara"}
+Decoded data: Array
+(
+    [product_id] => 1
+    [user_id] => 12
+    [rating] => 4
+    [komentar] => Geekfam otw bandara
+)
+
+Insert successful. New review ID: 31
+-------------- END --------------
+
+-------------- 2025-06-06 10:46:25 --------------
+Request method: OPTIONS
+-------------- 2025-06-06 10:46:25 --------------
+Request method: POST
+Raw input: {"product_id":22,"user_id":13,"rating":3,"komentar":"l"}
+Decoded data: Array
+(
+    [product_id] => 22
+    [user_id] => 13
+    [rating] => 3
+    [komentar] => l
+)
+
+Insert successful. New review ID: 34
+-------------- END --------------
+

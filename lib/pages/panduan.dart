@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../services/product_service.dart';
 // Remove unused import
 // import 'package:umkm_batik/services/product_service.dart';
 
@@ -72,100 +71,51 @@ class _PanduanChatbotState extends State<PanduanChatbot> {
     _scrollToBottom();
   }
 
+
   Future<void> _sendMessage(String message) async {
-    if (message.trim().isEmpty) return;
+  if (message.trim().isEmpty) return;
 
-    _addUserMessage(message);
-    _messageController.clear();
+  _addUserMessage(message);
+  _messageController.clear();
 
-    setState(() {
-      _isLoading = true;
-    });
+  setState(() {
+    _isLoading = true;
+  });
 
-    try {
-      // Kirim pesan menggunakan HTTP request langsung
-      final response = await http.post(
-        Uri.parse('http://localhost/umkm_batik/API/chatbot_api.php'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'question': message}),
-      );
+  try {
+    final responseData = await ProductService.sendMessage(message);
 
-      final responseData = jsonDecode(response.body);
-
-      if (responseData['type'] == 'stock_steps' ||
-          responseData['type'] == 'payment_steps' ||
-          responseData['type'] == 'tracking_steps') {
-        List<String> stepsList = [];
-
-        if (responseData.containsKey('steps')) {
-          for (var step in responseData['steps']) {
-            stepsList.add(step);
-          }
-        }
-
+    switch (responseData['type']) {
+      case 'stock_steps':
+      case 'payment_steps':
+      case 'tracking_steps':
+        List<String> stepsList = List<String>.from(responseData['steps'] ?? []);
         _addBotMessage(responseData['message'], steps: stepsList);
-      } else if (responseData['type'] == 'unknown') {
-        // Tampilkan pesan unknown tanpa tambahan menu
-        _addBotMessage(responseData['message']);
-      } else if (responseData['type'] == 'product_stock') {
-        // Tampilkan informasi stok produk
-        String content = '';
+        break;
 
-        if (responseData.containsKey('data') &&
-            responseData['data'].isNotEmpty) {
-          for (var product in responseData['data']) {
-            content += "• ${product['nama_produk']}\n";
-            content += "  Harga: ${product['harga']}\n";
-            content += "  Stok: ${product['stok']} pcs\n";
-            content +=
-                "  Status: ${product['status'] == 'available' ? 'Tersedia' : 'Tidak Tersedia'}\n\n";
-          }
-        }
-
-        _addBotMessage(responseData['message'], content: content);
-      } else if (responseData['type'] == 'category_products') {
-        // Tampilkan produk berdasarkan kategori
-        String content = '';
-
-        if (responseData.containsKey('data') &&
-            responseData['data'].isNotEmpty) {
-          for (var product in responseData['data']) {
-            content += "• ${product['nama_produk']}\n";
-            content += "  Harga: ${product['harga']}\n";
-            content +=
-                "  Status: ${product['status'] == 'available' ? 'Tersedia' : 'Tidak Tersedia'}\n\n";
-          }
-        }
-
-        _addBotMessage(responseData['message'], content: content);
-      } else if (responseData['type'] == 'contact_info') {
-        List<Map<String, dynamic>> contactsList = [];
-
-        if (responseData.containsKey('contacts')) {
-          for (var contact in responseData['contacts']) {
-            contactsList.add(contact);
-          }
-        }
-
-        _addBotMessage(responseData['message'], contacts: contactsList);
-      } else if (responseData['type'] == 'about') {
-        _addBotMessage(
-          responseData['message'],
-          content: responseData['content'],
+      case 'contact_info':
+        List<Map<String, dynamic>> contactsList = List<Map<String, dynamic>>.from(
+          responseData['contacts'] ?? [],
         );
-      } else {
+        _addBotMessage(responseData['message'], contacts: contactsList);
+        break;
+
+      case 'about':
+        _addBotMessage(responseData['message'], content: responseData['content']);
+        break;
+
+      case 'unknown':
+      default:
         _addBotMessage(responseData['message']);
-      }
-    } catch (e) {
-      _addBotMessage(
-          "Maaf, terjadi kesalahan dalam memproses permintaan Anda. Silakan coba lagi nanti.");
-      print("Error: $e");
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
+  } catch (e) {
+    _addBotMessage("Maaf, terjadi kesalahan dalam memproses permintaan Anda. Silakan coba lagi nanti.");
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
   }
+}
 
   void _scrollToBottom() {
     // Memberikan waktu untuk build selesai

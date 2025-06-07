@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/review_service.dart';
 
 class EditUlasanPage extends StatefulWidget {
   final int productId;
@@ -72,130 +73,76 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
   }
 
   Future<void> updateReview() async {
-    if (selectedRating == 0 ||
-        _reviewController.text.isEmpty ||
-        userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Harap isi semua bidang dan pilih rating')),
-      );
-      return;
-    }
-
-    setState(() => isSubmitting = true);
-
-    final url = Uri.parse("http://localhost/umkm_batik/API/edit_reviews.php");
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "X-HTTP-Method-Override": "PUT" // Override untuk PHP
-        },
-        body: jsonEncode({
-          'review_id': widget.existingReview['id'],
-          'product_id': widget.productId,
-          'user_id': userId,
-          'rating': selectedRating,
-          'komentar': _reviewController.text,
-        }),
-      );
-
-      setState(() => isSubmitting = false);
-
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        if (result['message'] != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result['message'])),
-          );
-          Navigator.pop(
-              context, true); // Return true to indicate successful update
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(result['error'] ?? 'Gagal memperbarui ulasan')),
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Error: ${response.statusCode} - ${response.body}')),
-        );
-      }
-    } catch (e) {
-      setState(() => isSubmitting = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
-    }
+  if (selectedRating == 0 ||
+      _reviewController.text.isEmpty ||
+      userId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Harap isi semua bidang dan pilih rating')),
+    );
+    return;
   }
+
+  setState(() => isSubmitting = true);
+
+  final result = await ReviewService.updateReview(
+    reviewId: widget.existingReview['id'],
+    productId: widget.productId,
+    userId: userId!,
+    rating: selectedRating,
+    komentar: _reviewController.text,
+  );
+
+  setState(() => isSubmitting = false);
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(result['message'])),
+  );
+
+  if (result['success']) {
+    Navigator.pop(context, true);
+  }
+}
+
 
   Future<void> deleteReview() async {
-    // Konfirmasi penghapusan
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi'),
-        content: const Text('Yakin ingin menghapus ulasan ini?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Hapus', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Konfirmasi'),
+      content: const Text('Yakin ingin menghapus ulasan ini?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Batal'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    ),
+  );
 
-    if (confirmed != true || userId == null) return;
+  if (confirmed != true || userId == null) return;
 
-    setState(() => isDeleting = true);
+  setState(() => isDeleting = true);
 
-    final url = Uri.parse("http://localhost/umkm_batik/API/delete_reviews.php");
+  final result = await ReviewService.deleteReview(
+    productId: widget.productId,
+    userId: userId!,
+  );
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "X-HTTP-Method-Override": "DELETE" // Override untuk PHP
-        },
-        body: jsonEncode({
-          'product_id': widget.productId,
-          'user_id': userId,
-        }),
-      );
+  setState(() => isDeleting = false);
 
-      setState(() => isDeleting = false);
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(result['message'])),
+  );
 
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(result['message'] ?? 'Ulasan berhasil dihapus')),
-        );
-        Navigator.pop(
-            context, true); // Return true to indicate successful deletion
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Error: ${response.statusCode} - ${response.body}')),
-        );
-      }
-    } catch (e) {
-      setState(() => isDeleting = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
-    }
+  if (result['success']) {
+    Navigator.pop(context, true);
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -241,14 +188,13 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
     );
   }
 
-  Widget _buildEditForm() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
+Widget _buildEditForm() {
+  return Padding(
+    padding: const EdgeInsets.all(16),
+    child: SingleChildScrollView(  // Tambahkan ini
       child: Column(
         children: [
           const SizedBox(height: 8),
-
-          // Rating bintang
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -294,7 +240,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
           ),
           const SizedBox(height: 16),
 
-          const Spacer(),
+          const SizedBox(height: 256),
 
           // Tombol Update
           SizedBox(
@@ -340,6 +286,7 @@ class _EditUlasanPageState extends State<EditUlasanPage> {
           ),
           const SizedBox(height: 16),
         ],
+      ),
       ),
     );
   }
