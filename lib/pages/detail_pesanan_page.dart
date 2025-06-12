@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'payment_page.dart'; // Import the payment page
 import 'payment_method.dart';
-import '../services/payment_service.dart'; // Import the payment method enum
+import '../services/payment_service.dart';
+import 'dart:math' as math; // Import the payment method enum
 
 class DetailPesananPage extends StatefulWidget {
   final String? orderId;
@@ -19,7 +20,6 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
   bool isLoading = true;
   Map<String, dynamic>? orderDetail;
   String? userId;
-  final String baseUrl = 'http://192.168.1.5/umkm_batik/API';
 
   @override
   void initState() {
@@ -71,32 +71,27 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
     }
   }
 
-  String _getFullImageUrl(String? relativeUrl) {
-  return PaymentService.getFullImageUrl(relativeUrl);
-}
-
   Future<void> _fetchOrderDetail() async {
-  try {
-    final detail = await PaymentService.fetchOrderDetail(
-      orderId: widget.orderId!,
-      userId: userId!,
-    );
+    try {
+      final detail = await PaymentService.fetchOrderDetail(
+        orderId: widget.orderId!,
+        userId: userId!,
+      );
 
-    setState(() {
-      orderDetail = detail;
-      isLoading = false;
-    });
+      setState(() {
+        orderDetail = detail;
+        isLoading = false;
+      });
 
-    print('Order detail fetched: $orderDetail');
-  } catch (e) {
-    print('Error fetching order detail: $e');
-    setState(() {
-      orderDetail = null;
-      isLoading = false;
-    });
+      print('Order detail fetched: $orderDetail');
+    } catch (e) {
+      print('Error fetching order detail: $e');
+      setState(() {
+        orderDetail = null;
+        isLoading = false;
+      });
+    }
   }
-}
-
 
   String _formatPrice(dynamic price) {
     if (price == null) return 'Rp 0';
@@ -118,73 +113,155 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
     }
   }
 
-  Future<void> _confirmOrderCompleted() async {
+Future<void> _confirmOrderCompleted() async {
   if (widget.orderId == null || userId == null) return;
 
   bool? confirmed = await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text('Konfirmasi Pesanan'),
-        content: const Text('Apakah Anda yakin ingin menandai pesanan ini sebagai selesai?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Ya, Selesai'),
-          ),
-        ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        contentPadding: EdgeInsets.all(24),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.check_circle_outline,
+              color: Colors.blue,
+              size: 48,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Konfirmasi Pesanan',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Apakah Anda yakin ingin menandai pesanan ini sebagai selesai?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Tindakan ini tidak dapat dibatalkan.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.black45,
+              ),
+            ),
+            SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      foregroundColor: Colors.black54,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Batal'),
+                    onPressed: () => Navigator.of(context).pop(false),
+                  ),
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Ya, Selesai'),
+                    onPressed: () => Navigator.of(context).pop(true),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       );
     },
   );
 
-  if (confirmed != true) return;
+    if (confirmed != true) return;
 
-  try {
-    final result = await PaymentService.confirmOrderCompleted(
-      orderId: widget.orderId!,
-      userId: userId!,
-    );
+    try {
+      final result = await PaymentService.confirmOrderCompleted(
+        orderId: widget.orderId!,
+        userId: userId!,
+      );
 
-    final statusCode = result['statusCode'];
-    final data = result['data'];
+      final statusCode = result['statusCode'];
+      final data = result['data'];
 
-    if (statusCode == 200 && data['status'] == 'success') {
-      if (mounted) {
+      if (statusCode == 200 && data['status'] == 'success') {
+        if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Pesanan telah dikonfirmasi sebagai selesai'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(child: Text('Pesanan telah dikonfirmasi sebagai selesai')),
+              ],
+            ),
+            backgroundColor: Colors.blue,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.all(16),
+            duration: Duration(seconds: 3),
           ),
         );
-        _fetchOrderDetail();
+          _fetchOrderDetail();
+        }
+      } else {
+        if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(child: Text(data['message'] ?? 'Gagal mengupdate status pesanan')),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.all(16),
+            duration: Duration(seconds: 4),
+          ),
+        );
+        }
       }
-    } else {
+    } catch (e) {
+      print('Error in _confirmOrderCompleted: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(data['message'] ?? 'Gagal mengupdate status pesanan'),
+            content: Text('Terjadi kesalahan: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
       }
     }
-  } catch (e) {
-    print('Error in _confirmOrderCompleted: $e');
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Terjadi kesalahan: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
-}
-
 
   // Function to navigate to payment page
   void _navigateToPayment() {
@@ -262,7 +339,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
         statusDisplay == 'belum bayar';
   }
 
-  // FIXED: Check if the order has shipping information - now includes completed orders
+  // Check if the order has shipping information - now includes completed orders
   bool _hasShippingInfo() {
     if (orderDetail == null) return false;
 
@@ -301,44 +378,55 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
     );
   }
 
-  Widget _buildProductImage(String imageUrl, String? productName) {
-    if (imageUrl.isEmpty) {
-      return _buildFallbackImage(productName);
+  // Simplified product image method - now uses base64 directly from orderDetail
+ // Perbaikan method untuk menangani base64 image dengan prefix
+Widget _buildProductImage(String? base64Image, String? productName) {
+  if (base64Image == null || base64Image.isEmpty) {
+    return _buildFallbackImage(productName);
+  }
+
+  try {
+    // Bersihkan prefix data URL jika ada
+    String cleanBase64 = base64Image;
+    if (base64Image.startsWith('data:image')) {
+      // Hapus prefix seperti "data:image/jpeg;base64," atau "data:image/png;base64,"
+      final commaIndex = base64Image.indexOf(',');
+      if (commaIndex != -1) {
+        cleanBase64 = base64Image.substring(commaIndex + 1);
+      }
     }
 
+    // Hapus whitespace dan newline yang mungkin ada
+    cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
+    
+    // Validasi apakah string base64 valid (harus kelipatan 4)
+    while (cleanBase64.length % 4 != 0) {
+      cleanBase64 += '=';
+    }
+
+    // Decode base64 yang sudah dibersihkan
+    final bytes = base64Decode(cleanBase64);
+    
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
-      child: Image.network(
-        imageUrl,
+      child: Image.memory(
+        bytes,
         fit: BoxFit.cover,
         width: 60,
         height: 60,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                    : null,
-                strokeWidth: 2,
-              ),
-            ),
-          );
-        },
         errorBuilder: (context, error, stackTrace) {
+          print('Error loading image from memory: $error');
           return _buildFallbackImage(productName);
         },
       ),
     );
+  } catch (e) {
+    print('Error decoding base64 image: $e');
+    print('Base64 string length: ${base64Image.length}');
+    print('Base64 preview: ${base64Image.substring(0, math.min(100, base64Image.length))}...');
+    return _buildFallbackImage(productName);
   }
+}
 
   Widget _buildFallbackImage(String? productName) {
     return Container(
@@ -470,22 +558,14 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
               itemBuilder: (context, index) {
                 final item = items[index];
 
-                // Get the image URL - prioritize image_url field
-                String imageUrl = '';
-
-                if (item['image_url'] != null) {
-                  imageUrl = _getFullImageUrl(item['image_url'].toString());
-                } else if (item['gambar'] != null) {
-                  imageUrl = _getFullImageUrl(item['gambar'].toString());
-                } else if (item['product_image'] != null) {
-                  imageUrl = _getFullImageUrl(item['product_image'].toString());
-                }
+                // Get base64 image directly from item data
+                String? base64Image = item['image_base64']?.toString();
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
                   child: Row(
                     children: [
-                      _buildProductImage(imageUrl, item['nama']?.toString()),
+                      _buildProductImage(base64Image, item['nama']?.toString()),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -539,15 +619,14 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
                 'Metode Pengiriman', orderDetail!['metode_pengiriman'] ?? '-'),
             _buildInfoRow(
                 'Alamat Pengiriman', orderDetail!['alamat_pemesanan'] ?? '-'),
-            if ((orderDetail!['notes'] ?? '').toString().isNotEmpty)
-              _buildInfoRow('Catatan', orderDetail!['notes']),
           ],
         ),
       ),
     );
   }
 
-  // ENHANCED: Better shipping status display with fallback information
+
+  // Better shipping status display with fallback information
   Widget _buildShippingStatusCard() {
     final shipping = orderDetail!['shipping'];
     final orderStatus = orderDetail!['status']?.toString().toLowerCase();
@@ -675,7 +754,7 @@ class _DetailPesananPageState extends State<DetailPesananPage> {
             child: ElevatedButton.icon(
               onPressed: _confirmOrderCompleted,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:umkm_batik/pages/payment_method.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:umkm_batik/services/cart_service.dart';
 import 'payment_page.dart';
 import 'pilih_alamat_page.dart';
 import '../models/rajaongkir.dart';
@@ -207,9 +208,15 @@ class _CheckoutPageState extends State<CheckoutCart> {
     return filteredOptions;
   }
 Widget _buildProductImage(CartItem item) {
-  final imageUrl = item.productImage;
-  
-  if (imageUrl.isEmpty) {
+  // Cek apakah ada gambar dan ambil ID gambar utama
+  final mainImage = item.product.images.isNotEmpty 
+      ? item.product.images.firstWhere(
+          (img) => img.isMain, 
+          orElse: () => item.product.images.first
+        )
+      : null;
+
+  if (mainImage == null) {
     return Container(
       width: 60,
       height: 60,
@@ -220,44 +227,61 @@ Widget _buildProductImage(CartItem item) {
       child: const Icon(Icons.image, color: Colors.grey),
     );
   }
-  
-  String fullImageUrl = imageUrl;
-  if (!imageUrl.startsWith('http')) {
 
-    fullImageUrl = 'http://192.168.1.5/umkm_batik/API/get_main_product_images.php?id=${item.product.images.isNotEmpty ? item.product.images.first.id : 0}';
-  }
-  
-  return ClipRRect(
-    borderRadius: BorderRadius.circular(8),
-    child: Image.network(
-      fullImageUrl,
-      fit: BoxFit.cover,
-      width: 60,
-      height: 60,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
+  return FutureBuilder<String>(
+    future: CartService.getBase64Image(mainImage.id),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
         return Container(
           width: 60,
           height: 60,
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: Colors.grey[300],
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Center(
-            child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded / 
-                    loadingProgress.expectedTotalBytes!
-                  : null,
-              strokeWidth: 2,
+          child: const Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
             ),
           ),
         );
-      },
-      errorBuilder: (context, error, stackTrace) {
-        print('Error loading image: $fullImageUrl');
-        print('Error details: $error');
-        
+      }
+
+      final imageBase64 = snapshot.data ?? '';
+
+      if (imageBase64.isEmpty) {
+        return Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(Icons.image, color: Colors.grey),
+        );
+      }
+
+      try {
+        // Buang prefix jika ada ("data:image/jpeg;base64,...")
+        final base64Str = imageBase64.contains(',')
+            ? imageBase64.split(',').last
+            : imageBase64;
+        final bytes = base64Decode(base64Str);
+
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(
+            bytes,
+            fit: BoxFit.cover,
+            width: 60,
+            height: 60,
+          ),
+        );
+      } catch (e) {
+        print('Gagal decode base64: $e');
+
         return Container(
           width: 60,
           height: 60,
@@ -281,10 +305,11 @@ Widget _buildProductImage(CartItem item) {
             ],
           ),
         );
-      },
-    ),
+      }
+    },
   );
 }
+
   Future<void> _calculateShippingCosts(Address address) async {
     setState(() {
       isLoadingShipping = true;
@@ -755,111 +780,96 @@ Future<void> _createOrder() async {
     isLoading = true;
   });
 
-    try {
-      String shippingCategory;
-      if (_isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi)) {
-        shippingCategory = 'lokal';
-      } else if (_isWithinSameProvince(selectedAddress!.provinsi)) {
-        shippingCategory = 'provinsi';
-      } else if (_isInterIslandDelivery(selectedAddress!.provinsi)) {
-        shippingCategory = 'luar pulau';
-      } else {
-        shippingCategory = 'antar provinsi';
-      }
+  try {
+    String shippingCategory;
+    if (_isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi)) {
+      shippingCategory = 'lokal';
+    } else if (_isWithinSameProvince(selectedAddress!.provinsi)) {
+      shippingCategory = 'provinsi';
+    } else if (_isInterIslandDelivery(selectedAddress!.provinsi)) {
+      shippingCategory = 'luar pulau';
+    } else {
+      shippingCategory = 'antar provinsi';
+    }
 
-    final items = widget.cartItems.map((item) => {
-      'product_id': item.productId,
-      'kuantitas': item.quantity,
-      'harga': item.price.toDouble(), // Ensure double
-      'nama_produk': item.nama, // Ensure not null
-      'berat': item.weight > 0 ? item.weight : 100, // Fix zero weight issue
-    }).toList();
-    
+final items = widget.cartItems.map((item) => {
+  'product_id': item.productId,
+  'kuantitas': item.quantity,
+  'harga': item.price.toDouble(),
+  'nama_produk': item.nama,
+  'berat': item.weight > 0 ? item.weight : 100,
+  'product_image': item.productImage ?? '', // Tambahkan ini
+}).toList();
 
-      final orderData = {
-        'user_id': widget.userId,
-        'total_harga': totalPayment,
-        'alamat_pemesanan': '${selectedAddress!.alamatLengkap}, ${selectedAddress!.kecamatan}, ${selectedAddress!.kota}, ${selectedAddress!.provinsi}, ${selectedAddress!.kodePos}',
-        'metode_pengiriman': selectedShippingOption?.displayName ?? 'Standar',
-        'metode_pembayaran': selectedPaymentMethod!.name.toLowerCase(),
-        'ongkos_kirim': shippingCost,
-        'kota_tujuan': selectedAddress!.kota,
-        'provinsi_tujuan': selectedAddress!.provinsi,
-        'kota_tujuan_id': destinationCity?.cityId,
-        'estimasi_pengiriman': selectedShippingOption?.etd ?? '3-7',
-        'berat_total': totalWeight,
-        'is_standard_shipping': selectedShippingOption?.isStandardOption ?? true,
-        'courier_name': selectedShippingOption?.courier ?? 'STANDAR',
-        'service_name': selectedShippingOption?.service ?? 'REGULER',
-        'shipping_category': shippingCategory,
-        'is_same_city': _isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi),
-        'is_same_province': _isWithinSameProvince(selectedAddress!.provinsi),
-        'is_inter_island': _isInterIslandDelivery(selectedAddress!.provinsi),
-        'is_same_island': _isWithinSameIsland(selectedAddress!.provinsi),
-        'biaya_layanan': serviceFee,
-        'subtotal_items': totalItemsPrice,
-        'jumlah_items': widget.cartItems.length,
-        'items': items,
-      };
+final response = await CartService.createOrder(
+  userId: widget.userId,
+  items: items,
+  alamatPemesanan: '${selectedAddress!.alamatLengkap}, ${selectedAddress!.kecamatan}, ${selectedAddress!.kota}, ${selectedAddress!.provinsi}, ${selectedAddress!.kodePos}',
+  metodePengiriman: selectedShippingOption?.displayName ?? 'Standar',
+  metodePembayaran: selectedPaymentMethod!.name.toLowerCase(),
+  ongkosKirim: shippingCost.toInt(), // fix
+  kotaTujuan: selectedAddress!.kota,
+  provinsiTujuan: selectedAddress!.provinsi,
+  kotaTujuanId: destinationCity?.cityId,
+  estimasiPengiriman: selectedShippingOption?.etd ?? '3-7',
+  beratTotal: totalWeight.toInt(), // jika perlu
+  isStandardShipping: selectedShippingOption?.isStandardOption ?? true,
+  courierName: selectedShippingOption?.courier ?? 'STANDAR',
+  serviceName: selectedShippingOption?.service ?? 'REGULER',
+  shippingCategory: shippingCategory,
+  isSameCity: _isWithinSameCity(selectedAddress!.kota, selectedAddress!.provinsi),
+  isSameProvince: _isWithinSameProvince(selectedAddress!.provinsi),
+  isInterIsland: _isInterIslandDelivery(selectedAddress!.provinsi),
+  isSameIsland: _isWithinSameIsland(selectedAddress!.provinsi),
+  biayaLayanan: serviceFee.toInt(), // fix
+  subtotalItems: totalItemsPrice.toInt(), // fix
+  jumlahItems: widget.cartItems.length,
+  totalHarga: totalPayment.toInt(), // fix
+);
 
-      final response = await http.post(
-        Uri.parse('http://192.168.1.5/umkm_batik/API/create_transaction.php'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(orderData),
-      );
 
-      setState(() {
-        isLoading = false;
-      });
+    setState(() {
+      isLoading = false;
+    });
 
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        if (responseData['success'] == true) {
-          final orderId = responseData['data']['order_id']?.toString() ?? "0000000001";
-          _showOrderSuccessAlert(orderId);
+    if (response['statusCode'] == 200 && response['data']['success'] == true) {
+      final orderId = response['data']['data']['order_id']?.toString() ?? "0000000001";
+      _showOrderSuccessAlert(orderId);
 
-  
-          Future.delayed(const Duration(milliseconds: 5000), () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PaymentPage(
-                  paymentMethod: selectedPaymentMethod!,
-                  totalPayment: totalPayment,
-                  orderId: responseData['data']['order_id']?.toString() ?? "0000000001",
-                ),
-              ),
-            );
-          });
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Error: ${responseData['message'] ?? 'Unknown error'}"),
-              backgroundColor: Colors.red,
-            )
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error: HTTP ${response.statusCode}"),
-            backgroundColor: Colors.red,
-          )
+      Future.delayed(const Duration(milliseconds: 5000), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PaymentPage(
+              paymentMethod: selectedPaymentMethod!,
+              totalPayment: totalPayment,
+              orderId: orderId,
+            ),
+          ),
         );
-      }
-    } catch (e) {
-      setState(() {
-        isLoading = false;
       });
-      print('Exception in _createOrder: $e');
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Error: $e"),
+          content: Text("Error: ${response['data']['message'] ?? 'Unknown error'}"),
           backgroundColor: Colors.red,
         )
       );
     }
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+    });
+    print('Exception in _createOrder: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Error: $e"),
+        backgroundColor: Colors.red,
+      )
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
