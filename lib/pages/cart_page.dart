@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
 import 'package:umkm_batik/services/cart_service.dart';
-import 'package:umkm_batik/services/product_service.dart';
 import 'dart:convert';
 import 'checkout_from_cart.dart';
 import '../models/cartitem.dart';
-import '../services/cart_service.dart';
+import 'dart:math' as math;
 
 class CartPage extends StatefulWidget {
   final int userId;
@@ -523,26 +521,24 @@ Future<void> _deleteSelectedItems() async {
     );
   }
 
-  Widget _buildCartWithItems() {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(15),
-            itemCount: cartItems.length,
-            itemBuilder: (context, index) {
-              final item = cartItems[index];
-                final imageUrl = ProductService.getFullImageUrl(item.productImage);
-
-              return _buildCartItemCard(item, imageUrl);
-
-            },
-          ),
+Widget _buildCartWithItems() {
+  return Column(
+    children: [
+      Expanded(
+        child: ListView.builder(
+          padding: const EdgeInsets.all(15),
+          itemCount: cartItems.length,
+          itemBuilder: (context, index) {
+            final item = cartItems[index];
+            return _buildCartItemCard(item, '');
+          },
         ),
-        _buildCheckoutSection(),
-      ],
-    );
-  }
+      ),
+      _buildCheckoutSection(),
+    ],
+  );
+}
+
 
  Widget _buildCartItemCard(CartItem item,String imageUrl) {
   return Container(
@@ -608,9 +604,10 @@ Future<void> _deleteSelectedItems() async {
             
             // Product Image (existing code)
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: _buildProductImage(item, imageUrl),
-            ),
+  borderRadius: BorderRadius.circular(8),
+  child: _buildProductImage(item),
+),
+
               SizedBox(width: 3,),
               // Product Details
               Expanded(
@@ -732,54 +729,188 @@ Future<void> _deleteSelectedItems() async {
   );
 }
 
-Widget _buildProductImage(CartItem item, String imageUrl) {
+Widget _buildProductImage(CartItem item) {
+  // Extract ID dari productImage (baik dari URL maupun string ID)
+  final imageId = _extractImageId(item.productImage);
   
-  if (imageUrl == null || imageUrl.isEmpty) {
-    return Container(
-      width: 80,
-      height: 80,
-      color: Colors.grey[200],
-      child: Icon(
-        Icons.shopping_bag,
-        color: Colors.grey[400],
-        size: 40,
-      ),
-    );
+  if (imageId == null) {
+    print('Cannot extract image ID from: ${item.productImage}');
+    return _defaultImage();
   }
 
-  
-  return CachedNetworkImage(
-    imageUrl: imageUrl,
-    width: 80,
-    height: 80,
-    fit: BoxFit.cover,
-    placeholder: (context, url) => Container(
-      width: 80,
-      height: 80,
-      color: Colors.grey[200],
-      child: const Center(
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-      ),
-    ),
-    errorWidget: (context, url, error) {
-      print('Error loading image: $url, Error: $error');
-      return Container(
-        width: 80,
-        height: 80,
-        color: Colors.grey[200],
-        child: Icon(
-          Icons.broken_image,
-          color: Colors.grey[400],
-          size: 40,
-        ),
-      );
+  print('Loading base64 image for ID: $imageId');
+
+  return FutureBuilder<String?>(
+    future: CartService.getBase64Image(imageId),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return _loadingPlaceholder();
+      }
+      
+      if (snapshot.hasError) {
+        print('Error fetching base64 image for ID $imageId: ${snapshot.error}');
+        return _errorImage();
+      }
+      
+      final base64Data = snapshot.data;
+      if (base64Data == null || base64Data.isEmpty) {
+        print('Empty base64 data for image ID: $imageId');
+        return _defaultImage();
+      }
+      
+      print('Successfully loaded base64 image for ID: $imageId');
+      return _buildBase64Image(base64Data);
     },
   );
 }
+
+  // Jika data berupa ID gambar (angka)
+int? _extractImageId(String imageData) {
+  try {
+    // Jika sudah berupa angka (ID)
+    if (RegExp(r'^\d+$').hasMatch(imageData)) {
+      return int.parse(imageData);
+    }
+    
+    // Jika berupa URL, extract ID dari path terakhir
+    if (imageData.startsWith('http')) {
+      final uri = Uri.parse(imageData);
+      final segments = uri.pathSegments;
+      if (segments.isNotEmpty) {
+        final lastSegment = segments.last;
+        return int.tryParse(lastSegment);
+      }
+    }
+    
+    // Jika ada format lain, tambahkan di sini
+    
+  } catch (e) {
+    print('Error extracting image ID from: $imageData, Error: $e');
+  }
+  
+  return null;
+}
+
+Widget _buildBase64Image(String base64Data) {
+  try {
+    // Handle different base64 formats
+    String cleanBase64;
+    
+    if (base64Data.contains('data:image')) {
+      // Format: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...
+      cleanBase64 = base64Data.split(',').last;
+    } else if (base64Data.contains(',')) {
+      // Format dengan koma tapi bukan data URL
+      cleanBase64 = base64Data.split(',').last;
+    } else {
+      // Pure base64 string
+      cleanBase64 = base64Data;
+    }
+    
+    // Remove any whitespace
+    cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
+    
+    // Validate base64 format
+    if (cleanBase64.isEmpty || cleanBase64.length % 4 != 0) {
+      print('Invalid base64 format: length=${cleanBase64.length}');
+      return _errorImage();
+    }
+    
+    final bytes = base64Decode(cleanBase64);
+    
+    if (bytes.isEmpty) {
+      print('Empty bytes after base64 decode');
+      return _errorImage();
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.memory(
+        bytes,
+        fit: BoxFit.cover,
+        width: 60,
+        height: 60,
+        errorBuilder: (context, error, stackTrace) {
+          print('Error displaying base64 image: $error');
+          return _errorImage();
+        },
+      ),
+    );
+  } catch (e) {
+    print('Error in _buildBase64Image: $e');
+    print('Base64 data length: ${base64Data.length}');
+    print('Base64 data preview: ${base64Data.substring(0, math.min(50, base64Data.length))}...');
+    return _errorImage();
+  }
+}
+
+
+
+Widget _defaultImage() => Container(
+  width: 60,
+  height: 60,
+  decoration: BoxDecoration(
+    color: Colors.grey[300],
+    borderRadius: BorderRadius.circular(8),
+    border: Border.all(color: Colors.grey[400]!, width: 1),
+  ),
+  child: const Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Icon(Icons.image_not_supported, color: Colors.grey, size: 20),
+      Text(
+        'No Image', 
+        style: TextStyle(fontSize: 8, color: Colors.grey), 
+        textAlign: TextAlign.center,
+      ),
+    ],
+  ),
+);
+
+Widget _loadingPlaceholder() => Container(
+  width: 60,
+  height: 60,
+  decoration: BoxDecoration(
+    color: Colors.grey[100],
+    borderRadius: BorderRadius.circular(8),
+    border: Border.all(color: Colors.grey[300]!, width: 1),
+  ),
+  child: const Center(
+    child: SizedBox(
+      width: 16,
+      height: 16,
+      child: CircularProgressIndicator(
+        strokeWidth: 2,
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+      ),
+    ),
+  ),
+);
+
+Widget _errorImage() => Container(
+  width: 60,
+  height: 60,
+  decoration: BoxDecoration(
+    color: Colors.red[50],
+    borderRadius: BorderRadius.circular(8),
+    border: Border.all(color: Colors.red[300]!, width: 1),
+  ),
+  child: const Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Icon(Icons.error_outline, color: Colors.red, size: 18),
+      Text(
+        'Error', 
+        style: TextStyle(fontSize: 8, color: Colors.red, fontWeight: FontWeight.w500), 
+        textAlign: TextAlign.center,
+      ),
+    ],
+  ),
+);
+
+
+  
+  
 
   Widget _buildQuantityButton({
     required IconData icon, 

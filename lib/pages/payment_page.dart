@@ -69,75 +69,180 @@ class _PaymentPageState extends State<PaymentPage> {
     }
   }
 
-  void _showSuccessDialog(String title, String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _navigateToOrderDetail();
-              },
+void _showSuccessDialog(String title, String message) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        icon: Icon(
+          Icons.check_circle,
+          color: Colors.green,
+          size: 48,
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.green,
+          ),
+        ),
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-          ],
-        );
-      },
-    );
-  }
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _navigateToOrderDetail();
+            },
+          ),
+        ],
+        actionsAlignment: MainAxisAlignment.center,
+      );
+    },
+  );
+}
 
-  void _showErrorDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+void _showErrorDialog(String title, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        icon: Icon(
+          Icons.error,
+          color: Colors.red,
+          size: 48,
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+        ),
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-          ],
-        );
-      },
-    );
-  }
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+        actionsAlignment: MainAxisAlignment.center,
+      );
+    },
+  );
+}
 
-  void _showCancelConfirmationDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Batalkan Pesanan'),
-          content:
-              const Text('Apakah Anda yakin ingin membatalkan pesanan ini?'),
-          actions: [
-            TextButton(
-              child: const Text('Tidak'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+void _showCancelConfirmationDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        contentPadding: EdgeInsets.all(24),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.help_outline,
+              color: Color.fromARGB(255, 253, 13, 13),
+              size: 48,
             ),
-            TextButton(
-              child: const Text('Ya, Batalkan'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _cancelOrder('Cancelled by user');
-              },
+            SizedBox(height: 16),
+            Text(
+              'Batalkan Pesanan',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Apakah Anda yakin ingin membatalkan pesanan?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
+            SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      foregroundColor: Colors.black54,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Batal'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 253, 13, 13),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Ya, Batal'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _cancelOrder('Cancelled by user');
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 
   // Function to navigate to order detail page
   void _navigateToOrderDetail() {
