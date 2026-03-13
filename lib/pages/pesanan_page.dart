@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/payment_service.dart';
 import 'detail_pesanan_page.dart';
+import 'dart:typed_data';
 
 class PesananPage extends StatefulWidget {
   final int initialTabIndex;
@@ -20,7 +21,6 @@ class _PesananPageState extends State<PesananPage>
   bool isLoading = true;
   List<Map<String, dynamic>> orders = [];
   String? userId;
-  final String baseUrl = 'http://192.168.1.5/umkm_batik/API';
 
   @override
   void initState() {
@@ -87,8 +87,16 @@ class _PesananPageState extends State<PesananPage>
     }
   }
 
-  Future<void> _fetchOrders(String status) async {
-  if (userId == null) return;
+ Future<void> _fetchOrders(String status) async {
+  print('_fetchOrders called with status: "$status"');
+  if (userId == null || userId!.isEmpty) {
+    print('Error: userId is null or empty');
+    setState(() {
+      orders = [];
+      isLoading = false;
+    });
+    return;
+  }
 
   setState(() {
     isLoading = true;
@@ -97,15 +105,28 @@ class _PesananPageState extends State<PesananPage>
   try {
     final result = await PaymentService.fetchOrders(
       userId: userId!,
-      status: status,
+      status: status.isNotEmpty ? status : null, // Handle empty status
     );
 
     setState(() {
       orders = result;
       isLoading = false;
     });
+
+    print('Successfully fetched ${result.length} orders');
   } catch (e) {
-    print('Error: $e');
+    print('Error fetching orders: $e');
+    
+    // Optional: Show error message to user
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load orders: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
     setState(() {
       orders = [];
       isLoading = false;
@@ -126,47 +147,39 @@ class _PesananPageState extends State<PesananPage>
     }
   }
 
-  String _getFullImageUrl(String? relativeUrl) {
-  return PaymentService.getFullImageUrl(relativeUrl);
-}
-
-  Widget _buildProductImage(String imageUrl, String? productName) {
-    if (imageUrl.isEmpty) {
-      return _buildFallbackImage(productName);
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
-        width: 80,
-        height: 80,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
+  Widget _buildProductImage(String? imageBase64, String? productName) {
+    // Check if imageBase64 is available and not empty
+    if (imageBase64 != null && imageBase64.isNotEmpty) {
+      try {
+        // Handle base64 string (remove data URL prefix if present)
+        String base64String = imageBase64;
+        if (base64String.contains(',')) {
+          base64String = base64String.split(',')[1];
+        }
+        
+        final imageBytes = base64Decode(base64String);
+        
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(
+            imageBytes,
+            fit: BoxFit.cover,
             width: 80,
             height: 80,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                    : null,
-                strokeWidth: 2,
-              ),
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return _buildFallbackImage(productName);
-        },
-      ),
-    );
+            errorBuilder: (context, error, stackTrace) {
+              print('Error displaying image: $error');
+              return _buildFallbackImage(productName);
+            },
+          ),
+        );
+      } catch (e) {
+        print('Error decoding base64: $e');
+        return _buildFallbackImage(productName);
+      }
+    }
+
+    // Return fallback image if no base64 data
+    return _buildFallbackImage(productName);
   }
 
   Widget _buildFallbackImage(String? productName) {
@@ -249,56 +262,54 @@ class _PesananPageState extends State<PesananPage>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: orders.length,
-      itemBuilder: (context, index) {
-        final order = orders[index];
-        final List<Map<String, dynamic>> items =
-            List<Map<String, dynamic>>.from(order['items'] ?? []);
-        final firstItem = items.isNotEmpty ? items.first : null;
-        final itemCount = items.length;
+return ListView.builder(
+  padding: const EdgeInsets.all(16),
+  itemCount: orders.length,
+  itemBuilder: (context, index) {
+    final order = orders[index];
+    final List<Map<String, dynamic>> items =
+        List<Map<String, dynamic>>.from(order['items'] ?? []);
+    final firstItem = items.isNotEmpty ? items.first : null;
+    final itemCount = items.length;
 
-        final imageUrl = firstItem != null
-            ? _getFullImageUrl(firstItem['image_url']?.toString() ?? '')
-            : '';
+    // Get base64 image directly from the item data
+    final imageBase64 = firstItem?['image_base64']?.toString() ?? '';
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: GestureDetector(
-            onTap: () {
-              if (order['id'] != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        DetailPesananPage(orderId: order['id'].toString()),
-                  ),
-                ).then((_) {
-                  _fetchOrders(_getStatusFromTabIndex(_tabController.index));
-                });
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    blurRadius: 5,
-                    spreadRadius: 2,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GestureDetector(
+        onTap: () {
+          if (order['id'] != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    DetailPesananPage(orderId: order['id'].toString()),
               ),
-              child: Column(
+            ).then((_) {
+              _fetchOrders(_getStatusFromTabIndex(_tabController.index));
+            });
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                blurRadius: 5,
+                spreadRadius: 2,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      _buildProductImage(
-                          imageUrl, firstItem?['nama']?.toString()),
+                  _buildProductImage(imageBase64, firstItem?['nama']?.toString()),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(

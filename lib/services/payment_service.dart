@@ -7,10 +7,22 @@ import '../models/ShippinCost.dart';
 
 
 
-const String baseUrl = 'http://192.168.180.254/umkm_batik/API/';
+const String baseUrl = 'http://192.168.70.254:8000/api/api';
 
+class PaymentService { 
 
-class PaymentService {
+  // Helper method untuk mengecek response success
+  static bool _isSuccessResponse(Map<String, dynamic> responseBody) {
+    // Support both formats untuk backward compatibility
+    return (responseBody['success'] == true) || 
+           (responseBody['status'] == 'success');
+  }
+
+  // Helper method untuk mendapatkan error message
+  static String _getErrorMessage(Map<String, dynamic> responseBody) {
+    return responseBody['message'] ?? 'Unknown error occurred';
+  }
+
   static Future<Map<String, dynamic>> createOrder({
     required BuildContext context,
     required String userId,
@@ -40,27 +52,13 @@ class PaymentService {
       }
 
       final orderData = {
-        'user_id': userId,
+        'user_id': int.parse(userId),
         'total_harga': totalPayment,
         'alamat_pemesanan':
             '${selectedAddress.alamatLengkap}, ${selectedAddress.kecamatan}, ${selectedAddress.kota}, ${selectedAddress.provinsi}, ${selectedAddress.kodePos}',
         'metode_pengiriman': selectedShippingOption?.displayName ?? 'Standar',
         'metode_pembayaran': selectedPaymentMethod.name.toLowerCase(),
-        'ongkos_kirim': shippingCost,
-        'kota_tujuan': selectedAddress.kota,
-        'provinsi_tujuan': selectedAddress.provinsi,
-        'kota_tujuan_id': destinationCity?.cityId,
-        'estimasi_pengiriman': selectedShippingOption?.etd ?? '3-7',
-        'berat_total': product.weight * product.quantity,
-        'is_standard_shipping': selectedShippingOption?.isStandardOption ?? true,
-        'courier_name': selectedShippingOption?.courier ?? 'STANDAR',
-        'service_name': selectedShippingOption?.service ?? 'REGULER',
-        'shipping_category': shippingCategory,
-        'is_same_city': isWithinSameCity(selectedAddress.kota, selectedAddress.provinsi),
-        'is_same_province': isWithinSameProvince(selectedAddress.provinsi),
-        'is_inter_island': isInterIslandDelivery(selectedAddress.provinsi),
-        'is_same_island': isWithinSameIsland(selectedAddress.provinsi),
-        'biaya_layanan': serviceFee,
+        'notes': 'Shipping: $shippingCategory, Courier: ${selectedShippingOption?.courier ?? 'STANDAR'}, Service: ${selectedShippingOption?.service ?? 'REGULER'}, ETD: ${selectedShippingOption?.etd ?? '3-7'} hari, Biaya layanan: $serviceFee',
         'items': [
           {
             'product_id': product.id,
@@ -70,21 +68,27 @@ class PaymentService {
         ],
       };
 
-          final response = await http.post(
-      Uri.parse('${baseUrl}create_transaction.php'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(orderData),
-    );
+      final response = await http.post(
+        Uri.parse('$baseUrl/create-transaction'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(orderData),
+      );
 
+      final responseBody = jsonDecode(response.body);
 
       return {
         'statusCode': response.statusCode,
-        'body': jsonDecode(response.body),
+        'body': responseBody,
+        'success': _isSuccessResponse(responseBody), // Tambahkan flag success
       };
     } catch (e) {
       return {
         'statusCode': 500,
         'error': e.toString(),
+        'success': false,
       };
     }
   }
@@ -93,117 +97,205 @@ class PaymentService {
     required String orderId,
     required String reason,
   }) async {
-    final url = Uri.parse('$baseUrl/cancel_order.php');
-
-    // Validasi format orderId jika perlu (opsional)
-    if (!orderId.contains('-')) {
+    try {
+      int orderIdInt;
       try {
-        int.parse(orderId);
+        orderIdInt = int.parse(orderId);
       } catch (e) {
         throw FormatException('Format order ID tidak valid: $orderId');
       }
-    }
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: jsonEncode({
-        'order_id': orderId,
-        'reason': reason,
-      }),
-    );
+      final response = await http.put(
+        Uri.parse('$baseUrl/orders/$orderIdInt/cancel'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          'reason': reason,
+        }),
+      );
 
-    try {
-      return jsonDecode(response.body);
+      final responseBody = jsonDecode(response.body);
+
+      return {
+        'statusCode': response.statusCode,
+        'body': responseBody,
+        'success': _isSuccessResponse(responseBody),
+        'message': _getErrorMessage(responseBody),
+      };
     } catch (e) {
-      throw Exception('Format respons tidak valid: ${response.body}');
+      return {
+        'statusCode': 500,
+        'error': e.toString(),
+        'success': false,
+      };
     }
   }
 
   static Future<List<Map<String, dynamic>>> fetchOrders({
     required String userId,
-    required String status,
+    String? status,
   }) async {
-    final url = '$baseUrl/orders.php?user_id=$userId&status=$status';
-    final response = await http.get(Uri.parse(url));
+    try {
+      final queryParams = <String, String>{
+        'user_id': userId,
+      };
+      
+      if (status != null && status.isNotEmpty) {
+        String mappedStatus = _mapStatusToBackend(status);
+        if (mappedStatus.isNotEmpty) {
+          queryParams['status'] = mappedStatus;
+        }
+      }
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      print('Query params: $queryParams');
+      
+      final uri = Uri.parse('$baseUrl/orders').replace(queryParameters: queryParams);
+      print('Full URL: $uri');
+      
+      final response = await http.get(
+        uri,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      );
 
-      if (data['status'] == 'success' && data['data'] != null) {
-        return List<Map<String, dynamic>>.from(data['data']);
+      print('Response Status: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        
+        // Support both response formats
+        if (_isSuccessResponse(data) && data['data'] != null) {
+          return List<Map<String, dynamic>>.from(data['data']);
+        } else {
+          print('API returned error or null data: ${data['message'] ?? 'Unknown error'}');
+          return [];
+        }
       } else {
-        return [];
+        print('HTTP Error: ${response.statusCode}');
+        print('Error Body: ${response.body}');
+        throw Exception('Failed to fetch orders: ${response.statusCode}');
       }
-    } else {
-      return [];
+    } catch (e) {
+      print('Exception in fetchOrders: $e');
+      throw Exception('Failed to fetch orders: $e');
     }
-  }
-
-  static String getFullImageUrl(String? relativeUrl) {
-    if (relativeUrl == null || relativeUrl.isEmpty) return '';
-
-    if (relativeUrl.startsWith('http')) return relativeUrl;
-
-    if (relativeUrl.contains('get_main_product_images.php')) {
-      final uri = Uri.tryParse(relativeUrl);
-      if (uri != null && uri.queryParameters.containsKey('id')) {
-        final productId = uri.queryParameters['id'];
-        return '$baseUrl/get_main_product_images.php?id=$productId';
-      }
-      return '$baseUrl/$relativeUrl';
-    }
-
-    final cleanPath =
-        relativeUrl.startsWith('/') ? relativeUrl.substring(1) : relativeUrl;
-    return '$baseUrl/$cleanPath';
   }
 
   static Future<Map<String, dynamic>?> fetchOrderDetail({
-  required String orderId,
-  required String userId,
-}) async {
-  final url = '$baseUrl/orders.php?order_id=$orderId&user_id=$userId';
-  final response = await http.get(Uri.parse(url));
+    required String orderId,
+    required String userId,
+  }) async {
+    try {
+      int orderIdInt;
+      try {
+        orderIdInt = int.parse(orderId);
+      } catch (e) {
+        throw FormatException('Format order ID tidak valid: $orderId');
+      }
 
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    if (data['status'] == 'success') {
-      return data['data'];
+      final uri = Uri.parse('$baseUrl/orders/$orderIdInt').replace(
+        queryParameters: {'user_id': userId},
+      );
+      
+      final response = await http.get(
+        uri,
+        headers: {
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (_isSuccessResponse(data)) {
+          return data['data'];
+        }
+      } else {
+        print('Error fetching order detail: ${response.statusCode}');
+        final errorData = jsonDecode(response.body);
+        print('Error message: ${errorData['message'] ?? 'Unknown error'}');
+      }
+
+      return null;
+    } catch (e) {
+      print('Error fetching order detail: $e');
+      return null;
     }
   }
 
-  return null;
-}
+  static Future<Map<String, dynamic>> confirmOrderCompleted({
+    required String orderId,
+    required String userId,
+  }) async {
+    try {
+      int orderIdInt;
+      try {
+        orderIdInt = int.parse(orderId);
+      } catch (e) {
+        throw FormatException('Format order ID tidak valid: $orderId');
+      }
 
-    static Future<Map<String, dynamic>> confirmOrderCompleted({
-  required String orderId,
-  required String userId,
-}) async {
-  final requestBody = {
-    'order_id': int.parse(orderId),
-    'status': 'completed',
-    'user_id': int.parse(userId),
-  };
+      final requestBody = {
+        'user_id': int.parse(userId),
+      };
 
-  final response = await http.post(
-    Uri.parse('$baseUrl/orders.php'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: jsonEncode(requestBody),
-  );
+      final response = await http.put(
+        Uri.parse('$baseUrl/orders/$orderIdInt/complete'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
 
-  final data = jsonDecode(response.body);
-  return {
-    'statusCode': response.statusCode,
-    'data': data,
-  };
-}
+      final data = jsonDecode(response.body);
+      return {
+        'statusCode': response.statusCode,
+        'data': data,
+        'success': _isSuccessResponse(data),
+        'message': _getErrorMessage(data),
+      };
+    } catch (e) {
+      return {
+        'statusCode': 500,
+        'error': e.toString(),
+        'success': false,
+      };
+    }
+  }
+
+  // Helper methods tetap sama
+  static String _mapStatusToBackend(String flutterStatus) {
+    switch (flutterStatus.toLowerCase()) {
+      case 'pending':
+      case 'belum bayar':
+      case 'belum_bayar':
+        return 'pending';
+      case 'paid':
+      case 'dibayar':
+      case 'sudah_bayar':
+        return 'paid';
+      case 'shipped':
+      case 'dikirim':
+      case 'dalam_pengiriman':
+        return 'shipped';
+      case 'completed':
+      case 'selesai':
+      case 'complete':
+        return 'completed';
+      case 'cancelled':
+      case 'canceled':
+      case 'batal':
+        return 'cancelled';
+      default:
+        print('Unknown status: $flutterStatus');
+        return '';
+    }
+  }
 
   
 }

@@ -206,7 +206,6 @@ class _LoginState extends State<LoginPage> {
       if (data['error'] == false) {
         // Simpan data login
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
         await prefs.setString('role', 'user');
 
         // Pilih salah satu: Dialog atau SnackBar

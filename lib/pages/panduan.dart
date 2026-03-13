@@ -136,7 +136,7 @@ class _PanduanChatbotState extends State<PanduanChatbot> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.blue[700],
+        backgroundColor: const Color(0xFF0D6EFD),
         elevation: 2,
         title: const Text(
           'Panduan',

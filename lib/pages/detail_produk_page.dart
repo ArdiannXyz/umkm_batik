@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:umkm_batik/pages/cart_page.dart';
+import 'package:umkm_batik/services/cart_service.dart';
 import 'semua_ulasan_page.dart';
 import 'berikan_ulasan_page.dart';
 import 'checkout_from_product.dart';
@@ -12,7 +13,6 @@ import '../models/checkout_model.dart';
 import 'dart:async';
 import '../services/product_service.dart';
 import '../services/review_service.dart';
-
 
 class DetailProdukPage extends StatefulWidget {
   final int productId;
@@ -111,7 +111,7 @@ Future<void> fetchUlasan() async {
     isLoadingReviews = true;
   });
 
-  final data = await ReviewService.fetchUlasan(widget.productId.toString());
+final data = await ReviewService.fetchUlasan(widget.productId.toString());
 
 
   setState(() {
@@ -158,63 +158,25 @@ Future<void> fetchUlasan() async {
     }
 
 return ProductItem(
-  id: int.parse(product?['id'].toString() ?? '0'),
+  id: product?['id'] ?? 0,
   name: product?['nama'] ?? 'Batik',
-  price: double.parse(product?['harga']?.toString() ?? '0'),
+  price: (product?['harga'] ?? 0).toDouble(),
   quantity: quantity,
   image: imageBytes,
   imageBase64: imageBase64,
-  weight: product?['berat'] != null 
-    ? int.parse(product!['berat'].toString()) 
-    : 200, // Default 200g jika null
-    );
+  weight: product?['berat'] ?? 200,
+);
   }
 
   // Function to add product to cart
-  Future<void> addToCart(int quantity) async {
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Silakan login terlebih dahulu")),
-      );
-      return;
-    }
+  void onAddToCartPressed(int quantity) async {
+  final cartService = CartService(context: context, userId: userId);
 
-    try {
-      final response = await http.post(
-        Uri.parse("http://192.168.1.5/umkm_batik/API/add_to_cart.php"),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'user_id': userId,
-          'product_id': widget.productId,
-          'quantity': quantity,
-        }),
-      );
+  await cartService.addToCart(widget.productId, quantity);
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['success'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Produk berhasil ditambahkan ke keranjang"),
-              backgroundColor: Colors.green,
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(data['message'] ?? "Gagal menambahkan ke keranjang")),
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Gagal menambahkan ke keranjang")),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Terjadi kesalahan: $e")),
-      );
-    }
-  }
+  // Bisa lanjut dengan kode lain setelah addToCart selesai
+}
+
 
   // Function to navigate to cart page
   void _navigateToCart() {
@@ -426,11 +388,10 @@ return ProductItem(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Rp.${double.parse(product?['harga'] ?? '0').toStringAsFixed(0)}',
-                            style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
+Text(
+  'Rp.${(product?['harga'] ?? 0).toString()}',
+  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+),
                           const SizedBox(height: 4),
                           Text("Stok : ${product?['quantity'] ?? 0}",
                               style: const TextStyle(color: Colors.grey)),
@@ -462,9 +423,7 @@ return ProductItem(
                             style: const TextStyle(fontSize: 16)),
                         IconButton(
                           onPressed: () {
-                            int stok = int.tryParse(
-                                    product?['quantity'].toString() ?? '0') ??
-                                0;
+int stok = product?['quantity'] ?? 0;
                             if (jumlah < stok) {
                               setModalState(() => jumlah++);
                             } else {
@@ -494,7 +453,7 @@ return ProductItem(
                     onPressed: () {
                       if (isForCart) {
                         // Add to cart
-                        addToCart(jumlah);
+                        onAddToCartPressed(jumlah);
                         Navigator.pop(context);
                       } else {
                         // Create ProductItem with selected quantity
@@ -830,7 +789,7 @@ return ProductItem(
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Rp.${double.parse(product?['harga'] ?? '0').toStringAsFixed(0)}',
+   'Rp.${(product?['harga'] ?? 0).toString()}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,

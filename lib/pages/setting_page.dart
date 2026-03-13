@@ -313,7 +313,7 @@ class SettingPage extends StatelessWidget {
                               Navigator.pop(context);
                               
                               // Navigate ke login
-                              Navigator.pushReplacementNamed(context, '/login');
+                              Navigator.pushReplacementNamed(context, '/welcome');
                               
                               // Tampilkan snackbar konfirmasi
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -329,7 +329,8 @@ class SettingPage extends StatelessWidget {
                               );
                             } catch (e) {
                               // Tutup loading dialog jika ada error
-                              Navigator.pop(context);
+                              if (!context.mounted) return;
+                                  Navigator.pop(context);
                               
                               // Tampilkan error snackbar
                               ScaffoldMessenger.of(context).showSnackBar(

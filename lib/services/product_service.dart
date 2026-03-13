@@ -1,67 +1,265 @@
 // product_service.dart
 
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../models/product_model.dart';
-import '../models/product_image.dart';
 
-const String baseUrl = 'http://192.168.180.254/umkm_batik/API/';
+const String baseUrl = 'http://192.168.70.254:8000/api';
 
 class ProductService {
-  static Future<List<Product>> GetProducts() async {
-    try {
-      final response = await http.get(
-        Uri.parse('${baseUrl}get_products.php'),
-      );
+  static final Map<String, dynamic> _cache = {};
+  static final Duration _cacheDuration = Duration(minutes: 15);
+  static final Map<String, DateTime> _cacheTimestamps = {};
 
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        if (jsonResponse['success']) {
-          return (jsonResponse['data'] as List)
-              .map((item) => Product.fromJson(item))
-              .toList();
-        } else {
-          print('Gagal: ${jsonResponse['message']}');
-        }
-      } else {
-        print('HTTP error: ${response.statusCode}');
+  // Helper method to safely convert string to double
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      try {
+        return double.parse(value);
+      } catch (e) {
+        print('Error parsing double from string: $value - $e');
+        return null;
       }
-    } catch (e) {
-      print('Exception saat ambil produk: $e');
-    }
-    return [];
-  }
-
-  static Future<Product?> fetchProductDetail(int productId) async {
-    try {
-      final response = await http.get(
-        Uri.parse('${baseUrl}get_product_detail.php?id=$productId'),
-      );
-
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        if (jsonResponse['success']) {
-          return Product.fromJson(jsonResponse['data']);
-        } else {
-          print('Gagal: ${jsonResponse['message']}');
-        }
-      } else {
-        print('HTTP error: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Exception saat ambil detail produk: $e');
     }
     return null;
   }
 
+  // Helper method to safely convert string to int
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) {
+      try {
+        return int.parse(value);
+      } catch (e) {
+        print('Error parsing int from string: $value - $e');
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // Helper method to normalize JSON data before parsing
+  static Map<String, dynamic> _normalizeProductJson(Map<String, dynamic> json) {
+    Map<String, dynamic> normalized = Map<String, dynamic>.from(json);
+    
+    // List of fields that should be doubles
+    List<String> doubleFields = ['price', 'harga', 'original_price', 'discount_price'];
+    // List of fields that should be ints
+    List<String> intFields = ['id', 'product_id', 'stock', 'stok', 'quantity'];
+    
+    // Convert double fields
+    for (String field in doubleFields) {
+      if (normalized.containsKey(field)) {
+        normalized[field] = _parseDouble(normalized[field]);
+      }
+    }
+    
+    // Convert int fields
+    for (String field in intFields) {
+      if (normalized.containsKey(field)) {
+        normalized[field] = _parseInt(normalized[field]);
+      }
+    }
+    
+    return normalized;
+  }
+
+  // Get all products
+  static Future<List<Product>> GetProducts() async {
+    const String cacheKey = 'products_list';
+    
+    // Check cache first
+    if (_isCacheValid(cacheKey)) {
+      return (_cache[cacheKey] as List)
+          .map((item) => Product.fromJson(_normalizeProductJson(item)))
+          .toList();
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/products'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['success'] == true) {
+          // Cache the response
+          _cacheData(cacheKey, jsonResponse['data']);
+          
+          return (jsonResponse['data'] as List)
+              .map((item) => Product.fromJson(_normalizeProductJson(Map<String, dynamic>.from(item))))
+              .toList();
+        } else {
+          print('API Error: ${jsonResponse['message'] ?? 'Unknown error'}');
+        }
+      } else {
+        print('HTTP error: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Exception while fetching products: $e');
+      // Print more details for debugging
+      print('Stack trace: ${StackTrace.current}');
+    }
+    return [];
+  }
+
+  // Get product detail by ID
+  static Future<Product?> fetchProductDetail(int productId) async {
+    final String cacheKey = 'product_detail_$productId';
+    
+    // Check cache first
+    if (_isCacheValid(cacheKey)) {
+      return Product.fromJson(_normalizeProductJson(_cache[cacheKey]));
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/products/$productId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        
+        // Cache the response
+        _cacheData(cacheKey, jsonResponse);
+        
+        return Product.fromJson(_normalizeProductJson(Map<String, dynamic>.from(jsonResponse)));
+      } else if (response.statusCode == 404) {
+        print('Product not found');
+      } else {
+        print('HTTP error: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Exception while fetching product detail: $e');
+      print('Stack trace: ${StackTrace.current}');
+    }
+    return null;
+  }
+
+  // Get product images by product ID
+  static Future<List<ProductImage>> getProductImages(int productId) async {
+    final String cacheKey = 'product_images_$productId';
+    
+    // Check cache first
+    if (_isCacheValid(cacheKey)) {
+      return (_cache[cacheKey] as List)
+          .map((item) => ProductImage.fromJson(Map<String, dynamic>.from(item)))
+          .toList();
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/products/$productId/images'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['success'] == true) {
+          // Cache the response
+          _cacheData(cacheKey, jsonResponse['data']);
+          
+          return (jsonResponse['data'] as List)
+              .map((item) => ProductImage.fromJson(Map<String, dynamic>.from(item)))
+              .toList();
+        }
+      }
+    } catch (e) {
+      print('Exception while fetching product images: $e');
+    }
+    return [];
+  }
+
+  // Get optimized image with width parameter
+  static Future<Uint8List?> fetchOptimizedImage(int imageId, {int? width}) async {
+    try {
+      String url = '$baseUrl/images/$imageId';
+      if (width != null && width > 0) {
+        url += '?width=$width';
+      }
+
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        return response.bodyBytes;
+      } else {
+        print('Failed to load image: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception while fetching image: $e');
+    }
+    return null;
+  }
+
+  // Get main product image by product ID
+  static Future<Uint8List?> fetchMainProductImage(int productId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/products/$productId/main-image'),
+      );
+
+      if (response.statusCode == 200) {
+        return response.bodyBytes;
+      } else {
+        print('Failed to load main image: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception while fetching main image: $e');
+    }
+    return null;
+  }
+
+  // Convert base64 string to Uint8List
+  static Uint8List? base64ToBytes(String? base64String) {
+    if (base64String == null || base64String.isEmpty) return null;
+    
+    try {
+      // Remove data URL prefix if present
+      String cleanBase64 = base64String;
+      if (base64String.startsWith('data:image/')) {
+        cleanBase64 = base64String.split(',')[1];
+      }
+      
+      // Remove any whitespace or newlines
+      cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s'), '');
+      
+      return base64Decode(cleanBase64);
+    } catch (e) {
+      print('Error converting base64 to bytes: $e');
+      return null;
+    }
+  }
+
+  // Alternative method for backward compatibility
   static Future<Map<String, dynamic>?> fetchProduct(dynamic productId) async {
     try {
-      final response = await http.get(Uri.parse("$baseUrl/get_detail_produk.php?id=$productId"));
+      final response = await http.get(
+        Uri.parse('$baseUrl/products/$productId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data != null && data['id'] != null) {
-          return data;
+          return _normalizeProductJson(Map<String, dynamic>.from(data));
         }
       }
       return null;
@@ -70,45 +268,6 @@ class ProductService {
       return null;
     }
   }
-
-
-  static Future<List<ProductImage>> fetchProductImages(int productId) async {
-    try {
-      final response = await http.get(
-        Uri.parse('${baseUrl}get_product_images.php?product_id=$productId'),
-      );
-
-      if (response.statusCode == 200) {
-        final List jsonResponse = jsonDecode(response.body);
-        return jsonResponse.map((item) => ProductImage.fromJson(item)).toList();
-      } else {
-        print('HTTP error: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Exception saat ambil gambar produk: $e');
-    }
-    return [];
-  }
-
-  static Future<Map<String, dynamic>> sendChatMessage(String message) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/chatbot_api.php'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'question': message}),
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Failed to send message: ${response.statusCode}');
-      }
-    } catch (e) {
-      // Jika server tidak tersedia atau error, gunakan respons offline
-      return getOfflineResponse(message);
-    }
-  }
-
   // Fungsi respons offline (jika API tidak tersedia)
   static Map<String, dynamic> getOfflineResponse(String message) {
     message = message.toLowerCase();
@@ -223,36 +382,9 @@ class ProductService {
     }
   }
 
-  static final Map<String, dynamic> _cache = {};
-  static final Duration _cacheDuration = Duration(minutes: 15);
-  static final Map<String, DateTime> _cacheTimestamps = {};
+  // Fungsi untuk mendapatkan URL gambar leng
 
-  // Fungsi untuk mendapatkan URL gambar lengkap
-  static String getFullImageUrl(String? relativeUrl) {
-    if (relativeUrl == null || relativeUrl.isEmpty) return '';
-
-    if (relativeUrl.startsWith('http')) return relativeUrl;
-
-    if (relativeUrl.contains('get_main_product_images.php')) {
-      final uri = Uri.tryParse(relativeUrl);
-      if (uri != null && uri.queryParameters.containsKey('id')) {
-        final productId = uri.queryParameters['id'];
-        return '$baseUrl/get_main_product_images.php?id=$productId';
-      }
-      return '$baseUrl/$relativeUrl';
-    }
-
-    final cleanPath =
-        relativeUrl.startsWith('/') ? relativeUrl.substring(1) : relativeUrl;
-    return '$baseUrl/$cleanPath';
-  }
-
-  // Fungsi khusus untuk mendapatkan URL gambar dengan ID tertentu
-  static String getImageUrl(int imageId) {
-    return '$baseUrl/get_product_images.php?id=$imageId';
-  }
-
-  // Cek apakah cache valid
+  // Cache validation
   static bool _isCacheValid(String key) {
     if (!_cache.containsKey(key) || !_cacheTimestamps.containsKey(key)) {
       return false;
@@ -263,39 +395,62 @@ class ProductService {
     return now.difference(timestamp) < _cacheDuration;
   }
 
-  // Menyimpan data ke cache
+  // Store data in cache
   static void _cacheData(String key, dynamic data) {
     _cache[key] = data;
     _cacheTimestamps[key] = DateTime.now();
   }
 
-  // Membersihkan cache
+  // Clear cache
   static void clearCache() {
     _cache.clear();
     _cacheTimestamps.clear();
   }
 
-  static Future<Map<String, dynamic>> sendMessage(String message) async {
-    final url = Uri.parse('${baseUrl}/chatbot_api.php');
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'question': message}),
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Gagal menghubungi server');
-      }
-    } catch (e) {
-      print('Error ChatbotService: $e');
-      throw Exception('Terjadi kesalahan jaringan atau server');
-    }
+  // Clear specific cache entry
+  static void clearCacheKey(String key) {
+    _cache.remove(key);
+    _cacheTimestamps.remove(key);
   }
 
-  
+  // Refresh products cache
+  static Future<void> refreshProductsCache() async {
+    clearCacheKey('products_list');
+    await GetProducts();
+  }
+
+  // Refresh specific product cache
+  static Future<void> refreshProductCache(int productId) async {
+    clearCacheKey('product_detail_$productId');
+    clearCacheKey('product_images_$productId');
+    await fetchProductDetail(productId);
+  }
+
+static Future<Map<String, dynamic>> sendMessage(String message, {bool useOfflineFallback = true}) async {
+  final url = Uri.parse('$baseUrl/chatbot');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'question': message}),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Server error: ${response.statusCode}');
+    }
+  } catch (e) {
+    if (useOfflineFallback) {
+      return getOfflineResponse(message);
+    } else {
+      throw Exception('Gagal menghubungi server dan fallback tidak diaktifkan.');
+    }
+  }
+}
+
+
+
 
 }

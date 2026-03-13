@@ -4,7 +4,7 @@ import '../models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-const String baseUrl = 'http://192.168.180.254:8000/api/'; // Base URL di sini
+const String baseUrl = 'http://192.168.70.254:8000/api/'; // Base URL di sini
 
 class UserService {
   //GET user detailakun
@@ -109,16 +109,20 @@ class UserService {
         "password": password,
       }),
     );
+    
 
     var data = jsonDecode(response.body);
 
     if (response.statusCode == 200 && data['error'] == false) {
-      final userId = data['user']['id'];
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true);
-      await prefs.setString('role', data['user']['role']);
-      await prefs.setInt('user_id', userId);
-    }
+  final userId = data['user']['id'];
+  final userRole = data['user']['role'];
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('isLoggedIn', true);
+  await prefs.setInt('user_id', userId);
+  await prefs.setString('role', userRole); // jangan hardcoded
+}
+
 
     return data;
   } catch (e) {
